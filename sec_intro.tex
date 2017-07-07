@@ -1,0 +1,27 @@
+\section{Introduction}
+
+In the Gaussian Mixture Model approach, a distribution of samples (vectors) is modelled as:
+%
+\begin{equation}
+  p(\Vec{x} | \lambda) = \sum\nolimits_{g=1}^{N_G} w_g ~ {{\mathcal{N}}}( \Vec{x} ~|~ \Vec{\mu}_g, \Mat{\Sigma}_g )
+\end{equation}
+
+\noindent
+where $\Vec{x}$ is a $D$-dimensional vector,
+$w_g$ is the weight for component $g$ (with constraints $\sum\nolimits_{g=1}^{N_G} w_g = 1$, $w_g \geq 0$),
+and
+${{\mathcal{N}}}( \Vec{x} | \Vec{\mu}, \Mat{\Sigma})$ is a $D$-dimensional Gaussian density function with mean $\Vec{\mu}$ and covariance matrix $\Mat{\Sigma}$:
+%
+\begin{equation}
+  {{\mathcal{N}}}( \Vec{x} | \Vec{\mu}, \Mat{\Sigma} )  = 
+  \frac{1}{ (2\pi)^{\frac{D}{2}} | \Mat{\Sigma}|^{\frac{1}{2}} }
+  \exp \left[ -\frac{1}{2} (\Vec{x}-\Vec{\mu})^T \Mat{\Sigma}^{-1} (\Vec{x}-\Vec{\mu}) \right]
+%
+\end{equation}%
+
+\noindent
+Modelling multivariate data through GMMs has many applications in statistics, econometrics, pattern recognition, and machine learning.
+For example, ...
+
+TODO
+

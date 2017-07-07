@@ -1,1 +1,103 @@
-% TODO
+\def\doctitle{A Parallelised Implementation of Expectation Maximisation for Density~Estimation using Gaussian Mixture Models}
+\def\docauthor{Conrad Sanderson, Ryan Curtin}
+
+\documentclass[11pt,a4paper]{article}
+\usepackage[includefoot,includehead,a4paper,top=1.5cm,bottom=1.5cm,left=2cm,right=2cm]{geometry}
+\usepackage{fancyhdr}
+\usepackage[usenames,dvipsnames]{color}  % see http://en.wikibooks.org/wiki/LaTeX/Colors
+\usepackage{titlesec}
+\usepackage[latin1]{inputenc}
+\usepackage[pdfborder={0 0 0},colorlinks=true,urlcolor=ForestGreen,linkcolor=black,citecolor=ForestGreen,bookmarks=true,pdftitle={\doctitle},pdfauthor={\docauthor}]{hyperref}
+\usepackage[labelfont=bf]{caption}
+\usepackage{enumerate}
+
+\usepackage{graphicx}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{url}
+\usepackage{mathtools}
+\usepackage{xspace}
+\usepackage{multirow}
+\usepackage{booktabs}
+\usepackage{algorithmic}
+\usepackage{algorithm}
+
+\usepackage[british]{babel}
+\usepackage[none]{hyphenat}
+\sloppy
+
+%\usepackage{times}
+\usepackage{palatino}
+
+% disable ligatures such as "fi" being joined into one symbol
+\usepackage{microtype}
+\DisableLigatures[f]{encoding = *, family = * }
+
+\graphicspath{{./}{./figures/}}
+
+\def\Vec#1{{\boldsymbol{#1}}}
+\def\Mat#1{{\boldsymbol{#1}}}
+\def\TODO#1{{\color{red}{\bf [TODO:} {\it{#1}}{\bf ]}}}
+\def\NOTE#1{{\bf [NOTE:} {\it\color{blue}{#1}}{\bf ]}.}
+\def\CHK#1{{\bf [CHECK:} {\it\color{red} {#1}}{\bf ]}.}
+\def\eg{eg.\xspace}
+\def\ie{ie.\xspace}
+\def\etal{et~al.\xspace}
+
+\renewcommand{\baselinestretch}{1.1}\small\normalsize
+
+
+\titleformat*{\section}{\bf\normalsize\large}
+\titleformat*{\subsection}{\bf\normalsize}
+
+\begin{document}
+
+\pagestyle{empty}
+\lhead{}
+%\lhead{\textcolor{Green}{\small\doctitle}}
+\chead{}
+\rhead{}
+\lfoot{}
+\cfoot{}
+%\cfoot{\small \thepage}
+\rfoot{}
+
+
+\begin{center}
+\textcolor{red}{\Large\bf[DRAFT - WORK IN PROGRESS]}
+
+{\Large\bf\doctitle}
+\end{center}
+
+\vspace{1ex}
+
+\begin{center}
+{\large\it\docauthor}
+\end{center}
+
+
+\input{abstract}
+
+% \newpage
+% \pagestyle{fancy}
+% \lhead{}
+% %\lhead{\textcolor{Green}{\small\doctitle}}
+% \chead{}
+% \rhead{}
+% \lfoot{}
+% \cfoot{}
+% %\cfoot{\small \thepage}
+% \rfoot{}
+
+\input{sec_intro}
+\input{sec_estimation}
+
+\newpage
+\appendix
+\input{app_em}
+
+\bibliographystyle{ieee}
+\bibliography{refs}
+
+
+\end{document}

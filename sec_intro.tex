@@ -13,9 +13,8 @@ In the GMM approach, a distribution of samples (vectors) is modelled as:
 %
 \begin{equation}
   p(\Vec{x} | \lambda) = \sum\nolimits_{g=1}^{N_G} w_g ~ {{\mathcal{N}}}( \Vec{x} ~|~ \Vec{\mu}_g, \Mat{\Sigma}_g )
-\end{equation}
-
-\noindent
+\end{equation}%
+%
 where $\Vec{x}$ is a $D$-dimensional vector,
 $w_g$ is the weight for component $g$ (with constraints $\sum\nolimits_{g=1}^{N_G} w_g = 1$, $w_g \geq 0$),
 and
@@ -27,6 +26,12 @@ ${{\mathcal{N}}}( \Vec{x} | \Vec{\mu}, \Mat{\Sigma})$ is a $D$-dimensional Gauss
   \exp \left[ -\frac{1}{2} (\Vec{x}-\Vec{\mu})^T \Mat{\Sigma}^{-1} (\Vec{x}-\Vec{\mu}) \right]
   \label{eqn:gaussian}
 \end{equation}%
+%
+The full parameter set can be compactly stated as $\lambda = \{ w_g, \Vec{\mu}_g, \Mat{\Sigma}_g \}_{g=1}^{N_G}$,
+where $N_G$ is the number of Gaussians.
 
 TODO: choice for $\Mat{\Sigma}$: full or diagonal
 
+TODO: mention methods for selecting  $N_G$ ?  
+
+TODO: overview of all the sections

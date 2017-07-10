@@ -2,9 +2,10 @@
 
 We have provided a numerical implementation of Gaussian Mixture Models in the C++ language
 as part of recent releases of the Armadillo C++ linear algebra library~\cite{Armadillo_JOSS_2016}.
-The implementation contains parallelised versions of the Expectation Maximisation (EM) and {\it k}-means training algorithms.
+The implementation contains parallelised versions of the Expectation Maximisation (EM) and {\it k}-means training algorithms,
+which can considerably speed up training.
 Parallelisation is achieved through refactoring the original EM and {\it k}-means algorithms
-into a MapReduce-like framework~\cite{TODO} and employing OpenMP compiler directives~\cite{TODO}.
+into a MapReduce-like framework~\cite{MapReduce_2004} and employing OpenMP compiler directives~\cite{OpenMP_2007}.
 
 \subsection{User Accessible Classes and Functions}
 
@@ -18,7 +19,7 @@ All vectors and matrices refer to corresponding objects from the Armadillo libra
 column vectors have the type {\it vec}, row vectors have the type {\it rowvec}, and matrices have the type {\it mat}.
 When using the single precision {\it fgmm\_diag} class, all vector and matrix types have the {\it f} prefix (for example, {\it fvec}).
 The word ``heft'' is used as a shorter version of ``weight'', while keeping the same meaning with the context of GMMs.
-Figure~\ref{fig:example_usage} contain a complete C++ program which demonstrates the use of the {\it gmm\_diag} class.
+Figure~\ref{fig:example_usage} contain a complete C++ program which demonstrates usage of the {\it gmm\_diag} class.
 
 \begin{small}
 \begin{itemize}
@@ -175,8 +176,6 @@ specifies how the initial means are seeded prior to running {\it k}-means and/or
 {\bf random\_spread} & a maximally spread subset of training samples (random start)
 \end{tabular}
 
-seeding the initial means with {\bf static\_spread} and {\bf random\_spread} can be much more time consuming than with {\bf static\_subset} and {\bf random\_subset}
-
 \item
 {\bf km\_iter}\\
 the number of iterations of the {\it k}-means algorithm
@@ -194,6 +193,11 @@ the variance floor (smallest allowed value) for the diagonal covariances
 boolean value (either {\it true} or {\it false}) which enables/disables the printing of progress during the {\it k}-means and EM algorithms 
 
 \end{enumerate}
+
+Note that seeding the initial means with {\bf static\_spread} and {\bf random\_spread}
+can be more time consuming than with {\bf static\_subset} and {\bf random\_subset}.
+These seed modes are inspired by the so-called {\it k-means++} approach~\cite{Arthur_2007}, with the aim to improve clustering quality.
+
 \end{itemize}
 \end{small}
 
@@ -263,7 +267,7 @@ int main()
 \vspace{0.5ex}
 \caption
   {
-  An example C++ program which demonstrates the use of the {\it gmm\_diag} class.
+  An example C++ program which demonstrates usage of the {\it gmm\_diag} class.
   }
 \label{fig:example_usage}
 \end{figure}

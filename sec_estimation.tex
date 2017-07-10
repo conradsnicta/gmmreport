@@ -42,7 +42,7 @@ Overall, the algorithm is a hill climbing procedure for maximising $p(X | \lambd
 While there are no guarantees that it will reach a global maximum, it is guaranteed to monotonically converge to a saddle point or a local maximum~\cite{Dempster77,Duda01,Mitchell97}.
 The above implementation can also be interpreted as an unsupervised probabilistic clustering procedure,
 with $N_G$ being the assumed number of clusters.
-For a derivation of the EM algorithm for GMM parameters, the reader is directed to~\cite{Bilmes98, Redner84} or Appendix~\ref{app:em_algorithm}.
+For a derivation of the EM algorithm for GMM parameters, the reader is directed to~\cite{Bilmes98,Redner84} or Appendix~\ref{app:em_algorithm}.
 
 \subsection{Initial Estimates of Parameters}
 \label{sec:initial_estimate}
@@ -51,18 +51,22 @@ As a starting point, the initial means can be set to randomly selected training 
 the initial covariance matrices can be set equal to identity matrices, 
 and the initial weights can be uniform.
 However, in a computational implementation, the $\exp()$ function as well as the matrix inverse in Eqn.~(\ref{eqn:gaussian}) are typically quite time consuming.
-In order to speed up training, the initial estimate of $\lambda$ is typically provided via the {\it k}-means clustering algorithm~\cite{Duda01}.
+In order to speed up training, the initial estimate of $\lambda$ is typically provided via the {\it k}-means clustering algorithm~\cite{Bishop_2006,Duda01,Kulis_2012}
+which avoids such time consuming operations.
 
-The $k$-means algorithm can be interpreted as a simplified version (or special case) of the EM algorithm for GMMs.
-Instead of each vector being assigned a set probabilities as to which Gaussian it belongs to,
-each vector is assigned to only one Gaussian.
-Furthermore, it is typically assumed that the covariance matrix of each Gaussian is non-informative, diagonal, and/or shared across all Gaussians.
-
-For the case of non-informative covariance matrices, the EM algorithm essentially reduces to an iterative procedure comprised of two steps:
+The baseline {\it k}-means clustering algorithm is a simple iterative procedure comprised of two steps:
 (i)~calculating the Euclidean distance from each vector to each each mean,
 and
 (ii)~calculating the new version of each mean as the average of vectors which were found to be the closest to the previous version of the corresponding mean.
 The pseudo-code for a direct implementation of a baseline $k$-means algorithm is shown in Figure~\ref{fig:kmeans_pseudocode}.
+
+The $k$-means algorithm can be interpreted as a simplified version (or special case) of the EM algorithm for GMMs~\cite{Kulis_2012}.
+Instead of each vector being assigned a set probabilities as to which Gaussian it belongs to,
+each vector is assigned to only one Gaussian (ie., soft assignment vs.~hard assignment).
+Furthermore, it can be assumed that the covariance matrix of each Gaussian is non-informative, diagonal, and/or shared across all Gaussians.
+It is also possible to implement the $k$-means algorithm is several ways,
+such as the cluster splitting LBG algorithm~\cite{Linde80},
+or use an elaborate strategy for selecting the initial means~\cite{Arthur_2007}.
 
 \begin{figure}[!b]
 \hrule
@@ -104,7 +108,7 @@ The pseudo-code for a direct implementation of a baseline $k$-means algorithm is
 \caption
   {
   \small
-  Pseudo-code for a direct implementation of the $k$-means algorithm.
+  Pseudo-code for a direct implementation of the classic $k$-means algorithm.
   Each training vector is denoted as $\Vec{x}_i$, where $i = 1, \cdots, N_V$, with $N_V$ indicating the number of vectors available for training.
   Each mean vector is denoted as $\Vec{\mu}_g$, where $g = 1, \cdots, N_G$, with $N_G$ indicating the number of required means (centroids).
   The~{\it randi}$(min,max)$ function generates a uniformly distributed random integer value in the $[min,max]$ interval.
@@ -127,8 +131,6 @@ w_g & = & \frac{n_g}{N_V} \\
 \noindent
 where $n_g$ is defined on line 12 of the pseudo-code and $y_i$ on line 9.
 
-We also note that the $k$-means algorithm can also be implemented in a somewhat different manner, 
-for example the ``splitting'' LBG algorithm~\cite{Linde80}.
 
 In practise it is possible that while iterating at least one of the means has no vectors assigned to it,
 becoming a ``dead'' mean.

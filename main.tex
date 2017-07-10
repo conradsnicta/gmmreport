@@ -1,4 +1,4 @@
-\def\doctitle{A Parallelised Implementation of Expectation Maximisation for Density~Estimation using Gaussian Mixture Models}
+\def\doctitle{A Parallelised Implementation of Gaussian Mixture Models and Corresponding Expectation Maximisation Training}
 \def\docauthor{Conrad Sanderson, Ryan Curtin}
 
 \documentclass[11pt,a4paper]{article}
@@ -26,6 +26,8 @@
 \usepackage[none]{hyphenat}
 \sloppy
 
+%\usepackage{parskip}
+
 %\usepackage{times}
 \usepackage{palatino}
 
@@ -46,9 +48,17 @@
 
 \renewcommand{\baselinestretch}{1.1}\small\normalsize
 
+\setlength{\parindent}{0ex}
+%\setlength{\parskip}{2ex plus1ex minus1ex}
+\setlength{\parskip}{2ex}
+
 
 \titleformat*{\section}{\bf\normalsize\large}
 \titleformat*{\subsection}{\bf\normalsize}
+
+\titlespacing{\section}{0pt}{\parskip}{0ex}
+\titlespacing{\subsection}{0pt}{\parskip}{0ex}
+\titlespacing{\subsubsection}{0pt}{\parskip}{0ex}
 
 \begin{document}
 

@@ -1,6 +1,15 @@
 \section{Introduction}
 
-In the Gaussian Mixture Model approach, a distribution of samples (vectors) is modelled as:
+Modelling multivariate data through mixtures of Gaussians, also known as Gaussian Mixture Models (GMMs),
+has many uses in fields such as statistics, econometrics, pattern recognition, machine learning and computer vision.
+Examples of applications include
+multi-stage feature extraction for action recognition~\cite{Carvajal_2016a},
+modelling of intermediate features~\cite{Ge_ICIP_2015} derived from deep convolutional neural networks~\cite{Ge_2016,LeCun_Nature_2015},
+classification of human epithelial cell images~\cite{Wiliem_PR_2014},
+implicit sparse coding for face recognition~\cite{Wong_2014},
+and probabilistic foreground estimation for surveillance systems~\cite{Reddy_2013}.
+
+In the GMM approach, a distribution of samples (vectors) is modelled as:
 %
 \begin{equation}
   p(\Vec{x} | \lambda) = \sum\nolimits_{g=1}^{N_G} w_g ~ {{\mathcal{N}}}( \Vec{x} ~|~ \Vec{\mu}_g, \Mat{\Sigma}_g )
@@ -18,10 +27,4 @@ ${{\mathcal{N}}}( \Vec{x} | \Vec{\mu}, \Mat{\Sigma})$ is a $D$-dimensional Gauss
   \exp \left[ -\frac{1}{2} (\Vec{x}-\Vec{\mu})^T \Mat{\Sigma}^{-1} (\Vec{x}-\Vec{\mu}) \right]
 %
 \end{equation}%
-
-\noindent
-Modelling multivariate data through GMMs has many applications in statistics, econometrics, pattern recognition, and machine learning.
-For example, ...
-
-TODO
 

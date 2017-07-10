@@ -1,11 +1,11 @@
-\section{Parameter Estimation}
+\section{Parameter Estimation via Expectation Maximisation}
 
 
 \noindent
 The overall likelihood for a set of samples, $X=\{\Vec{x}_i\}_{i=1}^{N_V}$,
 is found using $p(X | \lambda) = \prod\nolimits_{i=1}^{N_V} p(\Vec{x}_i | \lambda)$.
 A~parameter set $\lambda = \{ w_g, \Vec{\mu}_g, \Mat{\Sigma}_g \}_{g=1}^{N_G}$
-that suitably models $X$ can be estimated using a particular instance of the Expectation Maximisation (EM) algorithm~\cite{Dempster77, McLachlan-2008, Moon96, Redner84}.
+that suitably models the underlying distribution of $X$ can be estimated using a particular instance of the Expectation Maximisation (EM) algorithm~\cite{Dempster77, McLachlan-2008, Moon96, Redner84}.
 %The full derivation of the EM algorithm for GMM parameter estimation is beyond the scope of this chapter -
 %the reader is encouraged to refer to~\cite{Bilmes98,Redner84,Reynolds93} or see Appendix~\ref{app:em_algorithm}.
 As its name suggests, the EM algorithm is comprised of iterating two steps: the {\it expectation} step, followed by the {\it maximisation} step.
@@ -18,10 +18,8 @@ by the current iteration to generate a new set of parameters ($\lambda^{\mbox{\f
 %
 The process is repeated until convergence or until the increase in the overall likelihood after each iteration falls below a pre-defined threshold.
 The initial estimate is typically provided by the $k$-means clustering algorithm~\cite{Duda01}.
-One iteration of the EM algorithm, specific to GMMs, is implemented as follows:
-
-~ \\
-
+A direct implementation of the EM algorithm, specific to GMMs, has one iteration succinctly expressed as follows:
+%
 \begin{eqnarray}
 %
 \mbox{for} ~ g=1, \cdots,N_G: ~~ \mbox{for} ~i=1, \cdots, N_V:  ~~ l_{g,i} = \frac{m_g ~ {{\mathcal{N}}}( \Vec{x}_i | \Vec{\mu}_g, \Mat{\Sigma}_g )}
@@ -47,7 +45,7 @@ Once all $\widehat{m}_g, \widehat{\Vec{\mu}}_g, \widehat{\Mat{\Sigma}}_g$ are fo
 \end{equation}
 
 \noindent In the above, $l_{g,i} \in [0,1]$ is the {a-posteriori} probability of Gaussian $g$ given $\Vec{x}_i$ and current parameters.
-Thus the estimates $\widehat{\Vec{\mu}}_g$ and $\widehat{\Mat{\Sigma}}_g$ are merely weighted versions of the
+Thus the estimates $\widehat{\Vec{\mu}}_g$ and $\widehat{\Mat{\Sigma}}_g$ are weighted versions of the
 sample mean and sample covariance, respectively.
 For a derivation of the EM algorithm for GMM parameters, the reader is directed to~\cite{Bilmes98, Redner84} or Appendix~\ref{app:em_algorithm}.
 

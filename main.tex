@@ -60,6 +60,15 @@
 \titlespacing{\subsection}{0pt}{\parskip}{0ex}
 \titlespacing{\subsubsection}{0pt}{\parskip}{0ex}
 
+\makeatletter
+\g@addto@macro\normalsize{%
+  \setlength\abovedisplayskip{1ex}
+  \setlength\belowdisplayskip{1ex}
+  \setlength\abovedisplayshortskip{1ex}
+  \setlength\belowdisplayshortskip{1ex}
+}
+\makeatother
+
 \begin{document}
 
 \pagestyle{empty}

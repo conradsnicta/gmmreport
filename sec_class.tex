@@ -16,8 +16,15 @@ The former uses double precision floating point values, while the latter uses si
 For an instance of the double precision {\it gmm\_diag} class named as {\bf M},
 its member functions and variables are listed below.
 All vectors and matrices refer to corresponding objects from the Armadillo library;
-column vectors have the type {\it vec}, row vectors have the type {\it rowvec}, and matrices have the type {\it mat}.
-When using the single precision {\it fgmm\_diag} class, all vector and matrix types have the {\it f} prefix (for example, {\it fvec}).
+scalars have the type {\it double},
+matrices have the type {\it mat},
+column vectors have the type {\it vec},
+row vectors have the type {\it rowvec},
+row vectors of unsigned integers have the type {\it urowvec},
+and indices have the type {\it uword} (representing an unsigned integer).
+When using the single precision {\it fgmm\_diag} class,
+all vector and matrix types have the {\it f} prefix (for example, {\it fmat}),
+while scalars have the type {\it float}.
 The word ``heft'' is used as a shorter version of ``weight'', while keeping the same meaning with the context of GMMs.
 Figure~\ref{fig:example_usage} contain a complete C++ program which demonstrates usage of the {\it gmm\_diag} class.
 
@@ -26,34 +33,35 @@ Figure~\ref{fig:example_usage} contain a complete C++ program which demonstrates
 
 \item
 {\bf M.log\_p(V)}\\
-return a scalar representing the log-likelihood of column vector {\bf V}
-
+return a scalar (double precision floating point value) representing the log-likelihood of column vector {\bf V}
 
 \item
 {\bf M.log\_p(V, g)}\\
-return a scalar representing the log-likelihood of column vector {\bf V}, according to Gaussian {\bf g}
-
+return a scalar (double precision floating point value) representing the log-likelihood of column vector {\bf V},
+according to Gaussian with index {\bf g} (specified as an unsigned integer of type {\it uword})
 
 \item
 {\bf M.log\_p(X)}\\
-return a row vector containing log-likelihoods of each column vector in matrix {\bf X}
+return a row vector (of type {\it rowvec}) containing log-likelihoods of each column vector in matrix {\bf X}
 
 
 \item
 {\bf M.log\_p(X, g)}\\
-return a row vector containing log-likelihoods of each column vector in matrix {\bf X}, according to Gaussian {\bf g}
+return a row vector containing log-likelihoods of each column vector in matrix {\bf X},
+according to Gaussian with index {\bf g}  (specified as an unsigned integer of type {\it uword})
 
 \item
 {\bf M.avg\_log\_p(X)}\\
-return a scalar representing the average log-likelihood of all column vectors in matrix {\bf X}
+return a scalar (double precision floating point value) representing the average log-likelihood of all column vectors in matrix {\bf X}
 
 \item
 {\bf M.avg\_log\_p(X, g)}\\
-return a scalar representing the average log-likelihood of all column vectors in matrix {\bf X}, according to Gaussian {\bf g}
+return a scalar (double precision floating point value) representing the average log-likelihood of all column vectors in matrix {\bf X},
+according to Gaussian with index {\bf g}  (specified as an unsigned integer of type {\it uword})
 
 \item
 {\bf M.assign(V, dist\_mode)}\\
-return the index of the closest mean (or Gaussian) to vector {\bf V};\\
+return an unsigned integer ( of type {\it uword}) representing the index of the closest mean (or Gaussian) to vector {\bf V};\\
 parameter {\bf dist\_mode} is one of:
 
 \begin{tabular}{ll}
@@ -64,19 +72,20 @@ parameter {\bf dist\_mode} is one of:
 
 \item
 {\bf M.assign(X, dist\_mode)}\\
-return a row vector containing the indices of the closest means (or Gaussians) to each column vector in matrix {\bf X};
+return a row vector of unsigned integers (of type {\it urowvec}) containing the indices of the closest means (or Gaussians) to each column vector in matrix {\bf X};
 parameter {\bf dist\_mode} is either {\bf eucl\_dist} or {\bf prob\_dist}, as per the {\bf .assign()} function above
 
 \item
 {\bf M.raw\_hist(X, dist\_mode)}\\
-return a row vector (of type {\it urowvec}) representing the raw histogram of counts;
+return a row vector of unsigned integers (of type {\it urowvec}) representing the raw histogram of counts;
 each entry is the number of counts corresponding to a Gaussian;
 each count is the number times the corresponding Gaussian was the closest to each column vector in matrix {\bf X};
 parameter {\bf dist\_mode} is either {\bf eucl\_dist} or {\bf prob\_dist}, as per the {\bf .assign()} function above
 
 \item
 {\bf M.norm\_hist(X, dist\_mode)}\\
-return a row vector containing normalised counts; the vector sums to one
+return a row vector containing normalised counts; the vector sums to one;
+parameter {\bf dist\_mode} is either {\bf eucl\_dist} or {\bf prob\_dist}, as per the {\bf .assign()} function above
 
 \item
 {\bf M.generate()}\\
@@ -96,15 +105,15 @@ load the model from the given filename
 
 \item
 {\bf M.n\_gaus()}\\
-return an unsigned integer containing the number of means/Gaussians in the model
+return an unsigned integer (of type {\it uword})) containing the number of means/Gaussians in the model
 
 \item
 {\bf M.n\_dims()}\\
-return an unsigned integer containing the dimensionality of the means/Gaussians in the model
+return an unsigned integer (of type {\it uword}) containing the dimensionality of the means/Gaussians in the model
 
 \item
 {\bf M.reset(n\_dims, n\_gaus)}\\
-set the model to have dimensionality {\bf n\_dims}, with {\bf n\_gaus} number of Gaussians;
+set the model to have dimensionality {\bf n\_dims}, with {\bf n\_gaus} number of Gaussians, specified as unsigned integers of type {\it uword};
 all the means are set to zero, all diagonal covariances are set to one, and all the hefts (weights) are set to be uniform
 
 \item
@@ -113,7 +122,7 @@ read-only matrix containing the means (centroids), stored as column vectors
 
 \item
 {\bf M.dcovs}\\
-read-only matrix containing the diagonal covariance matrices, stored as column vectors
+read-only matrix containing the diagonal covariances, stored as column vectors
 
 \item
 {\bf M.hefts}\\
@@ -121,13 +130,13 @@ read-only row vector containing the hefts (weights)
 
 \item
 {\bf M.set\_means(X)}\\
-set the means to be as specified in matrix {\bf X};
+set the means (centroids) to be as specified in matrix {\bf X}, with each mean (centroid) stored as a column vector;
 the number of means and their dimensionality must match the existing model
 
 \item
 {\bf M.set\_dcovs(X)}\\
-set the diagonal covariances matrices to be as specified in matrix {\bf X};
-the number of diagonal covariance matrices and their dimensionality must match the existing model
+set the diagonal covariances to be as specified in matrix {\bf X}, with each set of diagonal covariances for a Gaussian stored as a column vector;
+the number of diagonal covariance vectors and their dimensionality must match the existing model
 
 \item
 {\bf M.set\_hefts(V)}\\
@@ -136,7 +145,7 @@ the number of hefts must match the existing model
 
 \item
 {\bf M.set\_params(means, dcovs, hefts)}\\
-set all the parameters in one hit;
+set all the parameters at the same time, using matrices denoted as {\bf means} and {\bf dcovs} as well as the the row vector denoted as {\bf hefts};
 the number of Gaussians and dimensionality can be different from the existing model
 
 \item

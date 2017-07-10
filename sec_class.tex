@@ -61,7 +61,7 @@ according to Gaussian with index {\bf g}  (specified as an unsigned integer of t
 
 \item
 {\bf M.assign(V, dist\_mode)}\\
-return an unsigned integer ( of type {\it uword}) representing the index of the closest mean (or Gaussian) to vector {\bf V};\\
+return an unsigned integer (of type {\it uword}) representing the index of the closest mean (or Gaussian) to vector {\bf V};\\
 parameter {\bf dist\_mode} is one of:
 
 \begin{tabular}{ll}
@@ -105,7 +105,7 @@ load the model from the given filename
 
 \item
 {\bf M.n\_gaus()}\\
-return an unsigned integer (of type {\it uword})) containing the number of means/Gaussians in the model
+return an unsigned integer (of type {\it uword}) containing the number of means/Gaussians in the model
 
 \item
 {\bf M.n\_dims()}\\
@@ -122,7 +122,7 @@ read-only matrix containing the means (centroids), stored as column vectors
 
 \item
 {\bf M.dcovs}\\
-read-only matrix containing the diagonal covariances, stored as column vectors
+read-only matrix containing the diagonal covariances, with the set of diagonal covariances for each Gaussian stored as a column vector
 
 \item
 {\bf M.hefts}\\
@@ -135,7 +135,7 @@ the number of means and their dimensionality must match the existing model
 
 \item
 {\bf M.set\_dcovs(X)}\\
-set the diagonal covariances to be as specified in matrix {\bf X}, with each set of diagonal covariances for a Gaussian stored as a column vector;
+set the diagonal covariances to be as specified in matrix {\bf X}, with the set of diagonal covariances for each Gaussian stored as a column vector;
 the number of diagonal covariance vectors and their dimensionality must match the existing model
 
 \item
@@ -146,6 +146,7 @@ the number of hefts must match the existing model
 \item
 {\bf M.set\_params(means, dcovs, hefts)}\\
 set all the parameters at the same time, using matrices denoted as {\bf means} and {\bf dcovs} as well as the the row vector denoted as {\bf hefts};
+the layout of the matrices is as per the {\bf .set\_means()} and {\bf .set\_dcovs()} functions above;
 the number of Gaussians and dimensionality can be different from the existing model
 
 \item
@@ -187,11 +188,11 @@ specifies how the initial means are seeded prior to running {\it k}-means and/or
 
 \item
 {\bf km\_iter}\\
-the number of iterations of the {\it k}-means algorithm
+the maximum number of iterations of the {\it k}-means algorithm
 
 \item
 {\bf em\_iter}\\
-the number of iterations of the EM algorithm
+the maximum number of iterations of the EM algorithm
 
 \item
 {\bf var\_floor}\\

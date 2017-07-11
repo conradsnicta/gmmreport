@@ -45,6 +45,110 @@ with $N_G$ being the assumed number of clusters.
 For a derivation of the EM algorithm for GMM parameters, the reader is directed to~\cite{Bilmes98,Redner84} or Appendix~\ref{app:em_algorithm}.
 
 
+\subsection{Improving Numerical Stability}
+
+Due to the necessarily limited precision of numerical floating point representations~\cite{Goldberg_1991,Monniaux_2008},
+the direct computation of Eqns.~(\ref{eqn:gmm_prob}) and (\ref{eqn:aposteriori}) can quickly lead to numerical underflows or overflows.
+%To address this problem, the logarithm version of Eqn.~(\ref{eqn:gmm_prob}) can be used:
+To address this problem, the logarithm version of Eqn.~(\ref{eqn:gaussian}) can be used:
+%
+\begin{eqnarray}
+  \log {{\mathcal{N}}}( \Vec{x} | \Vec{\mu}, \Mat{\Sigma} )
+%   & = &
+%   \log \left\{
+%   \frac{1}{ (2\pi)^{\frac{D}{2}} | \Mat{\Sigma}|^{\frac{1}{2}} }
+%   \exp \left[ -\frac{1}{2} (\Vec{x}-\Vec{\mu})^T \Mat{\Sigma}^{-1} (\Vec{x}-\Vec{\mu}) \right]
+%   \right\} \\
+% %
+%   & = &
+%   \log \left\{
+%   \frac{1}{ (2\pi)^{\frac{D}{2}} | \Mat{\Sigma}|^{\frac{1}{2}} } \right\}
+%   + 
+%   \log \left\{
+%   \exp \left[ -\frac{1}{2} (\Vec{x}-\Vec{\mu})^T \Mat{\Sigma}^{-1} (\Vec{x}-\Vec{\mu}) \right]
+%   \right\} \\
+% %
+%   & = &
+%   -  \log \left\{
+%   (2\pi)^{\frac{D}{2}} | \Mat{\Sigma}|^{\frac{1}{2}} \right\}
+%   + 
+%   -\frac{1}{2} (\Vec{x}-\Vec{\mu})^T \Mat{\Sigma}^{-1} (\Vec{x}-\Vec{\mu})
+%   \\ 
+% %
+%   & = &
+%   - \left(
+%   \log \left\{ (2\pi)^{\frac{D}{2}} \right\} + \log \left\{  | \Mat{\Sigma}|^{\frac{1}{2}} \right\}
+%   \right)
+%   + 
+%   -\frac{1}{2} (\Vec{x}-\Vec{\mu})^T \Mat{\Sigma}^{-1} (\Vec{x}-\Vec{\mu})
+%   \\
+% %
+%   & = &
+%   - \left(
+%   \frac{D}{2} \log \left( 2\pi \right)
+%   +
+%   \frac{1}{2} \log ( |\Mat{\Sigma}| )
+%   \right)
+%   -
+%   \frac{1}{2} (\Vec{x}-\Vec{\mu})^T \Mat{\Sigma}^{-1} (\Vec{x}-\Vec{\mu})
+%   \\
+% %
+  & = &
+  - \left\{
+  \sfrac{D}{2} ~ \log \left( 2\pi \right)
+  +
+  \sfrac{1}{2} ~ \log ( |\Mat{\Sigma}| )
+  \right\}
+  -
+  \sfrac{1}{2} ~ (\Vec{x}-\Vec{\mu})^T \Mat{\Sigma}^{-1} (\Vec{x}-\Vec{\mu})
+\end{eqnarray}
+
+Furthermore, Eqn.~(\ref{eqn:gmm_prob}) is correspondingly changed to:
+%
+\begin{eqnarray}
+\log \sum\nolimits_{g=1}^{N_G} w_g ~ {{\mathcal{N}}}( \Vec{x} ~|~ \Vec{\mu}_g, \Mat{\Sigma}_g )
+& = &
+\log \sum\nolimits_{g=1}^{N_G} \exp\left[ \log \left\{ w_g {{\mathcal{N}}}( \Vec{x} ~|~ \Vec{\mu}_g, \Mat{\Sigma}_g ) \right\} \right]
+\label{eqn:log_gmm}
+\end{eqnarray}
+The right hand side of Eqn.~(\ref{eqn:log_gmm}) can be expressed as a repeated addition in the form of \mbox{\small $\log(\exp\left[\log(a)\right] + \exp\left[\log(b)\right])$},
+which can be rewritten in the form of \mbox{\small $\log(a) + \log\left( 1 + \exp\left[ \log(b) - \log(a) \right] \right)$}.
+In the latter form, if we ensure that {\small $\log(a) \geq \log(b)$,
+the exponential will always produce values $\leq 1$ which helps to reduce the occurence of overflows.
+
+% Formally, the robust version of \mbox{\small $\log(\exp\left[\log(a)\right] + \exp\left[\log(b)\right])$} can be expressed as 
+% $\operatorname{\Psi}(\log(a), \log(b))$ is used as 
+% %
+% \begin{eqnarray}
+% \operatorname{\Psi}(\log(a), \log(b))
+% & = & \left\{
+% \begin{array}{ll}
+% \operatorname{\Omega}(\log(a),\log(b)), & \mbox{if} ~ \log(a) \geq \log(b) \\
+% \operatorname{\Omega}(\log(b),\log(a)), & \mbox{otherwise}
+% \end{array}
+% \right. \nonumber \\
+% %
+% \operatorname{\Omega}(\log(a), \log(b))
+% & = & \left\{
+% \begin{array}{ll}
+% \log(a),                   & \mbox{if} ~ (\log(b)-\log(a)) < \operatorname{log\_floor} \mbox{~or~} (\log(b)-\log(a)) \notin \mathbb{R} \\
+% \log(a) + \log(1 + \exp(\log(b)-\log(a))),  & \mbox{otherwise} 
+% \end{array}
+% \right.  \nonumber
+% \end{eqnarray}
+% %
+% In the above,
+% $\operatorname{log\_floor}$ is a machine dependent constant, equal to approximately
+% $\log(10^{-323})$ when using double precision floating point values%
+% \footnote
+%   {
+%   The exact value in the C++ implementation is equal to {\it log({std::numeric\_limits{\textless}T{\textgreater}::min()})},
+%   where {\it T} represents a floating point type (ie., either {\it float} or {\it double}).
+%   }%
+% .
+
+
 \subsection{Reformulation for Parallel Execution}
 
 TODO
+

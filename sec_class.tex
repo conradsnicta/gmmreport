@@ -7,6 +7,16 @@ which can considerably speed up training.
 Parallelisation is achieved through refactoring the original EM and {\it k}-means algorithms
 into a MapReduce-like framework~\cite{MapReduce_2004} and employing OpenMP compiler directives~\cite{OpenMP_2007}.
 
+
+\subsection{Numerical Overflows and Underflows}
+
+Due to the necessarily limited precision of numerical floating point representations~\cite{TODO},
+
+TODO: reformulation with log\_exp\_add
+
+
+
+
 \subsection{User Accessible Classes and Functions}
 
 There are two user accessible classes within the {\it arma} namespace:

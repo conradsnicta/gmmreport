@@ -44,7 +44,7 @@ The above implementation can also be interpreted as an unsupervised probabilisti
 with $N_G$ being the assumed number of clusters.
 For a derivation of the EM algorithm for GMM parameters, the reader is directed to~\cite{Bilmes98,Redner84} or Appendix~\ref{app:em_algorithm}.
 
-\subsection{Initial Estimates of Parameters}
+\subsection{Initial Estimates of Parameters via {\it k}-means}
 \label{sec:initial_estimate}
 
 As a starting point, the initial means can be set to randomly selected training vectors,
@@ -108,6 +108,7 @@ or use an elaborate strategy for selecting the initial means~\cite{Arthur_2007}.
 \caption
   {
   \small
+  \TODO{change to normal equations}.
   Pseudo-code for a direct implementation of the classic $k$-means algorithm.
   Each training vector is denoted as $\Vec{x}_i$, where $i = 1, \cdots, N_V$, with $N_V$ indicating the number of vectors available for training.
   Each mean vector is denoted as $\Vec{\mu}_g$, where $g = 1, \cdots, N_G$, with $N_G$ indicating the number of required means (centroids).

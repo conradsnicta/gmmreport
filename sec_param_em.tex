@@ -24,8 +24,8 @@ A direct implementation of the EM algorithm, specific to GMMs, has one iteration
 	L_g & = & \sum\nolimits_{i=1}^{N_V} l_{g,i} \label{eqn:L_k} \\
 	\widehat{w}_g & = & \frac{L_g}{N_V} \label{eqn:m_k} \\
 	\widehat{\Vec{\mu}}_g & = & \frac{1}{L_g} \sum\nolimits_{i=1}^{N_V} \Vec{x}_i ~ l_{g,i}  \label{eqn:em_mean} \\
-	\widehat{\Mat{\Sigma}}_g & = & \frac{1}{L_g} \sum\nolimits_{i=1}^{N_V} (\Vec{x}_i - \widehat{\Vec{\mu}}_g)(\Vec{x}_i - \widehat{\Vec{\mu}}_g)^T l_{g,i} \label{eqn:em_covA} \\
-	& = &  \frac{1}{L_g} \left[ \sum\nolimits_{i=1}^{N_V} \Vec{x}_i \Vec{x}_i^T l_{g,i} \right] - \widehat{\Vec{\mu}}_g \widehat{\Vec{\mu}}_g^T \label{eqn:em_covB}
+	\widehat{\Mat{\Sigma}}_g & = & \frac{1}{L_g} \sum\nolimits_{i=1}^{N_V} (\Vec{x}_i - \widehat{\Vec{\mu}}_g)(\Vec{x}_i - \widehat{\Vec{\mu}}_g)^\top l_{g,i} \label{eqn:em_covA} \\
+	& = &  \frac{1}{L_g} \left[ \sum\nolimits_{i=1}^{N_V} \Vec{x}_i \Vec{x}_i^\top l_{g,i} \right] - \widehat{\Vec{\mu}}_g \widehat{\Vec{\mu}}_g^\top \label{eqn:em_covB}
 \end{eqnarray}
 
 \noindent
@@ -57,7 +57,7 @@ To address this problem, the logarithm version of Eqn.~(\ref{eqn:gaussian}) can 
 %   & = &
 %   \log \left\{
 %   \frac{1}{ (2\pi)^{\frac{D}{2}} | \Mat{\Sigma}|^{\frac{1}{2}} }
-%   \exp \left[ -\frac{1}{2} (\Vec{x}-\Vec{\mu})^T \Mat{\Sigma}^{-1} (\Vec{x}-\Vec{\mu}) \right]
+%   \exp \left[ -\frac{1}{2} (\Vec{x}-\Vec{\mu})^\top \Mat{\Sigma}^{-1} (\Vec{x}-\Vec{\mu}) \right]
 %   \right\} \\
 % %
 %   & = &
@@ -65,14 +65,14 @@ To address this problem, the logarithm version of Eqn.~(\ref{eqn:gaussian}) can 
 %   \frac{1}{ (2\pi)^{\frac{D}{2}} | \Mat{\Sigma}|^{\frac{1}{2}} } \right\}
 %   + 
 %   \log \left\{
-%   \exp \left[ -\frac{1}{2} (\Vec{x}-\Vec{\mu})^T \Mat{\Sigma}^{-1} (\Vec{x}-\Vec{\mu}) \right]
+%   \exp \left[ -\frac{1}{2} (\Vec{x}-\Vec{\mu})^\top \Mat{\Sigma}^{-1} (\Vec{x}-\Vec{\mu}) \right]
 %   \right\} \\
 % %
 %   & = &
 %   -  \log \left\{
 %   (2\pi)^{\frac{D}{2}} | \Mat{\Sigma}|^{\frac{1}{2}} \right\}
 %   + 
-%   -\frac{1}{2} (\Vec{x}-\Vec{\mu})^T \Mat{\Sigma}^{-1} (\Vec{x}-\Vec{\mu})
+%   -\frac{1}{2} (\Vec{x}-\Vec{\mu})^\top \Mat{\Sigma}^{-1} (\Vec{x}-\Vec{\mu})
 %   \\ 
 % %
 %   & = &
@@ -80,7 +80,7 @@ To address this problem, the logarithm version of Eqn.~(\ref{eqn:gaussian}) can 
 %   \log \left\{ (2\pi)^{\frac{D}{2}} \right\} + \log \left\{  | \Mat{\Sigma}|^{\frac{1}{2}} \right\}
 %   \right)
 %   + 
-%   -\frac{1}{2} (\Vec{x}-\Vec{\mu})^T \Mat{\Sigma}^{-1} (\Vec{x}-\Vec{\mu})
+%   -\frac{1}{2} (\Vec{x}-\Vec{\mu})^\top \Mat{\Sigma}^{-1} (\Vec{x}-\Vec{\mu})
 %   \\
 % %
 %   & = &
@@ -90,7 +90,7 @@ To address this problem, the logarithm version of Eqn.~(\ref{eqn:gaussian}) can 
 %   \frac{1}{2} \log ( |\Mat{\Sigma}| )
 %   \right)
 %   -
-%   \frac{1}{2} (\Vec{x}-\Vec{\mu})^T \Mat{\Sigma}^{-1} (\Vec{x}-\Vec{\mu})
+%   \frac{1}{2} (\Vec{x}-\Vec{\mu})^\top \Mat{\Sigma}^{-1} (\Vec{x}-\Vec{\mu})
 %   \\
 % %
   & = &
@@ -100,7 +100,7 @@ To address this problem, the logarithm version of Eqn.~(\ref{eqn:gaussian}) can 
   \sfrac{1}{2} ~ \log ( |\Mat{\Sigma}| )
   \right\}
   -
-  \sfrac{1}{2} ~ (\Vec{x}-\Vec{\mu})^T \Mat{\Sigma}^{-1} (\Vec{x}-\Vec{\mu})
+  \sfrac{1}{2} ~ (\Vec{x}-\Vec{\mu})^\top \Mat{\Sigma}^{-1} (\Vec{x}-\Vec{\mu})
 \end{eqnarray}
 
 Furthermore, Eqn.~(\ref{eqn:gmm_prob}) is correspondingly changed to:
@@ -150,5 +150,31 @@ the exponential will always produce values $\leq 1$ which helps to reduce the oc
 
 \subsection{Reformulation for Parallel Execution}
 
-TODO
 
+Given $N_T$ threads, the training samples are split into $N_T$ chunks (of approximately the same).
+For thread with index $t \in [1,N_T]$, the start index of the samples is denoted by $i^{[t]}_{\textrm{start}}$,
+while the end index is denoted by $i^{[t]}_{\textrm{end}}$.
+For each thread $t$ and Gaussian $g \in [1,N_G]$, accumulators $\widetilde{L}_g^{[t]}$, $\widetilde{\Vec{\mu}}_g^{[t]}$ and $\widetilde{\Mat{\Sigma}}_g^{[t]}$
+are calculated as follows:
+%
+\begin{eqnarray}
+  %\mbox{for} ~~ g = 1, \cdots, N_g:  \nonumber \\
+  %
+  \widetilde{L}_g^{[t]}            & = & \sum\nolimits_{j = i^{[t]}_{\textrm{start}}}^{i^{[t]}_{\textrm{end}}} l_{g,j}                             \\ % acc_norm_lhoods
+  \widetilde{\Vec{\mu}}_g^{[t]}    & = & \sum\nolimits_{j = i^{[t]}_{\textrm{start}}}^{i^{[t]}_{\textrm{end}}} l_{g,j} ~ \Vec{x}_j                 \\ % acc_mean
+  %\widetilde{\Mat{\Sigma}}_g^{[t]} & = & \sum\nolimits_{j = i^{[t]}_{\textrm{start}}}^{i^{[t]}_{\textrm{end}}} l_{g,j} ~ \Vec{x}_j \odot \Vec{x}_j    % acc_dcov
+  \widetilde{\Mat{\Sigma}}_g^{[t]} & = & \sum\nolimits_{j = i^{[t]}_{\textrm{start}}}^{i^{[t]}_{\textrm{end}}} l_{g,j} ~ \Vec{x}_j \Vec{x}_j^\top    % acc_dcov
+\end{eqnarray}%
+%
+where $l_{g,j}$ is defined in Eqn.~(\ref{eqn:aposteriori}).
+%while $\odot$ represents the Schur product (element-wise multiplication).
+
+Once the accumulators for all threads and Gaussians are calculated, 
+the reduction operation combines them to form the estimates of $\widehat{w}_g$, $\widehat{\Vec{\mu}}_g$ and $\widehat{\Mat{\Sigma}}_g$ as follows:
+%
+\begin{eqnarray}
+  L_g                      & = & \sum\nolimits_{t=1}^{N_T} \widetilde{L}_g^{[t]}                           \\ % acc_norm_lhood
+  \widehat{w}_g            & = & \frac{L_g}{N_V}                                                           \\
+  \widehat{\Vec{\mu}}_g    & = & \frac{1}{L_g} \sum\nolimits_{t=1}^{N_T} \widetilde{\Vec{\mu}}_g^{[t]}     \\
+  \widehat{\Mat{\Sigma}}_g & = & \frac{1}{L_g} \sum\nolimits_{t=1}^{N_T} \widetilde{\Mat{\Sigma}}_g^{[t]} - \widehat{\Vec{\mu}}_g \widehat{\Vec{\mu}}_g^\top
+\end{eqnarray}

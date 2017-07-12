@@ -85,7 +85,7 @@ parameter {\bf dist\_mode} is either {\bf eucl\_dist} or {\bf prob\_dist}, as pe
 
 \item
 {\bf M.norm\_hist(X, dist\_mode)}\\
-return a row vector containing normalised counts; the vector sums to one;
+similar to the {\bf .raw\_hist()} function above; return a row vector (of type {\it rowvec}) containing normalised counts; the vector sums to one;
 parameter {\bf dist\_mode} is either {\bf eucl\_dist} or {\bf prob\_dist}, as per the {\bf .assign()} function above
 
 \item
@@ -119,15 +119,15 @@ all the means are set to zero, all diagonal covariances are set to one, and all 
 
 \item
 {\bf M.means}\\
-read-only matrix containing the means (centroids), stored as column vectors
+read-only matrix (of type {\it mat}) containing the means (centroids), stored as column vectors
 
 \item
 {\bf M.dcovs}\\
-read-only matrix containing the diagonal covariances, with the set of diagonal covariances for each Gaussian stored as a column vector
+read-only matrix (of type {\it mat}) containing the diagonal covariances, with the set of diagonal covariances for each Gaussian stored as a column vector
 
 \item
 {\bf M.hefts}\\
-read-only row vector containing the hefts (weights)
+read-only row vector (of type {\it rowvec}) containing the hefts (weights)
 
 \item
 {\bf M.set\_means(X)}\\
@@ -187,17 +187,21 @@ specifies how the initial means are seeded prior to running {\it k}-means and/or
 {\bf random\_spread} & a maximally spread subset of training samples (random start)
 \end{tabular}
 
+Note that seeding the initial means with {\bf static\_spread} and {\bf random\_spread}
+can be more time consuming than with {\bf static\_subset} and {\bf random\_subset}.
+These seed modes are inspired by the so-called {\it k-means++} approach~\cite{Arthur_2007}, with the aim to improve clustering quality.
+
 \item
 {\bf km\_iter}\\
-the maximum number of iterations of the {\it k}-means algorithm
+the maximum number of iterations of the {\it k}-means algorithm; this is data dependent, but typically 10 iterations are sufficient
 
 \item
 {\bf em\_iter}\\
-the maximum number of iterations of the EM algorithm
+the maximum number of iterations of the EM algorithm; this is data dependent, but typically 5 to 10 iterations are sufficient
 
 \item
 {\bf var\_floor}\\
-the variance floor (smallest allowed value) for the diagonal covariances
+the variance floor (smallest allowed value) for the diagonal covariances; setting this to a small non-zero value can help with convergence and/or better quality parameter estimates
 
 \item
 {\bf print\_mode}\\
@@ -205,9 +209,6 @@ boolean value (either {\it true} or {\it false}) which enables/disables the prin
 
 \end{enumerate}
 
-Note that seeding the initial means with {\bf static\_spread} and {\bf random\_spread}
-can be more time consuming than with {\bf static\_subset} and {\bf random\_subset}.
-These seed modes are inspired by the so-called {\it k-means++} approach~\cite{Arthur_2007}, with the aim to improve clustering quality.
 
 \end{itemize}
 \end{small}

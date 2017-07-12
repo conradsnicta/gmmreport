@@ -15,12 +15,16 @@ and
 The pseudo-code for a direct implementation of a baseline $k$-means algorithm is shown in Figure~\ref{fig:kmeans_pseudocode}.
 
 The $k$-means algorithm can be interpreted as a simplified version (or special case) of the EM algorithm for GMMs~\cite{Kulis_2012}.
-Instead of each vector being assigned a set probabilities as to which Gaussian it belongs to,
-each vector is assigned to only one Gaussian (ie., soft assignment vs.~hard assignment).
+Instead of each vector being assigned a set probabilities representing cluster membership (soft assignment),
+each vector is assigned to only one cluster (hard assignment).
 Furthermore, it can be assumed that the covariance matrix of each Gaussian is non-informative, diagonal, and/or shared across all Gaussians.
-It is also possible to implement the $k$-means algorithm is several ways,
+
+It is possible to implement the $k$-means algorithm is a multitude of ways,
 such as the cluster splitting LBG algorithm~\cite{Linde80},
 or use an elaborate strategy for selecting the initial means~\cite{Arthur_2007}.
+There are also alternative implementations offering faster convergence~\cite{TODO,TODO}.
+However, the vast majority of the computational effort for training GMMs is typically taken up by the EM algorithm,
+and hence the speed of the {\it k}-means algorithm is not critical in the context of GMMs.
 
 \begin{figure}[!b]
 \hrule

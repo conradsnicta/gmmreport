@@ -1,4 +1,4 @@
-\def\doctitle{An Open Source Implementation of Multi-Threaded Gaussian~Mixture~Models and Expectation Maximisation}
+\def\doctitle{An Open Source Implementation of Multi-Threaded Gaussian~Mixture~Models, k-Means and Expectation Maximisation}
 \def\docauthor{Conrad Sanderson, Ryan Curtin}
 
 \documentclass[11pt,a4paper]{article}
@@ -31,9 +31,16 @@
 %\usepackage{parskip}
 
 %\usepackage{times}
-\usepackage{palatino}
+\usepackage{palatino}     % changes the default sans serif font
+\usepackage{inconsolata}  % changes the default typewriter font
 
-\renewcommand{\ttdefault}{pcr}
+%\renewcommand{\ttdefault}{pcr}
+
+\edef\oldtt{\ttdefault}
+\usepackage[scaled]{beramono}
+\usepackage[T1]{fontenc}
+\renewcommand*\ttdefault{\oldtt}
+\newcommand{\bera}[1]{{\fontfamily{fvm}\selectfont #1}}
 
 % disable ligatures such as "fi" being joined into one symbol
 \usepackage{microtype}
@@ -123,6 +130,7 @@
 \appendix
 \input{app_em}
 
+\newpage
 \bibliographystyle{ieee}
 \bibliography{refs}
 

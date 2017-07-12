@@ -1,10 +1,9 @@
-\section{C++ Implementation}
+\section{Numerical Implementation in C++}
 
 We have provided a numerical implementation of Gaussian Mixture Models in the C++ language
-as part of recent releases of the open source Armadillo C++ linear algebra library%
-\footnote{The Armadillo C++ linear algebra library can be obtained from \href{http://arma.sourceforge.net}{http://arma.sourceforge.net}}%
-~\cite{Armadillo_JOSS_2016,Armadillo_PASC_2017}.
-The implementation contains parallelised versions of the Expectation Maximisation (EM) and {\it k}-means training algorithms
+as part of recent releases of the open source Armadillo C++ linear algebra library~\cite{Armadillo_JOSS_2016,Armadillo_PASC_2017}.
+The library can be obtained from \href{http://arma.sourceforge.net}{http://arma.sourceforge.net}.
+The implementation contains multi-threaded versions of the Expectation Maximisation (EM) and {\it k}-means training algorithms
 (as overviewed in Sections~\ref{sec:param_em} and~\ref{sec:param_km}),
 which can considerably speed up training.
 % Parallelisation is achieved through refactoring the original EM and {\it k}-means algorithms
@@ -101,11 +100,11 @@ return a matrix containing {\bf N} column vectors, with each vector representing
 
 \item
 {\bf M.save(filename)}\\
-save the model to the given filename
+save the model to a file
 
 \item
 {\bf M.load(filename)}\\
-load the model from the given filename
+load the model from a file
 
 \item
 {\bf M.n\_gaus()}\\
@@ -222,8 +221,16 @@ boolean value (either {\it true} or {\it false}) which enables/disables the prin
 
 \begin{figure}
 \hrule
-\vspace{0.5ex}
-\begin{Verbatim}[fontsize=\footnotesize,fontseries=b]
+\vspace{1ex}
+\centering
+% BeraMono
+% DejaVu Sans Mono
+% KP Monospaced
+% LuxiMono
+% Inconsolata
+%\begin{Verbatim}
+%\begin{Verbatim}[fontsize=\footnotesize,fontseries=b]
+\begin{Verbatim}[fontfamily=fvm,fontsize=\footnotesize]
 #include <armadillo>
 
 using namespace arma;
@@ -248,6 +255,7 @@ int main()
     if(i < N)  { data.col(i) = mean0 + randn<vec>(d); ++i; }
     if(i < N)  { data.col(i) = mean1 + randn<vec>(d); ++i; }
     }
+  
   
   // model the data as a GMM with 2 Gaussians
   

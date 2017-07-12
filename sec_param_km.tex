@@ -20,12 +20,12 @@ each vector is assigned to only one cluster (hard assignment).
 Furthermore, it can be assumed that the covariance matrix of each Gaussian is non-informative, diagonal, and/or shared across all Gaussians.
 
 More formally, the estimation of model parameters is as per Eqns.~(\ref{eqn:em_weight}), (\ref{eqn:em_mean}) and (\ref{eqn:em_cov}), 
-but $l_{g,i}$ is redefined as:
+but $l_{g,i}$ is redefined~as:%
 %
 \begin{equation}
   l_{g,i} = \left\{
   \begin{array}{ll}
-  1, & \mbox{if} ~ g = \argmin\limits_{g=1, \cdots, N_G} \operatorname{dist}(\Vec{\mu}_g, \Vec{x}_i) \\
+  1, & \mbox{if} ~ g = \argmin\limits_{k=1, \cdots, N_G} \operatorname{dist}(\Vec{\mu}_k, \Vec{x}_i) \\
   0, & \mbox{otherwise}
   \end{array}
   \right.
@@ -53,13 +53,12 @@ hence the speed of the {\it k}-means algorithm is not critical in the context of
 However, as the {\it k}-means algorithm is essentially a simplified version of EM,
 it can be parallelised in the same way as per Section~\ref{sec:param_em_parallel}.
 
+% \subsection{Addressing Corner Cases}
 
-\subsection{Addressing Corner Cases}
-
-In practise it is possible that while iterating at least one of the means has no vectors assigned to it,
+In practice it is possible that while iterating at least one of the means has no vectors assigned to it,
 becoming a ``dead'' mean.
 This might stem from an unfortunate starting point, 
-or specifying a large value for $N_G$ for which there is an insufficient number of training samples,
+or specifying a large value for $N_G$ for which there is an insufficient number of training samples.
 As such, an additional heuristic is required to attempt to resolve this situation.
 One example of resurrecting a ``dead'' mean is to make it equal to one of the vectors
 that has been assigned to the most ``popular'' mean,

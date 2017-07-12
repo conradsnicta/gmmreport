@@ -1,5 +1,5 @@
-\section{Initial Estimatation via {\it k}-Means}
-\label{sec:initial_estimate}
+\section{Initial Parameter Estimatation via {\it k}-Means}
+\label{sec:param_km}
 
 As a starting point, the initial means can be set to randomly selected training vectors,
 the initial covariance matrices can be set equal to identity matrices, 
@@ -100,7 +100,8 @@ TODO
 
 In practise it is possible that while iterating at least one of the means has no vectors assigned to it,
 becoming a ``dead'' mean.
-This can be due to an unfortunate starting point and/or a lack of data.
+This might stem from an unfortunate starting point, 
+or specifying a large value for $N_G$ for which there is an insufficient number of training samples,
 As such, an additional heuristic is required to attempt to resolve this situation.
 One example of resurrecting a ``dead'' mean is to make it equal to one of the vectors
 that has been assigned to the most ``popular'' mean,

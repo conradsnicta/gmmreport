@@ -1,11 +1,14 @@
 \section{C++ Implementation}
 
 We have provided a numerical implementation of Gaussian Mixture Models in the C++ language
-as part of recent releases of the Armadillo C++ linear algebra library~\cite{Armadillo_JOSS_2016}.
-The implementation contains parallelised versions of the Expectation Maximisation (EM) and {\it k}-means training algorithms,
+as part of recent releases of the open source Armadillo C++ linear algebra library%
+\footnote{The Armadillo C++ linear algebra library can be obtained from \href{http://arma.sourceforge.net}{http://arma.sourceforge.net}}%
+~\cite{Armadillo_JOSS_2016,Armadillo_PASC_2017}.
+The implementation contains parallelised versions of the Expectation Maximisation (EM) and {\it k}-means training algorithms
+(as overviewed in Sections~\ref{sec:param_em} and~\ref{sec:param_km}),
 which can considerably speed up training.
-Parallelisation is achieved through refactoring the original EM and {\it k}-means algorithms
-into a MapReduce-like framework~\cite{MapReduce_2004} and employing OpenMP compiler directives~\cite{OpenMP_2007}.
+% Parallelisation is achieved through refactoring the original EM and {\it k}-means algorithms
+% into a MapReduce-like framework~\cite{MapReduce_2004} and employing OpenMP compiler directives~\cite{OpenMP_2007}.
 
 
 \subsection{User Accessible Classes and Functions}
@@ -159,11 +162,13 @@ the parameters have the following meanings:
 \begin{enumerate}[{$\cdot$}]
 \item
 {\bf data}\\
-matrix containing training samples; each sample is stored as a column vector
+matrix (of type {\it mat}) containing training samples; each sample is stored as a column vector
 
 \item
 {\bf n\_gaus}\\
-set the number of Gaussians to {\bf n\_gaus}
+set the number of Gaussians to {\bf n\_gaus};
+to help convergence, it is recommended that the given {\bf data} matrix (above)
+contains at least 10 samples for each Gaussian
 
 \item
 {\bf dist\_mode}\\

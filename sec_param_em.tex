@@ -1,5 +1,5 @@
 \section{Parameter Estimation via Expectation Maximisation}
-\label{sec:parameter_estimation}
+\label{sec:param_em}
 
 \noindent
 The overall likelihood for a set of samples, $X=\{\Vec{x}_i\}_{i=1}^{N_V}$,
@@ -52,8 +52,7 @@ Fortunately, multi-core (multi-threaded) machines are now quite common and acces
 One approach for parallelisation is the MapReduce framework~\cite{MapReduce_2004},
 where data is split into chunks and farmed out to worker threads for processing (mapping).
 The results are then collected and combined (reduced) to produce the final result.
-Below we provide a reformulation of the EM algorithm into a MapReduce-like framework,
-which can be easily implemented with the aid of OpenMP compiler directives~\cite{OpenMP_2007}.
+Below we provide a reformulation of the EM algorithm into a MapReduce-like framework.
 
 Given $N_T$ threads, the training samples are split into $N_T$ chunks (of approximately the same).
 For thread with index $t \in [1,N_T]$, the start index of the samples is denoted by $i^{[t]}_{\textrm{start}}$,

@@ -1,7 +1,7 @@
 \section*{Abstract}
 
-We provide an overview of a implementation of Gaussian Mixture Models in the C++ language,
-as well as parallelised versions of the Expectation Maximisation (EM) and {\it k}-means training algorithms.
+We provide an overview of an implementation of Gaussian Mixture Models in the C++ language,
+as well as multi-threaded (parallelised) versions of the Expectation Maximisation (EM) and {\it k}-means training algorithms.
 Parallelisation is achieved through refactoring the original EM and {\it k}-means algorithms into a MapReduce-like framework
 and employing OpenMP compiler directives.
 We demonstrate the that the parallelised versions achieve speedups of an order of magnitude on recent processors.

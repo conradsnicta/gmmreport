@@ -20,9 +20,9 @@ within one iteration are calculated as follows:
 \begin{eqnarray}
   l_{g,i}                  & = & \frac{w_g ~ {{\mathcal{N}}}( \Vec{x}_i | \Vec{\mu}_g, \Mat{\Sigma}_g )}{\sum\nolimits_{k=1}^{N_G} w_k ~ {{\mathcal{N}}}( \Vec{x}_i | \Vec{\mu}_k, \Mat{\Sigma}_k )} \label{eqn:aposteriori} \\
   L_g                      & = & \sum\nolimits_{i=1}^{N_V} l_{g,i} \\
-  \widehat{w}_g            & = & \frac{L_g}{N_V} \\
-  \widehat{\Vec{\mu}}_g    & = & \frac{1}{L_g} \sum\nolimits_{i=1}^{N_V} \Vec{x}_i ~ l_{g,i}  \\
-  \widehat{\Mat{\Sigma}}_g & = & \frac{1}{L_g} \sum\nolimits_{i=1}^{N_V} (\Vec{x}_i - \widehat{\Vec{\mu}}_g)(\Vec{x}_i - \widehat{\Vec{\mu}}_g)^\top l_{g,i} \\
+  \widehat{w}_g            & = & \frac{L_g}{N_V}  \label{eqn:em_weight} \\
+  \widehat{\Vec{\mu}}_g    & = & \frac{1}{L_g} \sum\nolimits_{i=1}^{N_V} \Vec{x}_i ~ l_{g,i}  \label{eqn:em_mean} \\
+  \widehat{\Mat{\Sigma}}_g & = & \frac{1}{L_g} \sum\nolimits_{i=1}^{N_V} (\Vec{x}_i - \widehat{\Vec{\mu}}_g)(\Vec{x}_i - \widehat{\Vec{\mu}}_g)^\top l_{g,i} \label{eqn:em_cov} \\
                            & = &  \frac{1}{L_g} \left[ \sum\nolimits_{i=1}^{N_V} \Vec{x}_i \Vec{x}_i^\top l_{g,i} \right] - \widehat{\Vec{\mu}}_g \widehat{\Vec{\mu}}_g^\top
 \end{eqnarray}
 
@@ -44,6 +44,7 @@ For a derivation of the EM algorithm for GMM parameters, the reader is directed 
 
 
 \subsection{Reformulation for Parallel Execution}
+\label{sec:param_em_parallel}
 
 Even when using diagonal GMMs that omit explicit matrix inverse operations, the EM algorithm is quite computationally intensive.
 This is in large part due to the use of the $\exp(\cdot)$ function, which needs to be applied numerous times for each and every sample.
@@ -85,7 +86,7 @@ for each Gaussian $g$ the reduction operation combines them to form the estimate
 \subsection{Improving Numerical Stability}
 
 Due to the necessarily limited precision of numerical floating point representations~\cite{Goldberg_1991,Monniaux_2008},
-the direct computation of Eqns.~(\ref{eqn:gmm_prob}) can quickly lead to numerical underflows or overflows.
+the direct computation of Eqns.~(\ref{eqn:gmm_prob}) and (\ref{eqn:gaussian}) can quickly lead to numerical underflows or overflows.
 %To address this problem, the logarithm version of Eqn.~(\ref{eqn:gmm_prob}) can be used:
 To address this problem, the logarithm version of Eqn.~(\ref{eqn:gaussian}) can be used:
 %

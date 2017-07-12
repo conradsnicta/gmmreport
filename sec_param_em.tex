@@ -43,6 +43,46 @@ with $N_G$ being the assumed number of clusters.
 For a derivation of the EM algorithm for GMM parameters, the reader is directed to~\cite{Bilmes98,Redner84} or Appendix~\ref{app:em_algorithm}.
 
 
+\subsection{Reformulation for Parallel Execution}
+
+Even when using diagonal GMMs that omit explicit matrix inverse operations, the EM algorithm is quite computationally intensive.
+This is in large part due to the use of the $\exp(\cdot)$ function, which needs to be applied numerous times for each and every sample.
+Fortunately, multi-core (multi-threaded) machines are now quite common and accessible, allowing for parallel execution.
+
+One approach for parallelisation is the MapReduce framework~\cite{MapReduce_2004},
+where data is split into chunks and farmed out to worker threads for processing (mapping).
+The results are then collected and combined (reduced) to produce the final result.
+Below we provide a reformulation of the EM algorithm into a MapReduce-like framework,
+which can be easily implemented with the aid of OpenMP compiler directives~\cite{OpenMP_2007}.
+
+Given $N_T$ threads, the training samples are split into $N_T$ chunks (of approximately the same).
+For thread with index $t \in [1,N_T]$, the start index of the samples is denoted by $i^{[t]}_{\textrm{start}}$,
+while the end index is denoted by $i^{[t]}_{\textrm{end}}$.
+For each thread $t$ and Gaussian $g \in [1,N_G]$, accumulators $\widetilde{L}_g^{[t]}$, $\widetilde{\Vec{\mu}}_g^{[t]}$ and $\widetilde{\Mat{\Sigma}}_g^{[t]}$
+are calculated as follows:
+%
+\begin{eqnarray}
+  %\mbox{for} ~~ g = 1, \cdots, N_g:  \nonumber \\
+  %
+  \widetilde{L}_g^{[t]}            & = & \sum\nolimits_{j = i^{[t]}_{\textrm{start}}}^{i^{[t]}_{\textrm{end}}} l_{g,j}                             \\ % acc_norm_lhoods
+  \widetilde{\Vec{\mu}}_g^{[t]}    & = & \sum\nolimits_{j = i^{[t]}_{\textrm{start}}}^{i^{[t]}_{\textrm{end}}} l_{g,j} ~ \Vec{x}_j                 \\ % acc_mean
+  %\widetilde{\Mat{\Sigma}}_g^{[t]} & = & \sum\nolimits_{j = i^{[t]}_{\textrm{start}}}^{i^{[t]}_{\textrm{end}}} l_{g,j} ~ \Vec{x}_j \odot \Vec{x}_j    % acc_dcov
+  \widetilde{\Mat{\Sigma}}_g^{[t]} & = & \sum\nolimits_{j = i^{[t]}_{\textrm{start}}}^{i^{[t]}_{\textrm{end}}} l_{g,j} ~ \Vec{x}_j \Vec{x}_j^\top    % acc_dcov
+\end{eqnarray}%
+%
+where $l_{g,j}$ is defined in Eqn.~(\ref{eqn:aposteriori}).
+%while $\odot$ represents the Schur product (element-wise multiplication).
+
+Once the accumulators for all threads are calculated,
+for each Gaussian $g$ the reduction operation combines them to form the estimates of $\widehat{w}_g$, $\widehat{\Vec{\mu}}_g$ and $\widehat{\Mat{\Sigma}}_g$ as follows:
+%
+\begin{eqnarray}
+  L_g                      & = & \sum\nolimits_{t=1}^{N_T} \widetilde{L}_g^{[t]}                           \\ % acc_norm_lhood
+  \widehat{w}_g            & = & \frac{L_g}{N_V}                                                           \\
+  \widehat{\Vec{\mu}}_g    & = & \frac{1}{L_g} \sum\nolimits_{t=1}^{N_T} \widetilde{\Vec{\mu}}_g^{[t]}     \\
+  \widehat{\Mat{\Sigma}}_g & = & \frac{1}{L_g} \sum\nolimits_{t=1}^{N_T} \widetilde{\Mat{\Sigma}}_g^{[t]} - \widehat{\Vec{\mu}}_g \widehat{\Vec{\mu}}_g^\top
+\end{eqnarray}
+
 \subsection{Improving Numerical Stability}
 
 Due to the necessarily limited precision of numerical floating point representations~\cite{Goldberg_1991,Monniaux_2008},
@@ -150,42 +190,3 @@ the exponential will always produce values $\leq 1$ which helps to reduce the oc
 % the logarithm version of Eqn.~(\ref{eqn:aposteriori}) can be expressed as:
 
 
-\subsection{Reformulation for Parallel Execution}
-
-Even when using diagonal GMMs that omit explicit matrix inverse operations, the EM algorithm is quite computationally intensive.
-This is in large part due to the use of the $\exp(\cdot)$ function, which needs to be applied numerous times for each and every sample.
-Fortunately, multi-core (multi-threaded) machines are now quite common and accessible, allowing for parallel execution.
-
-One approach for parallelisation is the MapReduce framework~\cite{MapReduce_2004},
-where data is split into chunks and farmed out to worker threads for processing (mapping).
-The results are then collected and combined (reduced) to produce the final result.
-Below we provide a reformulation of the EM algorithm into a MapReduce-like framework,
-which can be easily implemented with the aid of OpenMP compiler directives~\cite{OpenMP_2007}.
-
-Given $N_T$ threads, the training samples are split into $N_T$ chunks (of approximately the same).
-For thread with index $t \in [1,N_T]$, the start index of the samples is denoted by $i^{[t]}_{\textrm{start}}$,
-while the end index is denoted by $i^{[t]}_{\textrm{end}}$.
-For each thread $t$ and Gaussian $g \in [1,N_G]$, accumulators $\widetilde{L}_g^{[t]}$, $\widetilde{\Vec{\mu}}_g^{[t]}$ and $\widetilde{\Mat{\Sigma}}_g^{[t]}$
-are calculated as follows:
-%
-\begin{eqnarray}
-  %\mbox{for} ~~ g = 1, \cdots, N_g:  \nonumber \\
-  %
-  \widetilde{L}_g^{[t]}            & = & \sum\nolimits_{j = i^{[t]}_{\textrm{start}}}^{i^{[t]}_{\textrm{end}}} l_{g,j}                             \\ % acc_norm_lhoods
-  \widetilde{\Vec{\mu}}_g^{[t]}    & = & \sum\nolimits_{j = i^{[t]}_{\textrm{start}}}^{i^{[t]}_{\textrm{end}}} l_{g,j} ~ \Vec{x}_j                 \\ % acc_mean
-  %\widetilde{\Mat{\Sigma}}_g^{[t]} & = & \sum\nolimits_{j = i^{[t]}_{\textrm{start}}}^{i^{[t]}_{\textrm{end}}} l_{g,j} ~ \Vec{x}_j \odot \Vec{x}_j    % acc_dcov
-  \widetilde{\Mat{\Sigma}}_g^{[t]} & = & \sum\nolimits_{j = i^{[t]}_{\textrm{start}}}^{i^{[t]}_{\textrm{end}}} l_{g,j} ~ \Vec{x}_j \Vec{x}_j^\top    % acc_dcov
-\end{eqnarray}%
-%
-where $l_{g,j}$ is defined in Eqn.~(\ref{eqn:aposteriori}).
-%while $\odot$ represents the Schur product (element-wise multiplication).
-
-Once the accumulators for all threads and Gaussians are calculated, 
-the reduction operation combines them to form the estimates of $\widehat{w}_g$, $\widehat{\Vec{\mu}}_g$ and $\widehat{\Mat{\Sigma}}_g$ as follows:
-%
-\begin{eqnarray}
-  L_g                      & = & \sum\nolimits_{t=1}^{N_T} \widetilde{L}_g^{[t]}                           \\ % acc_norm_lhood
-  \widehat{w}_g            & = & \frac{L_g}{N_V}                                                           \\
-  \widehat{\Vec{\mu}}_g    & = & \frac{1}{L_g} \sum\nolimits_{t=1}^{N_T} \widetilde{\Vec{\mu}}_g^{[t]}     \\
-  \widehat{\Mat{\Sigma}}_g & = & \frac{1}{L_g} \sum\nolimits_{t=1}^{N_T} \widetilde{\Mat{\Sigma}}_g^{[t]} - \widehat{\Vec{\mu}}_g \widehat{\Vec{\mu}}_g^\top
-\end{eqnarray}

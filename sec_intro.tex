@@ -45,7 +45,7 @@ While full covariance matrices have more capacity for modelling data,
 diagonal covariance matrices provide several practical advantages:
 {\bf (i)}~the computationally expensive (and potentially unstable) matrix inverse operation is reduced to simply to taking the reciprocals of the diagonal elements,
 {\bf (ii)}~the determinant operation is considerably simplified to taking the product of the diagonal elements,
-{\bf (iii)}~diagonal covariances contain fewer parameters that need to be estimated, and hence require fewer training samples~\cite{Duda01}.
+{\bf (iii)}~diagonal covariance matrices contain fewer parameters that need to be estimated, and hence require fewer training samples~\cite{Duda01}.
 Furthermore, diagonal covariance GMMs with $N_G > 1$ can model distributions of samples with correlated elements,
 which in turn suggests that full covariance GMMs can be approximated using a diagonal covariance GMM with a larger number of Gaussians~\cite{Reynolds_2000}.
 % It has also been empirically observed that diagonal covariance GMMs outperform full covariance GMMs~\cite{Reynolds95, Reynolds95b, Reynolds00}.

@@ -152,7 +152,7 @@ The corresponding logarithm version of Eqn.~(\ref{eqn:gmm_prob}) is:
 The right hand side of Eqn.~(\ref{eqn:log_gmm}) can be expressed as a repeated addition in the form of \mbox{\small $\log(\exp\left[\log(a)\right] + \exp\left[\log(b)\right])$},
 which can be rewritten in the form of \mbox{\small $\log(a) + \log\left( 1 + \exp\left[ \log(b) - \log(a) \right] \right)$}.
 In the latter form, if we ensure that {\small $\log(a) \geq \log(b)$},
-the exponential will always produce values $\leq 1$ which helps to reduce the occurence of overflows.
+the exponential will always produce values $\leq 1$ which helps to reduce the occurrence of overflows.
 
 % Formally, the robust version of \mbox{\small $\log(\exp\left[\log(a)\right] + \exp\left[\log(b)\right])$} can be expressed as 
 % $\operatorname{\Psi}(\log(a), \log(b))$ is used as 

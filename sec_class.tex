@@ -55,10 +55,11 @@ as well as overheads related to OpenMP and reduction operations (Section~\ref{se
 The implementation is provided as two user accessible classes within the {\it arma} namespace:
 {\it gmm\_diag} and {\it fgmm\_diag}.
 The former uses double precision floating point values, while the latter uses single precision floating point values.
-
 For an instance of the double precision {\it gmm\_diag} class named as {\bf M},
 its member functions and variables are listed below.
-All vectors and matrices refer to corresponding objects from the Armadillo library;
+Figure~\ref{fig:example_usage} contains a complete C++ program which demonstrates usage of the {\it gmm\_diag} class.
+
+In the description below, all vectors and matrices refer to corresponding objects from the Armadillo library;
 scalars have the type {\it double},
 matrices have the type {\it mat},
 column vectors have the type {\it vec},
@@ -68,8 +69,7 @@ and indices have the type {\it uword} (representing an unsigned integer).
 When using the single precision {\it fgmm\_diag} class,
 all vector and matrix types have the {\it f} prefix (for example, {\it fmat}),
 while scalars have the type {\it float}.
-The word ``heft'' is explicitly used in the classes a shorter version of ``weight'', while keeping the same meaning with the context of GMMs.
-Figure~\ref{fig:example_usage} contain a complete C++ program which demonstrates usage of the {\it gmm\_diag} class.
+The word ``heft'' is explicitly used in the classes as a shorter version of ``weight'', while keeping the same meaning with the context of GMMs.
 
 \begin{small}
 \begin{itemize}

@@ -9,10 +9,50 @@ which can considerably speed up training.
 % Parallelisation is achieved through refactoring the original EM and {\it k}-means algorithms
 % into a MapReduce-like framework~\cite{MapReduce_2004} and employing OpenMP compiler directives~\cite{OpenMP_2007}.
 
+\subsection{Achievable Speedup}
+
+To demonstrate the achievable speedup with the multi-threaded versions of the training algorithms,
+we trained a GMM with 100 Gaussians on a recent 16 core machine using synthetic data comprising 1,000,000 samples with 100 dimensions.
+10 iterations of the {\it k}-means algorithm and 10 iterations of the EM algorithm were used.
+The samples were stored in double precision floating point format, resulting in a total data size of approximately 762~Mb.
+
+Figure~\ref{fig:speedup} shows that a speedup of an order of magnitude is achieved when all 16 cores are used.
+We note that the actual speedup is below the idealised linear speedup,
+due to memory access contention (stemming from concurrent access to memory by mulitple cores)
+as well as overheads related to OpenMP and reduction operations (Section~\ref{sec:param_em_parallel}).
+
+
+\begin{figure}[!b]
+\centering
+\begin{minipage}{1\columnwidth}
+  \centering
+  \begin{minipage}{0.5\textwidth}
+    \centering
+    \includegraphics[width=1.1\textwidth]{plot1.pdf}\\
+    {(a)}
+  \end{minipage}%
+  \begin{minipage}{0.5\textwidth}
+    \centering
+    \includegraphics[width=1.1\textwidth]{plot2.pdf}\\
+    {(b)}
+  \end{minipage}
+\end{minipage}
+\caption
+  {
+  Execution characteristics for training a 100 component GMM
+  to model synthetic data comprising 1,000,000 samples with 100 dimensions
+  using 10 iterations of the {\it k}-means algorithm and 10 iterations of the EM algorithm:
+  {\bf (a)}~total time taken depending on the number of threads;
+  {\bf (b)}~corresponding speedup factor compared to using one thread (blue line), and idealised linear speedup under the assumption of no overheads and no memory access contention (red dotted line).
+  The modelling was done on a machine with dual Intel Xeon E5-2620~v4 CPUs, providing 16 independent processing cores.
+  Compilation was done with GCC 5.4 using the following switches: \texttt{-O3 -march=native -fopenmp}.
+  }
+\label{fig:speedup}
+\end{figure}
 
 \subsection{User Accessible Classes and Functions}
 
-There are two user accessible classes within the {\it arma} namespace:
+The implementation is provided as two user accessible classes within the {\it arma} namespace:
 {\it gmm\_diag} and {\it fgmm\_diag}.
 The former uses double precision floating point values, while the latter uses single precision floating point values.
 
@@ -28,7 +68,7 @@ and indices have the type {\it uword} (representing an unsigned integer).
 When using the single precision {\it fgmm\_diag} class,
 all vector and matrix types have the {\it f} prefix (for example, {\it fmat}),
 while scalars have the type {\it float}.
-The word ``heft'' is used as a shorter version of ``weight'', while keeping the same meaning with the context of GMMs.
+The word ``heft'' is explicitly used in the classes a shorter version of ``weight'', while keeping the same meaning with the context of GMMs.
 Figure~\ref{fig:example_usage} contain a complete C++ program which demonstrates usage of the {\it gmm\_diag} class.
 
 \begin{small}

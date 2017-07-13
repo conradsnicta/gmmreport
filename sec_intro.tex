@@ -28,18 +28,28 @@ ${{\mathcal{N}}}( \Vec{x} | \Vec{\mu}, \Mat{\Sigma})$ is a $D$-dimensional Gauss
   \label{eqn:gaussian}
 \end{equation}%
 %
+where $|\Mat{\Sigma}|$ and $\Mat{\Sigma}^{-1}$ denote the determinant and inverse of $\Mat{\Sigma}$, respectively,
+while $\Vec{x}^\top$ denotes the transpose of $\Vec{x}$.
 The full parameter set can be compactly stated as $\lambda = \{ w_g, \Vec{\mu}_g, \Mat{\Sigma}_g \}_{g=1}^{N_G}$,
 where $N_G$ is the number of Gaussians.
-
-
-
-TODO: choice for $\Mat{\Sigma}$: full or diagonal.
-effects: fewer free parameters; much simpler matrix inverse; simpler computation of the determinant.
-can still model correlations in data through the use of several gaussians -- ref to old Reynolds paper?
-
-TODO: mention methods for selecting  $N_G$ ?  
-
 Choosing the optimal $N_G$ is typically data dependent and beyond the scope of this work; see~\cite{Hamerly_2003,Pelleg_2000} for example methods.
+
+% TODO: choice for $\Mat{\Sigma}$: full or diagonal.
+% effects: fewer free parameters; much simpler matrix inverse; simpler computation of the determinant.
+% can still model correlations in data through the use of several gaussians -- ref to old Reynolds paper?
+
+There are two main choices for the type of covariance matrix $\Mat{\Sigma}$: full or diagonal.
+% The values on the main diagonal (diagonal elements) are variances for each dimension,
+% while the off diagonal elements are the covariances across dimensions.
+While full covariance matrices have more capacity for modelling data,
+diagonal covariance matrices provide several practical advantages:
+{\bf (i)}~the computationally expensive (and potentially unstable) matrix inverse operation is reduced to simply to taking the reciprocals of the diagonal elements,
+{\bf (ii)}~the determinant operation is considerably simplified to taking the product of the diagonal elements,
+{\bf (iii)}~diagonal covariances contain fewer parameters that need to be estimated, and hence require fewer training samples~\cite{Duda01}.
+Furthermore, diagonal covariance GMMs with $N_G > 1$ can model distributions of samples with correlated elements,
+which in turn suggests that full covariance GMMs can be approximated using a diagonal covariance GMM with a larger number of Gaussians~\cite{Reynolds_2000}.
+% It has also been empirically observed that diagonal covariance GMMs outperform full covariance GMMs~\cite{Reynolds95, Reynolds95b, Reynolds00}.
+
 
 Parallelisation is achieved through refactoring the original EM and {\it k}-means algorithms
 into a MapReduce-like framework~\cite{MapReduce_2004} and employing OpenMP compiler directives~\cite{OpenMP_2007}.

@@ -1,54 +1,15 @@
 \section{Numerical Implementation in C++}
 
-We have provided a numerical implementation of Gaussian Mixture Models in the C++ language
+We have provided a numerical implementation of diagonal Gaussian Mixture Models in the C++ language
 as part of recent releases of the open source Armadillo C++ linear algebra library~\cite{Armadillo_JOSS_2016,Armadillo_PASC_2017}.
 The library can be obtained from \href{http://arma.sourceforge.net}{http://arma.sourceforge.net}.
 The implementation contains multi-threaded versions of the Expectation Maximisation (EM) and {\it k}-means training algorithms
 (as overviewed in Sections~\ref{sec:param_em} and~\ref{sec:param_km}),
-which can considerably speed up training.
+which can considerably reduce training time.
 % Parallelisation is achieved through refactoring the original EM and {\it k}-means algorithms
 % into a MapReduce-like framework~\cite{MapReduce_2004} and employing OpenMP compiler directives~\cite{OpenMP_2007}.
-
-\subsection{Achievable Speedup}
-
-To demonstrate the achievable speedup with the multi-threaded versions of the training algorithms,
-we trained a GMM with 100 Gaussians on a recent 16 core machine using synthetic data comprising 1,000,000 samples with 100 dimensions.
-10 iterations of the {\it k}-means algorithm and 10 iterations of the EM algorithm were used.
-The samples were stored in double precision floating point format, resulting in a total data size of approximately 762~Mb.
-
-Figure~\ref{fig:speedup} shows that a speedup of an order of magnitude is achieved when all 16 cores are used.
-We note that the actual speedup is below the idealised linear speedup,
-due to memory access contention (stemming from concurrent access to memory by mulitple cores)
-as well as overheads related to OpenMP and reduction operations (Section~\ref{sec:param_em_parallel}).
-
-
-\begin{figure}[!b]
-\centering
-\begin{minipage}{1\columnwidth}
-  \centering
-  \begin{minipage}{0.5\textwidth}
-    \centering
-    \includegraphics[width=1.1\textwidth]{plot1.pdf}\\
-    {(a)}
-  \end{minipage}%
-  \begin{minipage}{0.5\textwidth}
-    \centering
-    \includegraphics[width=1.1\textwidth]{plot2.pdf}\\
-    {(b)}
-  \end{minipage}
-\end{minipage}
-\caption
-  {
-  Execution characteristics for training a 100 component GMM
-  to model synthetic data comprising 1,000,000 samples with 100 dimensions
-  using 10 iterations of the {\it k}-means algorithm and 10 iterations of the EM algorithm:
-  {\bf (a)}~total time taken depending on the number of threads;
-  {\bf (b)}~corresponding speedup factor compared to using one thread (blue line), and idealised linear speedup under the assumption of no overheads and no memory access contention (red dotted line).
-  The modelling was done on a machine with dual Intel Xeon E5-2620~v4 CPUs, providing 16 independent processing cores.
-  Compilation was done with GCC 5.4 using the following switches: \texttt{-O3 -march=native -fopenmp}.
-  }
-\label{fig:speedup}
-\end{figure}
+In the following text, we first provide a descriptions of the user accessible classes and functions which comprise the implementation,
+followed by a demonstration of the achievable training speedup on a large synthetic dataset.
 
 \subsection{User Accessible Classes and Functions}
 
@@ -277,7 +238,7 @@ using namespace arma;
 
 int main()
   {
-  // create synthetic data with 2 Gaussians
+  // create synthetic data containing 2 clusters with normal distribution
   
   uword d = 5;       // dimensionality
   uword N = 10000;   // number of samples (vectors)
@@ -336,3 +297,119 @@ int main()
   }
 \label{fig:example_usage}
 \end{figure}
+
+
+\subsection{Achievable Speedup}
+\label{sec:speedup}
+
+To demonstrate the achievable speedup with the multi-threaded versions of the training algorithms,
+we trained a GMM with 100 Gaussians on a recent 16 core machine using synthetic data comprising 1,000,000 samples with 100 dimensions.
+10 iterations of the {\it k}-means algorithm and 10 iterations of the EM algorithm were used.
+The samples were stored in double precision floating point format, resulting in a total data size of approximately 762~Mb.
+% The corresponding source code is shown in Figure~\ref{fig:timing_prog}.
+
+Figure~\ref{fig:speedup} shows that a speedup of an order of magnitude is achieved when all 16 cores are used.
+We note that the actual speedup is below the idealised linear speedup,
+due to memory access contention (stemming from concurrent access to memory by mulitple cores)
+as well as overheads related to OpenMP and reduction operations (Section~\ref{sec:param_em_parallel}).
+
+
+\begin{figure}[!b]
+\centering
+\begin{minipage}{1\columnwidth}
+  \centering
+  \begin{minipage}{0.5\textwidth}
+    \centering
+    \includegraphics[width=1.1\textwidth]{plot1.pdf}\\
+    {(a)}
+  \end{minipage}%
+  \begin{minipage}{0.5\textwidth}
+    \centering
+    \includegraphics[width=1.1\textwidth]{plot2.pdf}\\
+    {(b)}
+  \end{minipage}
+\end{minipage}
+\caption
+  {
+  Execution characteristics for training a 100 component GMM
+  to model synthetic data comprising 1,000,000 samples with 100 dimensions
+  using 10 iterations of the {\it k}-means algorithm and 10 iterations of the EM algorithm:
+  {\bf (a)}~total time taken depending on the number of threads;
+  {\bf (b)}~corresponding speedup factor compared to using one thread (blue line), and idealised linear speedup under the assumption of no overheads and no memory access contention (red dotted line).
+  The modelling was done on a machine with dual Intel Xeon E5-2620~v4 CPUs, providing 16 independent processing cores.
+  Compilation was done with GCC 5.4 using the following switches: \texttt{-O3 -march=native -fopenmp}.
+  }
+\label{fig:speedup}
+\end{figure}
+
+
+
+% \begin{figure}[!b]
+% \hrule
+% \vspace{1ex}
+% \centering
+% \begin{Verbatim}[fontfamily=fvm,fontsize=\footnotesize]
+% #include <fstream>
+% #include <armadillo>
+% 
+% using namespace std;
+% using namespace arma;
+% 
+% int main()
+%   {
+%   // create synthetic data with 100 clusters
+%   
+%   uword n_gaus = 100;
+%   
+%   uword d = 100;      // dimensionality
+%   uword N = 1000000;  // number of samples (vectors)
+%   
+%   cout << "generating synthetic data" << endl;
+%   
+%   mat data(d, N, fill::zeros);
+%   
+%   mat means(d, n_gaus, fill::zeros);
+%   
+%   for(uword g=0; g < n_gaus; ++g)
+%     {
+%     means.col(g) = g + linspace<vec>(1,d,d);
+%     }
+%   
+%   uword i = 0;
+%   
+%   while(i < N)
+%     {
+%     for(uword g=0; g < n_gaus; ++g)
+%       {
+%       if(i < N)  { data.col(i) = means.col(g) + 2*randn<vec>(d); ++i; }
+%       }
+%     }
+%   
+%   cout << "modelling data" << endl;
+%   
+%   wall_clock timer;
+%   timer.tic();
+%   
+%   gmm_diag model;
+%   
+%   const uword km_iter = 10;
+%   const uword em_iter = 10;
+%   
+%   bool status = model.learn(data, n_gaus, maha_dist, random_subset, km_iter, em_iter, 1e-10, true);
+%   
+%   if(status == false)  { cout << "learning failed" << endl; }
+%   
+%   cout << "timer.toc(): " << timer.toc() << endl;
+%   
+%   return 0;
+%   }
+% \end{Verbatim}
+% \vspace{-1ex}
+% \hrule
+% \vspace{0.5ex}
+% \caption
+%   {
+%   C++ source code for timing of modelling synthetic data with the {\it gmm\_diag} class.
+%   }
+% \label{fig:timing_prog}
+% \end{figure}

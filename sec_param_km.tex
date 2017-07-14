@@ -43,15 +43,15 @@ where $\Mat{\Sigma}_{\mathrm{global}}$ is a global covariance matrix, estimated 
 To maintain efficiency, $\Mat{\Sigma}_{\mathrm{global}}$ is typically diagonal,
 which makes calculating its inverse straightforward (ie., reciprocals of the values on the main diagonal).
 
-It is possible to implement the $k$-means algorithm is a multitude of ways,
+As the {\it k}-means algorithm is essentially a simplified version of EM,
+it can be parallelised in the same way as per Section~\ref{sec:param_em_parallel}.
+We note that it is possible to implement the $k$-means algorithm is a multitude of ways,
 such as the cluster splitting LBG algorithm~\cite{Linde80},
 or use an elaborate strategy for selecting the initial means~\cite{Arthur_2007}.
 There are also alternative implementations offering faster convergence~\cite{Elkan_2003}.
 
-The vast majority of the computational effort for training GMMs is typically taken up by the full EM algorithm (as described in Section~\ref{sec:param_em}),
-hence the speed of the {\it k}-means algorithm is not critical in the context of GMMs.
-However, as the {\it k}-means algorithm is essentially a simplified version of EM,
-it can be parallelised in the same way as per Section~\ref{sec:param_em_parallel}.
+% The vast majority of the computational effort for training GMMs is typically taken up by the full EM algorithm (as described in Section~\ref{sec:param_em}),
+% hence the speed of the {\it k}-means algorithm is not critical in the context of GMMs.
 
 % \subsection{Addressing Corner Cases}
 

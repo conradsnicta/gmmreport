@@ -36,6 +36,7 @@ and/or the increase in the overall likelihood after each iteration falls below a
 \noindent In Eqn.~(\ref{eqn:aposteriori}), $l_{g,i} \in [0,1]$ is the {a-posteriori} probability of Gaussian $g$ given $\Vec{x}_i$ and current parameters.
 Thus the estimates $\widehat{\Vec{\mu}}_g$ and $\widehat{\Mat{\Sigma}}_g$ are weighted versions of the
 sample mean and sample covariance, respectively.
+
 Overall, the algorithm is a hill climbing procedure for maximising $p(X | \lambda)$.
 While there are no guarantees that it will reach a global maximum, it is guaranteed to monotonically converge to a saddle point or a local maximum~\cite{Dempster77,Duda01,Mitchell97}.
 The above implementation can also be interpreted as an unsupervised probabilistic clustering procedure,

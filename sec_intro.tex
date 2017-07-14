@@ -1,7 +1,7 @@
 \section{Introduction}
 
 Modelling multivariate data through a convex mixture of Gaussians, also known as a Gaussian mixture model (GMM),
-has many uses in fields such as statistics, econometrics, pattern recognition, machine learning and computer vision.
+has many uses in fields such as signal processing, econometrics, pattern recognition, machine learning and computer vision.
 Examples of applications include
 multi-stage feature extraction for action recognition~\cite{Carvajal_2016a},
 modelling of intermediate features~\cite{Ge_ICIP_2015} derived from deep convolutional neural networks~\cite{Ge_2016,LeCun_Nature_2015},
@@ -34,16 +34,24 @@ The full parameter set can be compactly stated as $\lambda = \{ w_g, \Vec{\mu}_g
 where $N_G$ is the number of Gaussians.
 
 Given a training dataset and a value for $N_G$,
-the estimation of $\lambda$ is typically done through the {\it k}-means algorithm~\cite{Bishop_2006,Duda01,Linde80}
-and a tailored instance of Expectation Maximisation (EM) algorithm~\cite{Dempster77, McLachlan-2008, Moon96, Redner84}.
+the estimation of $\lambda$ is typically done through a
+tailored instance of Expectation Maximisation (EM) algorithm~\cite{Dempster77, McLachlan-2008, Moon96, Redner84},
+and the {\it k}-means algorithm~\cite{Bishop_2006,Duda01,Linde80} which is typically used for providing the initial estimate of $\lambda$ for the EM algorithm.
 Choosing the optimal $N_G$ is data dependent and beyond the scope of this work; see~\cite{Hamerly_2003,Pelleg_2000} for example methods.
+
+%The {\it k}-means and EM algorithms are computationally intensive.
+Given the ever growing sizes of datasets and the need for fast \& accurate modelling of such datasets,
+we have provided a readily accessible, user friendly and open source implementation of multi-threaded (parallelised) versions 
+of the {\it k}-means and EM algorithms.
+The implementation is provided under the permissive Apache~2.0 license, 
+allowing unencumbered use in commercial products.
 
 We continue as follows.
 In Section~\ref{sec:param_em} we provide an overview of parameter estimation via the EM algorithm,
 its reformulation for multi-threaded execution,
 and approaches for improving numerical stability.
-In Section~\ref{sec:param_km} we provide a summary of the {\it k}-means algorithm,
-which is often used for providing the initial estimate of $\lambda$ for the EM algorithm.
+In Section~\ref{sec:param_km} we provide a summary of the {\it k}-means algorithm
+along with approaches for improving convergence and modelling accuracy.
 The numerical implementation in C++ is overviewed in~Section~\ref{sec:implementation},
 where we list the user accessible classes and functions,
 as well as a demonstration of the achievable training speedup due to multi-threading.

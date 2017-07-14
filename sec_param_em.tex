@@ -47,7 +47,7 @@ For a derivation of the EM algorithm tailored to GMMs, the reader is directed to
 \subsection{Reformulation for Parallel Execution}
 \label{sec:param_em_parallel}
 
-Even when using diagonal GMMs that omit explicit matrix inverse operations, the EM algorithm is quite computationally intensive.
+The EM algorithm is quite computationally intensive.
 This is in large part due to the use of the $\exp(\cdot)$ function, which needs to be applied numerous times for each and every sample.
 Fortunately, multi-core (multi-threaded) machines are now quite common and accessible, allowing for parallel execution.
 

@@ -1,9 +1,11 @@
 \section*{Abstract}
 
-We provide an overview of an implementation of Gaussian Mixture Models in the C++ language,
+Modelling of multivariate densities is a core component in many signal processing, pattern recognition and machine learning applications.
+We provide an overview of an implementation of Gaussian mixture models in the C++ language,
 as well as multi-threaded (parallelised) versions of the Expectation Maximisation (EM) and {\it k}-means training algorithms.
 Parallelisation is achieved through reformulation of the EM and {\it k}-means algorithms into a MapReduce-like framework
 and employing OpenMP compiler directives.
-We demonstrate the that the parallelisation achieves a speedup of an order of magnitude on a recent 16 core machine.
-The implementation is available in recent releases of the open source Armadillo C++ linear algebra library.
+We demonstrate that the parallelisation achieves a speedup of an order of magnitude on a recent 16 core machine.
+The implementation has been included in recent releases of the open source Armadillo C++ linear algebra library,
+provided under the permissive Apache 2.0 license.
 

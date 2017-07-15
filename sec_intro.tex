@@ -24,12 +24,14 @@ $w_g$ is the weight for component $g$ (with constraints $\sum\nolimits_{g=1}^{N_
 and
 ${{\mathcal{N}}}( \Vec{x} | \Vec{\mu}, \Mat{\Sigma})$ is a $D$-dimensional Gaussian density function with mean $\Vec{\mu}$ and covariance matrix $\Mat{\Sigma}$:
 %
+\begin{small}
 \begin{equation}
-  {{\mathcal{N}}}( \Vec{x} ~|~ \Vec{\mu}, \Mat{\Sigma} )  = 
+  {{\mathcal{N}}}( \Vec{x} | \Vec{\mu}, \Mat{\Sigma} )  = 
   \frac{1}{ (2\pi)^{\frac{D}{2}} | \Mat{\Sigma}|^{\frac{1}{2}} }
   \exp \left[ -\frac{1}{2} (\Vec{x}-\Vec{\mu})^\top \Mat{\Sigma}^{-1} (\Vec{x}-\Vec{\mu}) \right]
   \label{eqn:gaussian}
 \end{equation}%
+\end{small}%
 %
 where $|\Mat{\Sigma}|$ and $\Mat{\Sigma}^{-1}$ denote the determinant and inverse of $\Mat{\Sigma}$, respectively,
 while $\Vec{x}^\top$ denotes the transpose of $\Vec{x}$.
@@ -61,6 +63,10 @@ along with approaches for improving its convergence and modelling accuracy.
 The numerical implementation in C++ is overviewed in~Section~\ref{sec:implementation},
 where we list the user accessible functions
 and provide a demonstration of the achievable training speedup due to multi-threading.
+
+TODO: mention comparison with full diagonal cov matrices
+
+OR: comparison against a previous implementation of GMMs in C++
 
 % Parallelisation is achieved through refactoring the original EM and {\it k}-means algorithms
 % into a MapReduce-like framework~\cite{MapReduce_2004} and employing OpenMP compiler directives~\cite{OpenMP_2007}.

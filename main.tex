@@ -1,18 +1,20 @@
 \documentclass[conference]{IEEEtran}
+% \documentclass[conference,compsoc]{IEEEtran}
 %\usepackage[includefoot,includehead,a4paper,top=1.5cm,bottom=1.5cm,left=2cm,right=2cm]{geometry}
 %\usepackage{fancyhdr}
 \usepackage[usenames,dvipsnames]{color}  % see http://en.wikibooks.org/wiki/LaTeX/Colors
 %\usepackage{titlesec}
 \usepackage[latin1]{inputenc}
+%\usepackage{hyperref}
+\usepackage[pdfborder={0 0 0},colorlinks=true,urlcolor=ForestGreen,linkcolor=black,citecolor=ForestGreen,bookmarks=true]{hyperref}
 %\usepackage[pdfborder={0 0 0},colorlinks=true,urlcolor=ForestGreen,linkcolor=black,citecolor=ForestGreen,bookmarks=true,pdftitle={\doctitle},pdfauthor={\docauthor}]{hyperref}
-\usepackage{hyperref}
 \usepackage[labelfont=bf]{caption}
 \usepackage{enumerate}
 
 \usepackage{graphicx}
 \usepackage{amsmath}
 \usepackage{amssymb}
-\usepackage{url}
+% \usepackage{url}
 \usepackage{mathtools}
 \usepackage{xspace}
 \usepackage{multirow}
@@ -22,7 +24,7 @@
 \usepackage{xfrac}
 \usepackage{fancyvrb}
 
-%\usepackage[british]{babel}
+\usepackage[british]{babel}
 %\usepackage[none]{hyphenat}
 %\sloppy
 
@@ -63,8 +65,26 @@
 %\setlength{\parskip}{2ex plus1ex minus1ex}
 %\setlength{\parskip}{2ex}
 
-\title{An Open Source Implementation of Multi-Threaded Gaussian~Mixture~Models, k-Means and Expectation Maximisation}
-\author{Conrad Sanderson and Ryan R. Curtin}
+\title{\LARGE\bf An Open Source C++ Implementation of Multi-Threaded\\Gaussian~Mixture~Models, k-Means and Expectation Maximisation}
+\author
+  {
+  Conrad Sanderson~{$^{\dagger\diamond}$} and Ryan Curtin~{$^{\ddagger}$}\\
+  ~\\
+  {$^\dagger$}  Data61, CSIRO, Australia\\
+  {$^\ddagger$} Symantec Corporation, USA\\
+  {$^\diamond$} University of Queensland, Australia\\
+  %{$^\ast$}     Arroyo Consortium
+  }
+
+%\begin{small}
+%{$^\dagger$}  Data61, CSIRO, Australia\\
+%{$^\ddagger$} Symantec Corporation, USA\\
+%{$^\diamond$} University of Queensland, Australia\\
+%{$^\ast$}     Arroyo Consortium
+%\end{small}
+%\end{minipage}
+%\end{center}
+
 
 %\titleformat*{\section}{\bf\normalsize\large}
 %\titleformat*{\subsection}{\bf\normalsize}
@@ -136,13 +156,14 @@
 \input{sec_experiments}
 \input{sec_conclusion}
 
+\renewcommand{\baselinestretch}{1.1}\small\normalsize
 \bibliographystyle{ieee}
 \bibliography{refs}
 \clearpage
 
-\newpage
-\appendix
-\input{app_em}
+% \newpage
+% \appendix
+% \input{app_em}
 
 
 \end{document}

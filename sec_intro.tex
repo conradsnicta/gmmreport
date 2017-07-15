@@ -8,6 +8,9 @@ modelling of intermediate features~\cite{Ge_ICIP_2015} derived from deep convolu
 classification of human epithelial cell images~\cite{Wiliem_PR_2014},
 implicit sparse coding for face recognition~\cite{Wong_2014},
 and probabilistic foreground estimation for surveillance systems~\cite{Reddy_2013}.
+GMMs have also been successfully used for speaker
+verification~\cite{Reynolds_2000} and GMMs are commonly used as the emission
+distribution for Hidden Markov models~\cite{Bilmes98}.
 
 In the GMM approach, a distribution of samples (vectors) is modelled as:
 %
@@ -40,10 +43,12 @@ The {\it k}-means algorithm~\cite{Bishop_2006,Duda01,Linde80} is also typically 
 Choosing the optimal $N_G$ is data dependent and beyond the scope of this work; see~\cite{Hamerly_2003,Pelleg_2000} for example methods.
 
 %The {\it k}-means and EM algorithms are computationally intensive.
-Given the ever growing sizes of datasets and the need for fast \& accurate modelling of such datasets,
+Unfortunately, GMM parameter estimation via the EM algorithm is computationally
+intensive, and % <- talking up the difficulty of the problem a little bit
+given the ever growing sizes of datasets and the need for fast \& accurate modelling of such datasets,
 we have provided a readily accessible and open source implementation of multi-threaded (parallelised) versions 
 of the {\it k}-means and EM algorithms.
-The implementation is provided as a user-friendly class in the C++ language,
+The implementation is provided as a user-friendly class as part of the Armadillo C++ linear algebra library, which is
 licensed under the permissive Apache~2.0 license~\cite{Laurent_2008},
 thereby allowing unencumbered use in commercial products.
 

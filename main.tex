@@ -1,13 +1,11 @@
-\def\doctitle{An Open Source Implementation of Multi-Threaded Gaussian~Mixture~Models, k-Means and Expectation Maximisation}
-\def\docauthor{Conrad Sanderson and Ryan Curtin}
-
-\documentclass[11pt,a4paper]{article}
-\usepackage[includefoot,includehead,a4paper,top=1.5cm,bottom=1.5cm,left=2cm,right=2cm]{geometry}
-\usepackage{fancyhdr}
+\documentclass[conference]{IEEEtran}
+%\usepackage[includefoot,includehead,a4paper,top=1.5cm,bottom=1.5cm,left=2cm,right=2cm]{geometry}
+%\usepackage{fancyhdr}
 \usepackage[usenames,dvipsnames]{color}  % see http://en.wikibooks.org/wiki/LaTeX/Colors
-\usepackage{titlesec}
+%\usepackage{titlesec}
 \usepackage[latin1]{inputenc}
-\usepackage[pdfborder={0 0 0},colorlinks=true,urlcolor=ForestGreen,linkcolor=black,citecolor=ForestGreen,bookmarks=true,pdftitle={\doctitle},pdfauthor={\docauthor}]{hyperref}
+%\usepackage[pdfborder={0 0 0},colorlinks=true,urlcolor=ForestGreen,linkcolor=black,citecolor=ForestGreen,bookmarks=true,pdftitle={\doctitle},pdfauthor={\docauthor}]{hyperref}
+\usepackage{hyperref}
 \usepackage[labelfont=bf]{caption}
 \usepackage{enumerate}
 
@@ -24,27 +22,27 @@
 \usepackage{xfrac}
 \usepackage{fancyvrb}
 
-\usepackage[british]{babel}
-\usepackage[none]{hyphenat}
-\sloppy
+%\usepackage[british]{babel}
+%\usepackage[none]{hyphenat}
+%\sloppy
 
 %\usepackage{parskip}
 
 %\usepackage{times}
-\usepackage{palatino}     % changes the default sans serif font
-\usepackage{inconsolata}  % changes the default typewriter font
+%\usepackage{palatino}     % changes the default sans serif font
+%\usepackage{inconsolata}  % changes the default typewriter font
 
 %\renewcommand{\ttdefault}{pcr}
 
-\edef\oldtt{\ttdefault}
-\usepackage[scaled]{beramono}
-\usepackage[T1]{fontenc}
-\renewcommand*\ttdefault{\oldtt}
-\newcommand{\bera}[1]{{\fontfamily{fvm}\selectfont #1}}
+%\edef\oldtt{\ttdefault}
+%\usepackage[scaled]{beramono}
+%\usepackage[T1]{fontenc}
+%\renewcommand*\ttdefault{\oldtt}
+%\newcommand{\bera}[1]{{\fontfamily{fvm}\selectfont #1}}
 
 % disable ligatures such as "fi" being joined into one symbol
-\usepackage{microtype}
-\DisableLigatures[f]{encoding = *, family = * }
+%\usepackage{microtype}
+%\DisableLigatures[f]{encoding = *, family = * }
 
 \graphicspath{{./}{./figures/}}
 
@@ -59,62 +57,64 @@
 \def\ie{ie.\xspace}
 \def\etal{et~al.\xspace}
 
-\renewcommand{\baselinestretch}{1.1}\small\normalsize
+%\renewcommand{\baselinestretch}{1.1}\small\normalsize
 
-\setlength{\parindent}{0ex}
+%\setlength{\parindent}{0ex}
 %\setlength{\parskip}{2ex plus1ex minus1ex}
-\setlength{\parskip}{2ex}
+%\setlength{\parskip}{2ex}
 
+\title{An Open Source Implementation of Multi-Threaded Gaussian~Mixture~Models, k-Means and Expectation Maximisation}
+\author{Conrad Sanderson and Ryan R. Curtin}
 
-\titleformat*{\section}{\bf\normalsize\large}
-\titleformat*{\subsection}{\bf\normalsize}
+%\titleformat*{\section}{\bf\normalsize\large}
+%\titleformat*{\subsection}{\bf\normalsize}
 
-\titlespacing{\section}{0pt}{\parskip}{0ex}
-\titlespacing{\subsection}{0pt}{\parskip}{0ex}
-\titlespacing{\subsubsection}{0pt}{\parskip}{0ex}
+%\titlespacing{\section}{0pt}{\parskip}{0ex}
+%\titlespacing{\subsection}{0pt}{\parskip}{0ex}
+%\titlespacing{\subsubsection}{0pt}{\parskip}{0ex}
 
-\makeatletter
-\g@addto@macro\normalsize{%
-  \setlength\abovedisplayskip{1ex}
-  \setlength\belowdisplayskip{1ex}
-  \setlength\abovedisplayshortskip{1ex}
-  \setlength\belowdisplayshortskip{1ex}
-}
-\makeatother
+%\makeatletter
+%\g@addto@macro\normalsize{%
+%  \setlength\abovedisplayskip{1ex}
+%  \setlength\belowdisplayskip{1ex}
+%  \setlength\abovedisplayshortskip{1ex}
+%  \setlength\belowdisplayshortskip{1ex}
+%}
+%\makeatother
 
 \begin{document}
 
-\pagestyle{empty}
-\lhead{}
+%\pagestyle{empty}
+%\lhead{}
 %\lhead{\textcolor{Green}{\small\doctitle}}
-\chead{}
-\rhead{}
-\lfoot{}
-\cfoot{}
+%\chead{}
+%\rhead{}
+%\lfoot{}
+%\cfoot{}
 %\cfoot{\small \thepage}
-\rfoot{}
+%\rfoot{}
 
 
-\centerline{\textcolor{red}{\bf[DRAFT - WORK IN PROGRESS - VERSION 2017-07-14b]}}
+%\centerline{\textcolor{red}{\bf[DRAFT - WORK IN PROGRESS - VERSION 2017-07-14b]}}
 
-\begin{center}
-{\Large\bf\doctitle}
-\end{center}
+%\begin{center}
+%{\Large\bf\doctitle}
+%\end{center}
 
-\begin{center}
+%\begin{center}
 
-\begin{minipage}{0.5\textwidth}
-{\large\it Conrad Sanderson~{$^{\dagger\diamond\ast}$} and Ryan Curtin~{$^{\ddagger\ast}$}}\\
+%\begin{minipage}{0.5\textwidth}
+%{\large\it Conrad Sanderson~{$^{\dagger\diamond\ast}$} and Ryan Curtin~{$^{\ddagger\ast}$}}\\
 
-\begin{small}
-{$^\dagger$}  Data61, CSIRO, Australia\\
-{$^\ddagger$} Symantec Corporation, USA\\
-{$^\diamond$} University of Queensland, Australia\\
-{$^\ast$}     Arroyo Consortium
-\end{small}
-\end{minipage}
-\end{center}
-
+%\begin{small}
+%{$^\dagger$}  Data61, CSIRO, Australia\\
+%{$^\ddagger$} Symantec Corporation, USA\\
+%{$^\diamond$} University of Queensland, Australia\\
+%{$^\ast$}     Arroyo Consortium
+%\end{small}
+%\end{minipage}
+%\end{center}
+\maketitle
 
 \input{abstract}
 
@@ -133,15 +133,16 @@
 \input{sec_param_em}
 \input{sec_param_km}
 \input{sec_implementation}
+\input{sec_experiments}
+\input{sec_conclusion}
+
+\bibliographystyle{ieee}
+\bibliography{refs}
 \clearpage
 
 \newpage
 \appendix
 \input{app_em}
-
-\newpage
-\bibliographystyle{ieee}
-\bibliography{refs}
 
 
 \end{document}

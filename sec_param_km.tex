@@ -26,7 +26,7 @@ but $l_{g,i}$ is redefined~as:%
   l_{g,i} = \left\{
   \begin{array}{ll}
   1, & \mbox{if} ~ g = \argmin\limits_{k=1, \cdots, N_G} \operatorname{dist}(\Vec{\mu}_k, \Vec{x}_i) \\
-  0, & \mbox{otherwise}
+  0, & \mbox{otherwise}.
   \end{array}
   \right.
 \end{equation}
@@ -37,9 +37,13 @@ such as the squared Euclidean distance: \mbox{$\operatorname{dist}(\Vec{a}, \Vec
 There is a potential downside to using the Euclidean distance.
 When one of the dimensions within the data has a much larger range than the other dimensions,
 it will dominate the contribution to the distance result, with the other dimensions effectively ignored.
-To address this, it is possible to use the squared Mahalanobis distance~\cite{Bishop_2006,Duda01},
-\mbox{$\operatorname{dist}(\Vec{a}, \Vec{b}) = (\Vec{a} - \Vec{b})^\top \Mat{\Sigma}^{-1}_{\mathrm{global}} (\Vec{a} - \Vec{b})$},
-where $\Mat{\Sigma}_{\mathrm{global}}$ is a global covariance matrix, estimated from all available training data.
+To address this, it is possible to use the squared Mahalanobis
+distance~\cite{Bishop_2006,Duda01}:
+
+\begin{equation}
+\operatorname{dist}(\Vec{a}, \Vec{b}) = (\Vec{a} - \Vec{b})^\top \Mat{\Sigma}^{-1}_{\mathrm{global}} (\Vec{a} - \Vec{b}),
+\end{equation}
+\noindent where $\Mat{\Sigma}_{\mathrm{global}}$ is a global covariance matrix, estimated from all available training data.
 To maintain efficiency, $\Mat{\Sigma}_{\mathrm{global}}$ is typically diagonal,
 which makes calculating its inverse straightforward (ie., reciprocals of the values on the main diagonal).
 

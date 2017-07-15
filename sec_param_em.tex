@@ -18,22 +18,26 @@ the estimated versions of the parameters ($\widehat{w}_g$, $\widehat{\Vec{\mu}}_
 within one iteration are calculated as follows:
 %
 \begin{eqnarray}
-  l_{g,i}                  & = & \frac{w_g ~ {{\mathcal{N}}}( \Vec{x}_i | \Vec{\mu}_g, \Mat{\Sigma}_g )}{\sum\nolimits_{k=1}^{N_G} w_k ~ {{\mathcal{N}}}( \Vec{x}_i | \Vec{\mu}_k, \Mat{\Sigma}_k )} \label{eqn:aposteriori} \\
-  L_g                      & = & \sum\nolimits_{i=1}^{N_V} l_{g,i} \\
-  \widehat{w}_g            & = & \frac{L_g}{N_V}  \label{eqn:em_weight} \\
-  \widehat{\Vec{\mu}}_g    & = & \frac{1}{L_g} \sum\nolimits_{i=1}^{N_V} \Vec{x}_i ~ l_{g,i}  \label{eqn:em_mean} \\
+  l_{g,i}                  & = & \frac{w_g ~ {{\mathcal{N}}}( \Vec{x}_i | \Vec{\mu}_g, \Mat{\Sigma}_g )}{\sum\nolimits_{k=1}^{N_G} w_k ~ {{\mathcal{N}}}( \Vec{x}_i | \Vec{\mu}_k, \Mat{\Sigma}_k )}, \label{eqn:aposteriori} \\
+  L_g                      & = & \sum\nolimits_{i=1}^{N_V} l_{g,i}, \\
+  \widehat{w}_g            & = & \frac{L_g}{N_V},  \label{eqn:em_weight} \\
+  \widehat{\Vec{\mu}}_g    & = & \frac{1}{L_g} \sum\nolimits_{i=1}^{N_V} \Vec{x}_i ~ l_{g,i}  \label{eqn:em_mean}, \\
   \widehat{\Mat{\Sigma}}_g & = & \frac{1}{L_g} \sum\nolimits_{i=1}^{N_V} (\Vec{x}_i - \widehat{\Vec{\mu}}_g)(\Vec{x}_i - \widehat{\Vec{\mu}}_g)^\top l_{g,i} \label{eqn:em_cov} \\
-                           & = &  \frac{1}{L_g} \left[ \sum\nolimits_{i=1}^{N_V} \Vec{x}_i \Vec{x}_i^\top l_{g,i} \right] - \widehat{\Vec{\mu}}_g \widehat{\Vec{\mu}}_g^\top
+                           & = &  \frac{1}{L_g} \left[ \sum\nolimits_{i=1}^{N_V} \Vec{x}_i \Vec{x}_i^\top l_{g,i} \right] - \widehat{\Vec{\mu}}_g \widehat{\Vec{\mu}}_g^\top.
 \end{eqnarray}
 
 \noindent
-Once the estimated parameters for all Gaussians are found, the parameters are updated,
-ie., {\small $\left\{ w_g, \Vec{\mu}_g, \Mat{\Sigma}_g \right\}_{g=1}^{N_G} = \left\{ \widehat{w}_g, \widehat{\Vec{\mu}}_g, \widehat{\Mat{\Sigma}}_g \right\}_{g=1}^{N_G}$},
-and the iteration starts anew.
+Once the estimated parameters for all Gaussians are found, the parameters are updated:
+
+\begin{equation}
+\left\{ w_g, \Vec{\mu}_g, \Mat{\Sigma}_g \right\}_{g=1}^{N_G} = \left\{ \widehat{w}_g, \widehat{\Vec{\mu}}_g, \widehat{\Mat{\Sigma}}_g \right\}_{g=1}^{N_G}
+\end{equation}
+
+\noindent and the iteration starts anew.
 The process is typically repeated until the number of iterations has reached a pre-defined number,
 and/or the increase in the overall likelihood after each iteration falls below a pre-defined threshold.
 
-\noindent In Eqn.~(\ref{eqn:aposteriori}), $l_{g,i} \in [0,1]$ is the {a-posteriori} probability of Gaussian $g$ given $\Vec{x}_i$ and current parameters.
+In Eqn.~(\ref{eqn:aposteriori}), $l_{g,i} \in [0,1]$ is the {a-posteriori} probability of Gaussian $g$ given $\Vec{x}_i$ and current parameters.
 Thus the estimates $\widehat{\Vec{\mu}}_g$ and $\widehat{\Mat{\Sigma}}_g$ are weighted versions of the
 sample mean and sample covariance, respectively.
 
@@ -65,10 +69,10 @@ are calculated as follows:
 \begin{eqnarray}
   %\mbox{for} ~~ g = 1, \cdots, N_g:  \nonumber \\
   %
-  \widetilde{L}_g^{[t]}            & = & \sum\nolimits_{j = i^{[t]}_{\textrm{start}}}^{i^{[t]}_{\textrm{end}}} l_{g,j}                             \\ % acc_norm_lhoods
-  \widetilde{\Vec{\mu}}_g^{[t]}    & = & \sum\nolimits_{j = i^{[t]}_{\textrm{start}}}^{i^{[t]}_{\textrm{end}}} l_{g,j} ~ \Vec{x}_j                 \\ % acc_mean
+  \widetilde{L}_g^{[t]}            & = & \sum\nolimits_{j = i^{[t]}_{\textrm{start}}}^{i^{[t]}_{\textrm{end}}} l_{g,j},                             \\ % acc_norm_lhoods
+  \widetilde{\Vec{\mu}}_g^{[t]}    & = & \sum\nolimits_{j = i^{[t]}_{\textrm{start}}}^{i^{[t]}_{\textrm{end}}} l_{g,j} ~ \Vec{x}_j,                 \\ % acc_mean
   %\widetilde{\Mat{\Sigma}}_g^{[t]} & = & \sum\nolimits_{j = i^{[t]}_{\textrm{start}}}^{i^{[t]}_{\textrm{end}}} l_{g,j} ~ \Vec{x}_j \odot \Vec{x}_j    % acc_dcov
-  \widetilde{\Mat{\Sigma}}_g^{[t]} & = & \sum\nolimits_{j = i^{[t]}_{\textrm{start}}}^{i^{[t]}_{\textrm{end}}} l_{g,j} ~ \Vec{x}_j \Vec{x}_j^\top    % acc_dcov
+  \widetilde{\Mat{\Sigma}}_g^{[t]} & = & \sum\nolimits_{j = i^{[t]}_{\textrm{start}}}^{i^{[t]}_{\textrm{end}}} l_{g,j} ~ \Vec{x}_j \Vec{x}_j^\top.    % acc_dcov
 \end{eqnarray}%
 %
 where $l_{g,j}$ is defined in Eqn.~(\ref{eqn:aposteriori}).
@@ -78,10 +82,10 @@ Once the accumulators for all threads are calculated,
 for each Gaussian $g$ the reduction operation combines them to form the estimates of $\widehat{w}_g$, $\widehat{\Vec{\mu}}_g$ and $\widehat{\Mat{\Sigma}}_g$ as follows:
 %
 \begin{eqnarray}
-  L_g                      & = & \sum\nolimits_{t=1}^{N_T} \widetilde{L}_g^{[t]}                           \\ % acc_norm_lhood
-  \widehat{w}_g            & = & \frac{L_g}{N_V}                                                           \\
-  \widehat{\Vec{\mu}}_g    & = & \frac{1}{L_g} \sum\nolimits_{t=1}^{N_T} \widetilde{\Vec{\mu}}_g^{[t]}     \\
-  \widehat{\Mat{\Sigma}}_g & = & \frac{1}{L_g} \sum\nolimits_{t=1}^{N_T} \widetilde{\Mat{\Sigma}}_g^{[t]} - \widehat{\Vec{\mu}}_g \widehat{\Vec{\mu}}_g^\top
+  L_g                      & = & \sum\nolimits_{t=1}^{N_T} \widetilde{L}_g^{[t]},                           \\ % acc_norm_lhood
+  \widehat{w}_g            & = & \frac{L_g}{N_V},                                                           \\
+  \widehat{\Vec{\mu}}_g    & = & \frac{1}{L_g} \sum\nolimits_{t=1}^{N_T} \widetilde{\Vec{\mu}}_g^{[t]},     \\
+  \widehat{\Mat{\Sigma}}_g & = & \frac{1}{L_g} \sum\nolimits_{t=1}^{N_T} \widetilde{\Mat{\Sigma}}_g^{[t]} - \widehat{\Vec{\mu}}_g \widehat{\Vec{\mu}}_g^\top.
 \end{eqnarray}
 
 \subsection{Improving Numerical Stability}
@@ -91,7 +95,7 @@ the direct computation of Eqns.~(\ref{eqn:gmm_prob}) and (\ref{eqn:gaussian}) ca
 %To address this problem, the logarithm version of Eqn.~(\ref{eqn:gmm_prob}) can be used:
 To address this problem, the logarithm version of Eqn.~(\ref{eqn:gaussian}) can be used:
 %
-\begin{eqnarray}
+\begin{multline}
   \log {{\mathcal{N}}}( \Vec{x} | \Vec{\mu}, \Mat{\Sigma} )
 %   & = &
 %   \log \left\{
@@ -132,24 +136,20 @@ To address this problem, the logarithm version of Eqn.~(\ref{eqn:gaussian}) can 
 %   \frac{1}{2} (\Vec{x}-\Vec{\mu})^\top \Mat{\Sigma}^{-1} (\Vec{x}-\Vec{\mu})
 %   \\
 % %
-  & = &
-  - \left\{
-  \sfrac{D}{2} ~ \log \left( 2\pi \right)
+  = -\left\{\sfrac{D}{2} \log \left( 2\pi \right)
   +
   \sfrac{1}{2} ~ \log ( |\Mat{\Sigma}| )
-  \right\}
-  -
-  \sfrac{1}{2} ~ (\Vec{x}-\Vec{\mu})^\top \Mat{\Sigma}^{-1} (\Vec{x}-\Vec{\mu})
-\end{eqnarray}
+  \right\} \\ - \sfrac{1}{2} (\Vec{x}-\Vec{\mu})^\top \Mat{\Sigma}^{-1} (\Vec{x}-\Vec{\mu}).
+\end{multline}
 
 The corresponding logarithm version of Eqn.~(\ref{eqn:gmm_prob}) is:
 %
-\begin{eqnarray}
+\begin{multline}
 \log \sum\nolimits_{g=1}^{N_G} w_g ~ {{\mathcal{N}}}( \Vec{x} ~|~ \Vec{\mu}_g, \Mat{\Sigma}_g )
-& = &
-\log \sum\nolimits_{g=1}^{N_G} \exp\left[ \log \left\{ w_g {{\mathcal{N}}}( \Vec{x} ~|~ \Vec{\mu}_g, \Mat{\Sigma}_g ) \right\} \right]
+ = \\
+ \log \sum\nolimits_{g=1}^{N_G} \exp\left[ \log \left\{ w_g {{\mathcal{N}}}( \Vec{x} ~|~ \Vec{\mu}_g, \Mat{\Sigma}_g ) \right\} \right].
 \label{eqn:log_gmm}
-\end{eqnarray}
+\end{multline}
 The right hand side of Eqn.~(\ref{eqn:log_gmm}) can be expressed as a repeated addition in the form of \mbox{\small $\log(\exp\left[\log(a)\right] + \exp\left[\log(b)\right])$},
 which can be rewritten in the form of \mbox{\small $\log(a) + \log\left( 1 + \exp\left[ \log(b) - \log(a) \right] \right)$}.
 In the latter form, if we ensure that {\small $\log(a) \geq \log(b)$},

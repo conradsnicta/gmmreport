@@ -47,6 +47,12 @@ which in turn suggests that full covariance GMMs can be approximated using diago
 The implementation is provided as two user accessible classes within the {\it arma} namespace:
 {\small\it gmm\_diag} and~{\small\it fgmm\_diag}.
 The former uses double precision floating point values, while the latter uses single precision floating point values.
+For an instance of the double precision {\it gmm\_diag} class named as~{\bf M},
+its member functions and variables are listed below.
+The interface allows the user full control over the parameters for GMM fitting,
+as well as easy and flexible access to the trained model.
+Figure~\ref{fig:example_usage} contains a complete C++ program which demonstrates usage of the {\it gmm\_diag} class.
+
 In the description below, all vectors and matrices refer to corresponding objects from the Armadillo library;
 scalars have the type {\it double},
 matrices have the type {\it mat},
@@ -58,12 +64,6 @@ When using the single precision {\it fgmm\_diag} class,
 all vector and matrix types have the {\it f} prefix (for example, {\it fmat}),
 while scalars have the type {\it float}.
 The word ``heft'' is explicitly used in the classes as a shorter version of ``weight'', while keeping the same meaning with the context of GMMs.
-
-For an instance of the double precision {\it gmm\_diag} class named as {\bf M},
-its member functions and variables are listed below.
-The interface allows the user full control over the parameters for GMM fitting, and easy access to the trained model.
-Figure~\ref{fig:example_usage} contains a complete C++ program which demonstrates usage of the {\it gmm\_diag} class.
-
 
 
 \begin{enumerate}[{$\bullet$}]

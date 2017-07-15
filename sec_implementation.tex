@@ -4,7 +4,9 @@
 We have provided a numerical implementation of Gaussian Mixture Models in the C++ language
 as part of recent releases of the open source Armadillo C++ linear algebra library~\cite{Armadillo_JOSS_2016}. %,Armadillo_PASC_2017}.
 The library is available under the permissive Apache 2.0 license~\cite{Laurent_2008},
-and can be obtained from \href{http://arma.sourceforge.net}{http://arma.sourceforge.net}.
+and can be obtained from
+{\texttt{http://arma.sourceforge.net}}.
+%\href{http://arma.sourceforge.net}{http://arma.sourceforge.net}.
 To considerably reduce execution time,
 the implementation contains multi-threaded versions of the EM and {\it k}-means training algorithms
 (as overviewed in Sections~\ref{sec:param_em} and~\ref{sec:param_km}).
@@ -197,7 +199,7 @@ the number of hefts must match the existing model
 
 \item
 {\bf M.set\_params(means, dcovs, hefts)}\\
-set all the parameters at the same time, using matrices denoted as {\bf means} and {\bf dcovs} as well as the the row vector denoted as {\bf hefts};
+set all the parameters at the same time, using matrices denoted as {\bf means} and {\bf dcovs} as well as the row vector denoted as {\bf hefts};
 the layout of the matrices is as per the {\bf .set\_means()} and {\bf .set\_dcovs()} functions above;
 the number of Gaussians and dimensionality can be different from the existing model
 

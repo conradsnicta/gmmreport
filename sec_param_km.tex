@@ -8,15 +8,15 @@ However, in a computational implementation, the $\exp(\cdot)$ function as well a
 In order to speed up training, the initial estimate of $\lambda$ is typically provided via the {\it k}-means clustering algorithm~\cite{Bishop_2006,Duda01,Kulis_2012}
 which avoids such time consuming operations.
 
-The baseline {\it k}-means clustering algorithm is a simple iterative procedure comprised of two steps:
-(i)~calculating the distance from each vector to each each mean,
+The baseline {\it k}-means clustering algorithm is a straightforward iterative procedure comprised of two steps:
+(i)~calculating the distance from each sample to each mean,
 and
-(ii)~calculating the new version of each mean as the average of vectors which were found to be the closest to the previous version of the corresponding mean.
+(ii)~calculating the new version of each mean as the average of samples which were found to be the closest to the previous version of the corresponding mean.
 
 
 The $k$-means algorithm can be interpreted as a simplified version (or special case) of the EM algorithm for GMMs~\cite{Kulis_2012}.
-Instead of each vector being assigned a set probabilities representing cluster membership (soft assignment),
-each vector is assigned to only one cluster (hard assignment).
+Instead of each sample being assigned a set probabilities representing cluster membership (soft assignment),
+each sample is assigned to only one cluster (hard assignment).
 Furthermore, it can be assumed that the covariance matrix of each Gaussian is non-informative, diagonal, and/or shared across all Gaussians.
 
 More formally, the estimation of model parameters is as per Eqns.~(\ref{eqn:em_weight}), (\ref{eqn:em_mean}) and (\ref{eqn:em_cov}), 

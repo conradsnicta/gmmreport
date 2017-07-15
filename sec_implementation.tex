@@ -2,7 +2,7 @@
 \label{sec:implementation}
 
 We have provided a numerical implementation of Gaussian Mixture Models in the C++ language
-as part of recent releases of the open source Armadillo C++ linear algebra library~\cite{Armadillo_JOSS_2016,Armadillo_PASC_2017}.
+as part of recent releases of the open source Armadillo C++ linear algebra library~\cite{Armadillo_JOSS_2016}. %,Armadillo_PASC_2017}.
 The library is available under the permissive Apache 2.0 license~\cite{Laurent_2008},
 and can be obtained from \href{http://arma.sourceforge.net}{http://arma.sourceforge.net}.
 To considerably reduce execution time,
@@ -21,104 +21,32 @@ There are two main choices for the type of covariance matrix $\Mat{\Sigma}$: ful
 % while the off diagonal elements are the covariances across dimensions.
 While full covariance matrices have more capacity for modelling data,
 diagonal covariance matrices provide several practical advantages:
-{\bf (i)}~the computationally expensive (and potentially unstable) matrix inverse operation in Eqn.~(\ref{eqn:gaussian})
+%
+\begin{enumerate}[{\bf (i)}]
+\item
+the computationally expensive (and potentially unstable) matrix inverse operation in Eqn.~(\ref{eqn:gaussian})
 is reduced to simply to taking the reciprocals of the diagonal elements,
-{\bf (ii)}~the determinant operation is considerably simplified to taking the product of the diagonal elements,
-{\bf (iii)}~diagonal covariance matrices contain fewer parameters that need to be estimated, and hence require fewer training samples~\cite{Duda01}.
+
+\item
+the determinant operation is considerably simplified to taking the product of the diagonal elements,
+
+\item
+diagonal covariance matrices contain fewer parameters that need to be estimated, and hence require fewer training samples~\cite{Duda01}.
+\end{enumerate}
 
 Given the above practical considerations, the implementation uses diagonal covariance matrices.
 We note that diagonal covariance GMMs with $N_G > 1$ can model distributions of samples with correlated elements,
 which in turn suggests that full covariance GMMs can be approximated using diagonal covariance GMMs with a larger number of Gaussians~\cite{Reynolds_2000}.
 % It has also been empirically observed that diagonal covariance GMMs outperform full covariance GMMs~\cite{Reynolds95, Reynolds95b, Reynolds00}.
 
-In the following text, we first provide a description of the user accessible classes and functions which comprise the implementation,
-followed by a demonstration of the achievable training speedup due to multi-threading.
+% In the following text, we first provide a description of the user accessible classes and functions which comprise the implementation,
+% followed by a demonstration of the achievable training speedup due to multi-threading.
 
 \subsection{User Accessible Classes and Functions}
 
 The implementation is provided as two user accessible classes within the {\it arma} namespace:
-{\it gmm\_diag} and {\it fgmm\_diag}.
+{\small\it gmm\_diag} and~{\small\it fgmm\_diag}.
 The former uses double precision floating point values, while the latter uses single precision floating point values.
-For an instance of the double precision {\it gmm\_diag} class named as {\bf M},
-its member functions and variables are listed below.
-Figure~\ref{fig:example_usage} contains a complete C++ program which demonstrates usage of the {\it gmm\_diag} class.
-
-% Move up higher in the document.
-\begin{figure*}[!tb]
-\hrule
-\vspace{1ex}
-\centering
-% possible mono-space fonts: BeraMono, DejaVu Sans Mono, KP Monospaced, LuxiMono, Inconsolata
-%\begin{Verbatim}
-%\begin{Verbatim}[fontsize=\footnotesize,fontseries=b]
-\begin{Verbatim}[fontsize=\footnotesize]
-#include <armadillo>
-
-using namespace arma;
-
-int main()
-  {
-  // create synthetic data containing 2 clusters with normal distribution
-  
-  uword d = 5;       // dimensionality
-  uword N = 10000;   // number of samples (vectors)
-  
-  mat data(d, N, fill::zeros);
-  
-  vec mean0 = linspace<vec>(1,d,d);
-  vec mean1 = mean0 + 2;
-  
-  uword i = 0;
-  
-  while(i < N)
-    {
-    if(i < N)  { data.col(i) = mean0 + randn<vec>(d); ++i; }
-    if(i < N)  { data.col(i) = mean0 + randn<vec>(d); ++i; }
-    if(i < N)  { data.col(i) = mean1 + randn<vec>(d); ++i; }
-    }
-  
-  
-  // model the data as a diagonal GMM with 2 Gaussians
-  
-  gmm_diag model;
-  
-  bool status = model.learn(data, 2, maha_dist, random_subset, 10, 5, 1e-10, true);
-  
-  if(status == false)  { cout << "learning failed" << endl; }
-  
-  model.means.print("means:");
-  
-  double overall_likelihood = model.avg_log_p(data);
-  
-  rowvec     set_likelihood = model.log_p( data.cols(0,9) );
-  double  scalar_likelihood = model.log_p( data.col(0)    );
-  
-  uword   gaus_id  = model.assign( data.col(0),    eucl_dist );
-  urowvec gaus_ids = model.assign( data.cols(0,9), prob_dist );
-  
-  urowvec hist1 = model.raw_hist (data, prob_dist);
-   rowvec hist2 = model.norm_hist(data, eucl_dist);
-  
-  model.save("my_model.gmm");
-  
-  mat dcovs2 = model.dcovs + 0.1;
-  
-  model.set_dcovs(dcovs2);
-  
-  return 0;
-  }
-
-\end{Verbatim}
-\vspace{-1ex}
-\hrule
-\vspace{0.5ex}
-\caption
-  {
-  An example C++ program which demonstrates usage of the {\it gmm\_diag} class.
-  }
-\label{fig:example_usage}
-\end{figure*}
-
 In the description below, all vectors and matrices refer to corresponding objects from the Armadillo library;
 scalars have the type {\it double},
 matrices have the type {\it mat},
@@ -131,7 +59,15 @@ all vector and matrix types have the {\it f} prefix (for example, {\it fmat}),
 while scalars have the type {\it float}.
 The word ``heft'' is explicitly used in the classes as a shorter version of ``weight'', while keeping the same meaning with the context of GMMs.
 
-\begin{itemize} \itemsep 4pt
+For an instance of the double precision {\it gmm\_diag} class named as {\bf M},
+its member functions and variables are listed below.
+The interface allows the user full control over the parameters for GMM fitting, and easy access to the trained model.
+Figure~\ref{fig:example_usage} contains a complete C++ program which demonstrates usage of the {\it gmm\_diag} class.
+
+
+
+\begin{enumerate}[{$\bullet$}]
+\itemsep 1ex
 
 \item
 {\bf M.log\_p(V)}\\
@@ -140,7 +76,7 @@ return a scalar (double precision floating point value) representing the log-lik
 \item
 {\bf M.log\_p(V, g)}\\
 return a scalar (double precision floating point value) representing the log-likelihood of column vector {\bf V},
-according to Gaussian with index {\bf g} (specified as an unsigned integer of type {\it uword})
+according to Gaussian with index~{\bf g} (specified as an unsigned integer of type {\it uword})
 
 \item
 {\bf M.log\_p(X)}\\
@@ -159,33 +95,44 @@ return a scalar (double precision floating point value) representing the average
 \item
 {\bf M.avg\_log\_p(X, g)}\\
 return a scalar (double precision floating point value) representing the average log-likelihood of all column vectors in matrix {\bf X},
-according to Gaussian with index {\bf g}  (specified as an unsigned integer of type {\it uword})
+according to Gaussian with index~{\bf g}  (specified as an unsigned integer of type {\it uword})
 
 \item
 {\bf M.assign(V, dist\_mode)}\\
 return an unsigned integer (of type {\it uword}) representing the index of the
-closest mean (or Gaussian) to the vector {\bf V}; the parameter {\bf dist\_mode} is one
-of: \\
-\ \\
-\begin{tabular}{ll}
-{\bf eucl\_dist} & Euclidean distance (takes only means \\
-                 & into account) \\
-{\bf prob\_dist} & probabilistic ``distance'', defined as the \\
-                 & inverse likelihood (takes into account \\
-                 & means, covariances and hefts) \\
-\end{tabular}
+closest mean (or Gaussian) to vector {\bf V}; the parameter {\bf dist\_mode} is one
+of:
+\begin{small}
+\begin{enumerate}[{\bf {~eucl\_dist}}]
+\item
+Euclidean distance (takes only means into account)
+\end{enumerate}
+
+\begin{enumerate}[{\bf {prob\_dist}}]
+\item
+probabilistic ``distance'', defined as the inverse likelihood (takes into account means, covariances and hefts)
+\end{enumerate}
+\end{small}
+
+% \begin{tabular}{ll}
+% {\bf eucl\_dist} & Euclidean distance (takes only means \\
+%                  & into account) \\
+% {\bf prob\_dist} & probabilistic ``distance'', defined as the \\
+%                  & inverse likelihood (takes into account \\
+%                  & means, covariances and hefts) \\
+% \end{tabular}
 
 \item
 {\bf M.assign(X, dist\_mode)}\\
 return a row vector of unsigned integers (of type {\it urowvec}) containing the indices of the closest means (or Gaussians) to each column vector in matrix {\bf X};
-parameter {\bf dist\_mode} is either {\bf eucl\_dist} or {\bf prob\_dist}, as per the {\bf .assign()} function above
+parameter {\bf dist\_mode} is {\bf eucl\_dist} or {\bf prob\_dist}, as per the {\bf .assign()} function above
 
 \item
 {\bf M.raw\_hist(X, dist\_mode)}\\
 return a row vector of unsigned integers (of type {\it urowvec}) representing the raw histogram of counts;
 each entry is the number of counts corresponding to a Gaussian;
 each count is the number times the corresponding Gaussian was the closest to each column vector in matrix {\bf X};
-parameter {\bf dist\_mode} is either {\bf eucl\_dist} or {\bf prob\_dist}, as per the {\bf .assign()} function above
+parameter {\bf dist\_mode} is {\bf eucl\_dist} or {\bf prob\_dist}, as per the {\bf .assign()} function above
 
 \item
 {\bf M.norm\_hist(X, dist\_mode)}\\
@@ -240,7 +187,7 @@ the number of means and their dimensionality must match the existing model
 
 \item
 {\bf M.set\_dcovs(X)}\\
-set the diagonal covariances to be as specified in matrix {\bf X}, with the set of diagonal covariances for each Gaussian stored as a column vector;
+set the diagonal covariances to be as specified in matrix~{\bf X}, with the set of diagonal covariances for each Gaussian stored as a column vector;
 the number of diagonal covariance vectors and their dimensionality must match the existing model
 
 \item
@@ -260,7 +207,9 @@ learn the model parameters via the {\it k}-means and/or EM algorithms,
 and return a boolean value, with {\it true} indicating success, and {\it false} indicating failure;
 the parameters have the following meanings:
 
-\begin{enumerate}[{$\cdot$}]
+\begin{small}
+\begin{enumerate}[{-}]
+\itemsep 1ex
 \item
 {\bf data}\\
 matrix (of type {\it mat}) containing training samples; each sample is stored as a column vector
@@ -270,6 +219,168 @@ matrix (of type {\it mat}) containing training samples; each sample is stored as
 set the number of Gaussians to {\bf n\_gaus};
 to help convergence, it is recommended that the given {\bf data} matrix (above)
 contains at least 10 samples for each Gaussian
+
+\item
+{\bf dist\_mode}\\
+specifies the distance used during the seeding of initial means and {\it k}-means clustering:
+\begin{small}
+\begin{enumerate}[{\bf eucl\_dist}]
+\item Euclidean distance
+\end{enumerate}
+
+\begin{enumerate}[{\bf {maha\_dist}}]
+\item Mahalanobis distance, which uses a global diagonal covariance matrix estimated from the given training samples
+\end{enumerate}
+\end{small}
+
+% \begin{tabular}{ll}
+% {\bf eucl\_dist} & Euclidean distance\\
+% {\bf maha\_dist} & Mahalanobis distance, which uses a \\
+%                  & global diagonal covariance matrix \\
+%                  & estimated from the given training \\
+%                  & samples
+% \end{tabular}
+
+\item
+{\bf seed\_mode}\\
+specifies how the initial means are seeded prior to running {\it k}-means and/or EM algorithms:
+\begin{small}
+\begin{enumerate}[{\bf {~~~keep\_existing}}]
+\item keep the existing model (do not modify the means, covariances and hefts)
+\end{enumerate}
+\begin{enumerate}[{\bf {~~~~static\_subset}}]
+\item a subset of the training samples (repeatable)
+\end{enumerate}
+\begin{enumerate}[{\bf {~random\_subset}}]
+\item a subset of the training samples (random)
+\end{enumerate}
+\begin{enumerate}[{\bf {~~~static\_spread}}]
+\item a maximally spread subset of training samples (repeatable)
+\end{enumerate}
+\begin{enumerate}[{\bf {random\_spread}}]
+\item a maximally spread subset of training samples (random start) \\
+\end{enumerate}
+\end{small}
+
+% \vspace*{0.5em}
+% \begin{tabular}{ll}
+% {\bf keep\_existing} & keep the existing model (do not \\
+%                      & modify the means, covariances \\
+%                      & and hefts) \\
+% {\bf static\_subset} & a subset of the training samples \\
+%                      & (repeatable) \\
+% {\bf random\_subset} & a subset of the training samples \\
+%                      & (random) \\
+% {\bf static\_spread} & a maximally spread subset of \\
+%                      & training samples (repeatable) \\
+% {\bf random\_spread} & a maximally spread subset of \\
+%                      & training samples (random start) \\
+% \end{tabular}
+% \vspace*{0.5em}
+
+Note that seeding the initial means with {\bf static\_spread} and {\bf random\_spread}
+can be more time consuming than with {\bf static\_subset} and {\bf random\_subset};
+these seed modes are inspired by the so-called {\it k-means++} approach~\cite{Arthur_2007}, with the aim to improve clustering quality
+
+\item
+{\bf km\_iter}\\
+the maximum number of iterations of the {\it k}-means algorithm; this is data dependent, but typically 10 iterations are sufficient
+
+\item
+{\bf em\_iter}\\
+the maximum number of iterations of the EM algorithm; this is data dependent, but typically 5 to 10 iterations are sufficient
+
+\item
+{\bf var\_floor}\\
+the variance floor (smallest allowed value) for the diagonal covariances; setting this to a small non-zero value can help with convergence and/or better quality parameter estimates
+
+\item
+{\bf print\_mode}\\
+boolean value (either {\it true} or {\it false}) which enables/disables the printing of progress during the {\it k}-means and EM algorithms 
+
+\end{enumerate}
+\end{small}
+
+\end{enumerate}
+
+% \noindent
+% The above interface allows the user full control over the parameters of the GMM
+% fitting, and easy access to the trained results.
+% In addition, the mlpack machine learning library \cite{Curtin_2013} wraps the {\tt gmm\_diag} class
+% to provide a unified frontend for training Gaussian Mixture Models both with diagonal and non-diagonal covariance matrices.
+
+\begin{figure}[!b]
+\hrule
+\vspace{1ex}
+\centering
+% possible mono-space fonts: BeraMono, DejaVu Sans Mono, KP Monospaced, LuxiMono, Inconsolata
+%\begin{Verbatim}
+%\begin{Verbatim}[fontsize=\footnotesize,fontseries=b]
+\begin{Verbatim}[fontsize=\footnotesize]
+#include <armadillo>
+
+using namespace arma;
+
+int main()
+  {
+  // create synthetic data containing
+  // 2 clusters with normal distribution
+  
+  uword d = 5;       // dimensionality
+  uword N = 10000;   // number of samples (vectors)
+  
+  mat data(d, N, fill::zeros);
+  
+  vec mean0 = linspace<vec>(1,d,d);
+  vec mean1 = mean0 + 2;
+  
+  uword i = 0;
+  
+  while(i < N)
+    {
+    if(i < N)  { data.col(i) = mean0 + randn<vec>(d); ++i; }
+    if(i < N)  { data.col(i) = mean0 + randn<vec>(d); ++i; }
+    if(i < N)  { data.col(i) = mean1 + randn<vec>(d); ++i; }
+    }
+  
+  // model the data as a diagonal GMM with 2 Gaussians
+  
+  gmm_diag model;
+  
+  bool status = model.learn(data, 2, maha_dist, random_subset,
+                            10, 5, 1e-10, true);
+  
+  if(status == false)  { cout << "learning failed" << endl; }
+  
+  model.means.print("means:");
+  
+  double overall_likelihood = model.avg_log_p(data);
+  
+  rowvec     set_likelihood = model.log_p( data.cols(0,9) );
+  double  scalar_likelihood = model.log_p( data.col(0)    );
+  
+  uword   gaus_id  = model.assign( data.col(0),    eucl_dist );
+  urowvec gaus_ids = model.assign( data.cols(0,9), prob_dist );
+  
+  urowvec hist1 = model.raw_hist (data, prob_dist);
+   rowvec hist2 = model.norm_hist(data, eucl_dist);
+  
+  model.save("my_model.gmm");
+  
+  return 0;
+  }
+
+\end{Verbatim}
+\vspace{-1ex}
+\hrule
+\vspace{0.5ex}
+\caption
+  {
+  An example C++ program which demonstrates usage of several functions from the {\it gmm\_diag} class.
+  }
+\label{fig:example_usage}
+\end{figure}
+
 
 % Ensure the figure is on the same page as the discussion.
 \begin{figure*}[t!]
@@ -300,67 +411,6 @@ contains at least 10 samples for each Gaussian
 \label{fig:speedup}
 \end{figure*}
 
-
-\item
-{\bf dist\_mode}\\
-specifies the distance used during the seeding of initial means and {\it k}-means clustering:
-
-\begin{tabular}{ll}
-{\bf eucl\_dist} & Euclidean distance\\
-{\bf maha\_dist} & Mahalanobis distance, which uses a \\
-                 & global diagonal covariance matrix \\
-                 & estimated from the given training \\
-                 & samples
-\end{tabular}
-
-\item
-{\bf seed\_mode}\\
-specifies how the initial means are seeded prior to running {\it k}-means and/or EM algorithms:
-
-\vspace*{0.5em}
-\begin{tabular}{ll}
-{\bf keep\_existing} & keep the existing model (do not \\
-                     & modify the means, covariances \\
-                     & and hefts) \\
-{\bf static\_subset} & a subset of the training samples \\
-                     & (repeatable) \\
-{\bf random\_subset} & a subset of the training samples \\
-                     & (random) \\
-{\bf static\_spread} & a maximally spread subset of \\
-                     & training samples (repeatable) \\
-{\bf random\_spread} & a maximally spread subset of \\
-                     & training samples (random start) \\
-\end{tabular}
-\vspace*{0.5em}
-
-Note that seeding the initial means with {\bf static\_spread} and {\bf random\_spread}
-can be more time consuming than with {\bf static\_subset} and {\bf random\_subset}.
-These seed modes are inspired by the so-called {\it k-means++} approach~\cite{Arthur_2007}, with the aim to improve clustering quality.
-
-\item
-{\bf km\_iter}\\
-the maximum number of iterations of the {\it k}-means algorithm; this is data dependent, but typically 10 iterations are sufficient
-
-\item
-{\bf em\_iter}\\
-the maximum number of iterations of the EM algorithm; this is data dependent, but typically 5 to 10 iterations are sufficient
-
-\item
-{\bf var\_floor}\\
-the variance floor (smallest allowed value) for the diagonal covariances; setting this to a small non-zero value can help with convergence and/or better quality parameter estimates
-
-\item
-{\bf print\_mode}\\
-boolean value (either {\it true} or {\it false}) which enables/disables the printing of progress during the {\it k}-means and EM algorithms 
-
-\end{enumerate}
-\end{itemize}
-
-This interface allows the user full control over the parameters of the GMM
-fitting, and easy access to the trained results.  In addition, the mlpack
-machine learning library \cite{Curtin_2013} wraps the {\tt gmm\_diag} class to
-provide a unified frontend for training Gaussian Mixture Models both with
-diagonal and non-diagonal covariance matrices.
 
 % \begin{figure}[!b]
 % \hrule

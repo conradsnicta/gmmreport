@@ -49,6 +49,7 @@ and can suffer from numerical stability issues.
 Given the ever growing sizes of datasets and the need for fast, robust and accurate modelling of such datasets,
 we have provided an open source implementation of multi-threaded (parallelised) versions 
 of the \mbox{{\it k}-means} and EM algorithms.
+In addition, core functions are recast in order to considerably reduce the likelihood of numerical instability due to floating point underflows and overflows.
 The implementation is provided as a user-friendly class in recent releases of the cross-platform Armadillo C++ linear algebra library.
 The library is licensed under the permissive Apache~2.0 license~\cite{Laurent_2008},
 thereby allowing unencumbered use in commercial products.

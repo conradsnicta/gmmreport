@@ -8,20 +8,25 @@
 \small
 \begin{tabular}{|l|c|c|c|c|c|c|c|}
 \hline
-{\bf dataset} & {\bf $N_v$} & {\bf dims} & {\bf $N_g$} & {\bf MLPACK fit time} & {\bfseries {\it\bfseries gmm\_diag} fit time} & {\bf MLPACK $\log(p(X|\lambda))$} & {\bf {\it\bfseries gmm\_diag} $\log(p(X|\lambda))$} \\
+{\bf Dataset} & {\bf $N_v$} & {\bf dims} & {\bf $N_g$} & {\bf MLPACK fit time} & {\bfseries {\it\bfseries gmm\_diag} fit time} & {\bf MLPACK $\log(p(X|\lambda))$} & {\bf {\it\bfseries gmm\_diag} $\log(p(X|\lambda))$} \\
 \hline
 cloud & 2048 & 10 & 5 & ~~~~1.375s & ~~{\bf 0.164s} & $-59.9 \times 10^{3}$ & $-63.0 \times 10^{3}$ \\
 ozone & 2534 & 72 & 6 & ~~~~1.982s & ~~{\bf 0.202s} & $-230 \times 10^{3}$ & $-399 \times 10^{3}$ \\
 winequality & 6497 & 11 & 30 & ~~~18.201s & ~~{\bf 1.257s} & $-47.5 \times 10^{3}$ & $-15.6 \times 10^{3}$ \\
 corel & 37749 & 32 & 50 & ~~501.601s & {\bf 22.016s} & $~~2.99 \times 10^{6}$ & $~~2.89 \times 10^{6}$ \\
-cup98b & 95413 & 56 & 30 & 1207.86s & {\bf 48.425s} & $-11.9 \times 10^{6}$ & $-6.62 \times 10^{6}$ \\
-birch3 & 100000 & 2 & 6 & \\
-phy & 150000 & 78 & 30 & & {\bf 78.44s} & & -7.94M \\
-covertype & 581012 & 55 & 21 & \\
-pokerhand & 1000000 & 10 & 25 & 30 & \\
+cup98b & 95413 & 56 & 30 & 1207.860s & {\bf 48.425s} & $-11.9 \times 10^{6}$ & $-6.62 \times 10^{6}$ \\
+% birch3 & 100000 & 2 & 6 & \\
+% phy & 150000 & 78 & 30 & & {\bf 78.44s} & & -7.94M \\
+% covertype & 581012 & 55 & 21 & \\
+% pokerhand & 1000000 & 10 & 25 & 30 & \\
 \hline
 \end{tabular}
-\caption{Datasets used for comparisons with full-covariance GMM estimation.}
+\caption
+  {
+  Comparison of fitting time and goodness-of-fit (as measured by log-likelihood) using full covariance GMMs from the MLPACK library~\cite{Curtin_2013}
+  against diagonal GMMs in the {\it gmm\_class}
+  on several common datasets from the UCI machine learning dataset repository~\cite{Lichman_2013}.
+  }
 \label{tab:results}
 \end{table*}
 
@@ -101,7 +106,7 @@ as well as memory access contention (stemming from concurrent access to memory b
 In order to validate our intuition that a diagonal GMM is a good choice instead
 of the significantly more complex problem of estimating GMMs with full
 covariance matrices, we compare the {\it gmm\_diag} class (described in Section~\ref{sec:implementation})
-against the full-covariance GMM implementation in the MLPACK C++ machine learning library~\cite{Curtin_2013}.
+against the full-covariance GMM implementation in the well-established MLPACK C++ machine learning library~\cite{Curtin_2013}.
 
 We select several common datasets from the UCI machine learning dataset
 repository~\cite{Lichman_2013}, and train both diagonal and full-covariance
@@ -112,39 +117,51 @@ Gaussian noise needed to be added to the dataset for stability.
 % It takes too long to do BIC on this, we don't have time.  We could handle it
 % after reviews possibly?  Really the number of Gaussians does not matter
 % anyway, we only care here about how long it takes.
+
 These simulations were run on a standard 8-core desktop; both implementations
 used all 8 cores during training, with a maximum of 250 iterations of the EM
 algorithm before the fitting procedure was terminated.  The fitting procedure
-was run 10 times, and the best log-likelihood of those 10 runs are given, as
-well as the average runtime for the fitting.
+was run 10 times, and the best log-likelihood of those 10 runs are reported,
+as well as the average wall-clock runtime for the fitting.
 
 The results are given in Table \ref{tab:results}, along with the dataset
 information (number of points, number of dimensions, and number of Gaussians
 used for modeling).  We can see that the diagonal GMM implementation in 
 the {\it gmm\_diag} class provides order-of-magnitude or more speedup over the full covariance
-implementation in MLPACK, without significant loss in goodness-of-fit (as measured by log-likelihood).
-In two cases ({\it winequality} and {\it cup98b}) the goodness-of-fit is notably higher for the {\it gmm\_diag} class.
+implementation in MLPACK.
+In most cases there is no significant loss in goodness-of-fit (as measured by log-likelihood).
+% In one case ({\it ozone}) the goodness-of-fit is lower; we conjecture that using a larger $N_G$ for the {\it gmm\_diag} class will improve the accuracy of the model.
+In two cases ({\it winequality} and {\it cup98b}) the goodness-of-fit is notably higher for the {\it gmm\_diag} class;
+we conjecture that in these cases the diagonal covariance matrices are acting as a form of regularisation to reduce overfitting~\cite{Bishop_2006}.
 
-Additionally, we perform a more detailed investigation of the behavior of each
-implementation on the {\tt corel} dataset.  In order to verify the results of
-Reynolds~\cite{Reynolds_2000}, we train diagonal and full-covariance GMMs on a
-variety of choices of $N_g$, collecting the log-likelihood of the trained model
-at each EM iteration.  This shows us how quickly each model is able to fit to
-the data.  Figure~\ref{fig:lc} shows the resulting learning curve, demonstrating
-that the diagonal GMM implementation is able to converge to a better
-log-likelihood in less time than the full-covariance implementation.
 
-\begin{figure*}
-\begin{center}
-% This figure is horrible.  I have not thought of a better way to plot this
-% here.  But maybe it is a start.  Like for real this is the ugliest graph I
-% have ever produced in my life.
-% \includegraphics[width=\textwidth]{data/garbage_fire.png}
-\end{center}
-\caption{GMM training time vs. log-likelihood of model for diagonal GMMs (blue)
-and non-diagonal GMMs (red).  The simulation is performed for many values of
-$N_g$, showing that for the {\tt corel} dataset, we can get a faster and better
-fit with our implementation of diagonal GMMs than with a full-covariance GMM,
-even when the diagonal GMM must have a greater $N_g$ to achieve a better fit.}
-\label{fig:lc}
-\end{figure*}
+%% CS: I thought about the data you sent by email (matched results) and a good way to explain the story,
+%% CS: but so far I haven'tt come up with something that was easy to grasp and didn't raise more questions.
+%% CS: I think the way forward would be to choose a result from Table I (comparison against full cov GMM)
+%% CS: where diag_gmm is getting a notably worse log-likelihood for the same N_G as the full cov GMM,
+%% CS: and then see if the log-likelihood can be improved by increasing N_G.
+%% CS: At that point we can compare the amout of time taken by full cov GMM and diag_gmm with higher N_G.
+
+% Additionally, we perform a more detailed investigation of the behavior of each
+% implementation on the {\tt corel} dataset.  In order to verify the results of
+% Reynolds~\cite{Reynolds_2000}, we train diagonal and full-covariance GMMs on a
+% variety of choices of $N_g$, collecting the log-likelihood of the trained model
+% at each EM iteration.  This shows us how quickly each model is able to fit to
+% the data.  Figure~\ref{fig:lc} shows the resulting learning curve, demonstrating
+% that the diagonal GMM implementation is able to converge to a better
+% log-likelihood in less time than the full-covariance implementation.
+% 
+% \begin{figure*}
+% \begin{center}
+% % This figure is horrible.  I have not thought of a better way to plot this
+% % here.  But maybe it is a start.  Like for real this is the ugliest graph I
+% % have ever produced in my life.
+% % \includegraphics[width=\textwidth]{data/garbage_fire.png}
+% \end{center}
+% \caption{GMM training time vs. log-likelihood of model for diagonal GMMs (blue)
+% and non-diagonal GMMs (red).  The simulation is performed for many values of
+% $N_g$, showing that for the {\tt corel} dataset, we can get a faster and better
+% fit with our implementation of diagonal GMMs than with a full-covariance GMM,
+% even when the diagonal GMM must have a greater $N_g$ to achieve a better fit.}
+% \label{fig:lc}
+% \end{figure*}

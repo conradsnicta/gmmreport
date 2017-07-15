@@ -4,12 +4,12 @@
 Modelling of multivariate densities is a core component in many signal processing, pattern recognition and machine learning applications.
 The modelling is often done via Gaussian mixture models (GMMs), which use computationally expensive training algorithms.
 We provide an overview of a fast and robust implementation of GMMs in the C++ language,
-which employs multi-threaded (parallelised) versions of the Expectation Maximisation (EM) and {\it k}-means training algorithms.
-Parallelisation is achieved through reformulation of the EM and {\it k}-means algorithms into a MapReduce-like framework
-and employing OpenMP compiler directives.
-Furthermore, the implementations uses several techniques to improve numerical stability.
+which employs multi-threaded (parallelised) versions of the Expectation Maximisation (EM) and \mbox{{\it k}-means} training algorithms.
+Parallelisation is achieved through reformulation of the EM and \mbox{{\it k}-means} algorithms into a MapReduce-like framework.
+%and employing OpenMP compiler directives.
+Furthermore, the implementation uses several techniques to improve numerical stability and modelling accuracy.
 We demonstrate that the parallelised implementation achieves a speedup of an order of magnitude on a recent 16 core machine,
-and that it can achieve higher modelling accuracy than a previously established publically accessible implementation.
+and that it can achieve higher modelling accuracy than a well-established publically accessible implementation.
 The parallelised implementation is included as a user-friendly class in recent releases of the open source Armadillo C++ linear algebra library.
 The library is provided under the permissive Apache 2.0 license, allowing unencumbered use in commercial products.
 \end{abstract}

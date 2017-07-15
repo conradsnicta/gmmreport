@@ -7,17 +7,16 @@
 \begin{center}
 \begin{tabular}{|l|c|c|c|c|c|c|c|}
 \hline
-{\bf dataset} & {\bf $N_v$} & {\bf dims} & {\bf $N_g$} & {\bf
-full-covariance fit time} & {\bf Armadillo fit time} & {\bf full-diagonal
-$\log(p(X|\lambda))$} & {\bf Armadillo $\log(p(X|\lambda))$} \\
+{\bf dataset} & {\bf $N_v$} & {\bf dims} & {\bf $N_g$} & {\bf full-covariance fit time} & {\bf Armadillo fit time} & {\bf full-diagonal $\log(p(X|\lambda))$} & {\bf Armadillo $\log(p(X|\lambda))$} \\
 \hline
 cloud & 2048 & 10 & 5 & 1.375s & {\bf 0.164s} & -59.9k & -63.0k \\
 ozone & 2534 & 72 & 6 & 1.982s & {\bf 0.202s} & -230k & -399k \\
-winequality & 6497 & 11 & 30 & 18.201s & {\bf 1.257s} & -47.5k & -15.6k \\
+winequality & 6497 & 11 & 30 & 18.201s & {\bf 1.257s} & -47.5k & -15.6k
+\\
 corel & 37749 & 32 & 50 & 501.601s & {\bf 22.016s} & 2.99M & 2.89M \\
-cup98b & 95413 & 56 & 30 & & {\bf 48.425s} &  & -6.62M \\
+cup98b & 95413 & 56 & 30 & 1207.86s & {\bf 48.425s} & -11.9M & -6.62M \\
 birch3 & 100000 & 2 & 6 & \\
-phy & 150000 & 78 & 30 & \\
+phy & 150000 & 78 & 30 & & {\bf 78.44s} & & -7.94M \\
 covertype & 581012 & 55 & 21 & \\
 pokerhand & 1000000 & 10 & 25 & 30 & \\
 \hline
@@ -26,6 +25,30 @@ pokerhand & 1000000 & 10 & 25 & 30 & \\
 \caption{Datasets used for comparisons with full-covariance GMM estimation.}
 \label{tab:results}
 \end{table*}
+
+% \begin{table*}
+% \begin{center}
+% \begin{tabular}{|l|c|c|c|c|c|c|c|}
+% \hline
+% {\bf dataset} & {\bf $N_v$} & {\bf dims} & {\bf $N_g$} & {\bf
+% full-covariance fit time} & {\bf Armadillo fit time} & {\bf full-diagonal
+% $\log(p(X|\lambda))$} & {\bf Armadillo $\log(p(X|\lambda))$} \\
+% \hline
+% cloud & 2048 & 10 & 5 & 1.375s & {\bf 0.164s} & -59.9k & -63.0k \\
+% ozone & 2534 & 72 & 6 & 1.982s & {\bf 0.202s} & -230k & -399k \\
+% winequality & 6497 & 11 & 30 & 18.201s & {\bf 1.257s} & -47.5k & -15.6k \\
+% corel & 37749 & 32 & 50 & 501.601s & {\bf 22.016s} & 2.99M & 2.89M \\
+% cup98b & 95413 & 56 & 30 & & {\bf 48.425s} &  & -6.62M \\
+% birch3 & 100000 & 2 & 6 & \\
+% phy & 150000 & 78 & 30 & \\
+% covertype & 581012 & 55 & 21 & \\
+% pokerhand & 1000000 & 10 & 25 & 30 & \\
+% \hline
+% \end{tabular}
+% \end{center}
+% \caption{Datasets used for comparisons with full-covariance GMM estimation.}
+% \label{tab:results}
+% \end{table*}
 
 To demonstrate the achievable speedup with the multi-threaded versions of the training algorithms,
 we trained a GMM with 100 Gaussians on a recent 16 core machine using a synthetic dataset comprising 1,000,000 samples with 100 dimensions.

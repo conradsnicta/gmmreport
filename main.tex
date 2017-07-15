@@ -23,6 +23,7 @@
 \usepackage{algorithm}
 \usepackage{xfrac}
 \usepackage{fancyvrb}
+\usepackage{balance}
 
 \usepackage[british]{babel}
 %\usepackage[none]{hyphenat}
@@ -150,12 +151,14 @@
 % \rfoot{}
 
 \input{sec_intro}
+~
 \input{sec_param_em}
 \input{sec_param_km}
 \input{sec_implementation}
 \input{sec_experiments}
 \input{sec_conclusion}
 
+%\balance
 \renewcommand{\baselinestretch}{1.1}\small\normalsize
 \bibliographystyle{ieee}
 \bibliography{refs}

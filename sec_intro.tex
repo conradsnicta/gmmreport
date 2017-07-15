@@ -4,18 +4,17 @@ Modelling multivariate data through a convex mixture of Gaussians, also known as
 has many uses in fields such as signal processing, econometrics, pattern recognition, machine learning and computer vision.
 Examples of applications include
 multi-stage feature extraction for action recognition~\cite{Carvajal_2016a},
-modelling of intermediate features~\cite{Ge_ICIP_2015} derived from deep convolutional neural networks~\cite{Ge_2016,LeCun_Nature_2015},
+modelling of intermediate features derived from deep convolutional neural networks~\cite{Ge_ICIP_2015,LeCun_Nature_2015},
 classification of human epithelial cell images~\cite{Wiliem_PR_2014},
 implicit sparse coding for face recognition~\cite{Wong_2014},
+speech-based identity verification~\cite{Reynolds_2000},
 and probabilistic foreground estimation for surveillance systems~\cite{Reddy_2013}.
-GMMs have also been successfully used for speaker
-verification~\cite{Reynolds_2000} and GMMs are commonly used as the emission
-distribution for Hidden Markov models~\cite{Bilmes98}.
+GMMs are also commonly used as the emission distribution for hidden Markov models~\cite{Bilmes98}.
 
 In the GMM approach, a distribution of samples (vectors) is modelled as:
 %
 \begin{equation}
-  p(\Vec{x} | \lambda) = \sum\nolimits_{g=1}^{N_G} w_g ~ {{\mathcal{N}}}( \Vec{x} ~|~ \Vec{\mu}_g, \Mat{\Sigma}_g )
+  p(\Vec{x} | \lambda) = \sum\nolimits_{g=1}^{N_G} w_g ~ {{\mathcal{N}}}( \Vec{x} | \Vec{\mu}_g, \Mat{\Sigma}_g )
   \label{eqn:gmm_prob}
 \end{equation}%
 %
@@ -45,13 +44,13 @@ The {\it k}-means algorithm~\cite{Bishop_2006,Duda01,Linde80} is also typically 
 Choosing the optimal $N_G$ is data dependent and beyond the scope of this work; see~\cite{Hamerly_2003,Pelleg_2000} for example methods.
 
 %The {\it k}-means and EM algorithms are computationally intensive.
-Unfortunately, GMM parameter estimation via the EM algorithm is computationally
-intensive, and % <- talking up the difficulty of the problem a little bit
-given the ever growing sizes of datasets and the need for fast \& accurate modelling of such datasets,
-we have provided a readily accessible and open source implementation of multi-threaded (parallelised) versions 
-of the {\it k}-means and EM algorithms.
-The implementation is provided as a user-friendly class as part of the Armadillo C++ linear algebra library, which is
-licensed under the permissive Apache~2.0 license~\cite{Laurent_2008},
+Unfortunately, GMM parameter estimation via the EM algorithm is computationally intensive
+and can suffer from numerical stability issues.
+Given the ever growing sizes of datasets and the need for fast, robust and accurate modelling of such datasets,
+we have provided an open source implementation of multi-threaded (parallelised) versions 
+of the \mbox{{\it k}-means} and EM algorithms.
+The implementation is provided as a user-friendly class in recent releases of the cross-platform Armadillo C++ linear algebra library.
+The library is licensed under the permissive Apache~2.0 license~\cite{Laurent_2008},
 thereby allowing unencumbered use in commercial products.
 
 We continue as follows.
@@ -61,12 +60,10 @@ and approaches for improving numerical stability.
 In Section~\ref{sec:param_km} we provide a summary of the {\it k}-means algorithm
 along with approaches for improving its convergence and modelling accuracy.
 The numerical implementation in C++ is overviewed in~Section~\ref{sec:implementation},
-where we list the user accessible functions
-and provide a demonstration of the achievable training speedup due to multi-threading.
-
-TODO: mention comparison with full diagonal cov matrices
-
-OR: comparison against a previous implementation of GMMs in C++
+where we list and describe the user accessible functions.
+In Section~\ref{sec:eval}
+we provide a demonstration that the implementation can achieve a speedup of an order of magnitude,
+as well as obtain higher modelling accuracy than a previously established publically accessible implementation.
 
 % Parallelisation is achieved through refactoring the original EM and {\it k}-means algorithms
 % into a MapReduce-like framework~\cite{MapReduce_2004} and employing OpenMP compiler directives~\cite{OpenMP_2007}.

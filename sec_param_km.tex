@@ -1,4 +1,4 @@
-\section{Seeding via Multi-Threaded {\it k}-Means}
+\section{Initialisation via Multi-Threaded {\it k}-Means}
 \label{sec:param_km}
 
 As a starting point, the initial means can be set to randomly selected training vectors,
@@ -50,7 +50,7 @@ A typical and naive choice for the distance in~(\ref{eqn:binary_likelihood})
 is the squared Euclidean distance, \mbox{$\operatorname{dist}(\Vec{a}, \Vec{b}) = \| \Vec{a} - \Vec{b} \|^{2}_{2}$}.
 However, for mutltivariate datasets formed by combining data from various sensors, there is a serious downside to using the Euclidean distance.
 When one of the dimensions within the data has a much larger range than the other dimensions,
-it will dominate the contribution to the distance result, with the other dimensions effectively ignored.
+it will dominate the contribution to the overall distance, with the other dimensions effectively ignored.
 This can adversely skew the parameter estimates, easily leading to poor starting points for the EM algorithm.
 This in turn can lead to poor modelling, as the EM algorithm is only guaranteed to reach a local maximum~\cite{Dempster77,Duda01,Mitchell97}.
 To address this, the squared Mahalanobis distance can be used~\cite{Bishop_2006,Duda01}:

@@ -33,7 +33,7 @@ but $l_{g,i}$ is redefined~as:%
 %
 where {$\operatorname{dist}(\Vec{a}, \Vec{b})$} is a distance metric.
 Apart from this difference, the parameter estimation is the same as for EM.
-As such, parallelisation is achieved as per Section~\ref{sec:param_em_parallel}.
+As such, multi-threading is achieved as per Section~\ref{sec:param_em_parallel}.
 
 We note that it is possible to implement the \mbox{{\it k}-means} algorithm is a multitude of ways,
 such as the cluster splitting LBG algorithm~\cite{Linde80},
@@ -46,15 +46,17 @@ There are also alternative implementations offering relatively fast convergence~
 % \subsection{Addressing Corner Cases}
 \subsection{Issues with Modelling Accuracy and Convergence}
 
-A typical and naive choice for the distance in~(\ref{eqn:binary_likelihood})
+A typical and naive choice for the distance in~Eqn.~(\ref{eqn:binary_likelihood})
 is the squared Euclidean distance, \mbox{$\operatorname{dist}(\Vec{a}, \Vec{b}) = \| \Vec{a} - \Vec{b} \|^{2}_{2}$}.
-However, for mutltivariate datasets formed by combining data from various sensors, there is a serious downside to using the Euclidean distance.
+However, for multivariate datasets formed by combining data from various sensors, there is a notable downside to using the Euclidean distance.
 When one of the dimensions within the data has a much larger range than the other dimensions,
 it will dominate the contribution to the overall distance, with the other dimensions effectively ignored.
-This can adversely skew the parameter estimates, easily leading to poor starting points for the EM algorithm.
+This can adversely skew the initial parameter estimates, easily leading to poor initial conditions for the EM algorithm.
 This in turn can lead to poor modelling, as the EM algorithm is only guaranteed to reach a local maximum~\cite{Dempster77,Duda01,Mitchell97}.
-To address this, the squared Mahalanobis distance can be used~\cite{Bishop_2006,Duda01}:
+To address this problem, the squared Mahalanobis distance can be used~\cite{Bishop_2006,Duda01}:
 
+\vspace{1ex}
+\noindent
 \begin{equation}
 \operatorname{dist}(\Vec{a}, \Vec{b}) = (\Vec{a} - \Vec{b})^\top \Mat{\Sigma}^{-1}_{\mathrm{global}} (\Vec{a} - \Vec{b}),
 \end{equation}
@@ -67,9 +69,9 @@ which makes calculating its inverse straightforward (ie., reciprocals of the val
 In practice it is possible that while iterating at least one of the means has no vectors assigned to it,
 becoming a ``dead'' mean.
 This might stem from an unfortunate starting point, 
-or specifying a large value for $N_G$ for which there is an insufficient number of training samples.
+or specifying a relatively large value for $N_G$ for modelling a relatively small dataset.
 As such, an additional heuristic is required to attempt to resolve this situation.
-One example of resurrecting a ``dead'' mean is to make it equal to one of the vectors
+An effective approach for resurrecting a ``dead'' mean is to make it equal to one of the vectors
 that has been assigned to the most ``popular'' mean,
 where the most ``popular'' mean is the mean that currently has the most vectors assigned to it.
 

@@ -1,4 +1,4 @@
-\section{Numerical Implementation in C++}
+\section{Implementation in C++}
 \label{sec:implementation}
 
 We have provided a numerical implementation of Gaussian Mixture Models in the C++ language
@@ -10,7 +10,7 @@ and can be obtained from
 To considerably reduce execution time,
 the implementation contains multi-threaded versions of the EM and {\it k}-means training algorithms
 (as overviewed in Sections~\ref{sec:param_em} and~\ref{sec:param_km}).
-Implementation of multi-threading (parallelisation) is achieved with the aid of OpenMP compiler directives~\cite{OpenMP_2007}.
+Implementation of multi-threading is achieved with the aid of OpenMP {\it pragma} directives~\cite{OpenMP_2007}.
 % Parallelisation is achieved through refactoring the original EM and {\it k}-means algorithms
 % into a MapReduce-like framework~\cite{MapReduce_2004} and employing OpenMP compiler directives~\cite{OpenMP_2007}.
 
@@ -67,9 +67,9 @@ all vector and matrix types have the {\it f} prefix (for example, {\it fmat}),
 while scalars have the type {\it float}.
 The word ``heft'' is explicitly used in the classes as a shorter version of ``weight'', while keeping the same meaning with the context of GMMs.
 
-
+\begin{small}
 \begin{enumerate}[{$\bullet$}]
-\itemsep 1ex
+\itemsep 0.98ex
 
 \item
 {\bf M.log\_p(V)}\\
@@ -224,7 +224,7 @@ contains at least 10 samples for each Gaussian
 
 \item
 {\bf dist\_mode}\\
-specifies the distance used during the seeding of initial means and {\it k}-means clustering:
+specifies the distance used during the seeding of initial means and \mbox{{\it k}-means} clustering:
 \begin{small}
 \begin{enumerate}[{\bf eucl\_dist}]
 \item Euclidean distance
@@ -245,7 +245,7 @@ specifies the distance used during the seeding of initial means and {\it k}-mean
 
 \item
 {\bf seed\_mode}\\
-specifies how the initial means are seeded prior to running {\it k}-means and/or EM algorithms:
+specifies how the initial means are seeded prior to running \mbox{{\it k}-means} and/or EM algorithms:
 \begin{small}
 \begin{enumerate}[{\bf {~~~keep\_existing}}]
 \item keep the existing model (do not modify the means, covariances and hefts)
@@ -292,6 +292,7 @@ the maximum number of iterations of the {\it k}-means algorithm; this is data de
 {\bf em\_iter}\\
 the maximum number of iterations of the EM algorithm; this is data dependent, but typically 5 to 10 iterations are sufficient
 
+\newpage
 \item
 {\bf var\_floor}\\
 the variance floor (smallest allowed value) for the diagonal covariances; setting this to a small non-zero value can help with convergence and/or better quality parameter estimates
@@ -304,6 +305,7 @@ boolean value (either {\it true} or {\it false}) which enables/disables the prin
 \end{small}
 
 \end{enumerate}
+\end{small}
 
 % \noindent
 % The above interface allows the user full control over the parameters of the GMM

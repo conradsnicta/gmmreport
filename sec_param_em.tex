@@ -48,15 +48,15 @@ with $N_G$ being the assumed number of clusters.
 For a full derivation of the EM algorithm tailored to GMMs, the reader is directed to~\cite{Bilmes98,Redner84}. % or Appendix~A. %~\ref{app:em_algorithm}.
 
 
-\subsection{Reformulation for Parallel Execution}
+\subsection{Reformulation for Multi-Threaded Execution}
 \label{sec:param_em_parallel}
 
 The EM algorithm is quite computationally intensive.
-This is in large part due to the use of the $\exp(\cdot)$ function, which needs to be applied numerous times for each and every sample.
-Fortunately, multi-core (multi-threaded) machines are now quite common and accessible, allowing for parallel execution.
+This is in large part due to the use of the {\small $\exp(\cdot)$} function, which needs to be applied numerous times for each and every sample.
+Fortunately, CPUs with a multitude of cores are now quite common and accessible, allowing for multi-threaded (parallel) execution.
 
 One approach for parallelisation is the MapReduce framework~\cite{MapReduce_2004},
-where data is split into chunks and farmed out to worker threads for processing (mapping).
+where data is split into chunks and farmed out to separate workers for processing (mapping).
 The results are then collected and combined (reduced) to produce the final result.
 Below we provide a reformulation of the EM algorithm into a MapReduce-like framework.
 
@@ -90,23 +90,28 @@ where $l_{g,j}$ is defined in Eqn.~(\ref{eqn:aposteriori}).
 %while $\odot$ represents the Schur product (element-wise multiplication).
 
 Once the accumulators for all threads are calculated,
-for each Gaussian $g$ the reduction operation combines them to form the estimates of $\widehat{w}_g$, $\widehat{\Vec{\mu}}_g$ and $\widehat{\Mat{\Sigma}}_g$ as follows:
+for each Gaussian $g$ the reduction operation combines them to form the estimates of $\widehat{\Vec{\mu}}_g$ and $\widehat{\Mat{\Sigma}}_g$ as follows:
 %
 \begin{eqnarray}
-  L_g                      & = & \sum\nolimits_{t=1}^{N_T} \widetilde{L}_g^{[t]},                           \\ % acc_norm_lhood
-  \widehat{w}_g            & = & \frac{L_g}{N_V},                                                           \\
-  \widehat{\Vec{\mu}}_g    & = & \frac{1}{L_g} \sum\nolimits_{t=1}^{N_T} \widetilde{\Vec{\mu}}_g^{[t]},     \\
+  L_g                      & = & \sum\nolimits_{t=1}^{N_T} \widetilde{L}_g^{[t]},                           \label{eqn:combined_L_g} \\
+  %\widehat{w}_g            & = & \frac{L_g}{N_V},                                                                                   \\
+  \widehat{\Vec{\mu}}_g    & = & \frac{1}{L_g} \sum\nolimits_{t=1}^{N_T} \widetilde{\Vec{\mu}}_g^{[t]},                              \\
   \widehat{\Mat{\Sigma}}_g & = & \frac{1}{L_g} \sum\nolimits_{t=1}^{N_T} \widetilde{\Mat{\Sigma}}_g^{[t]} - \widehat{\Vec{\mu}}_g \widehat{\Vec{\mu}}_g^\top.
 \end{eqnarray}
+
+\noindent
+The estimation of $\widehat{w}_g$ is as per Eqn.~(\ref{eqn:em_weight}), but using $L_g$ from Eqn.~(\ref{eqn:combined_L_g}).
 
 ~
 
 \subsection{Improving Numerical Stability}
 
 Due to the necessarily limited precision of numerical floating point representations~\cite{Goldberg_1991,Monniaux_2008},
-the direct computation of Eqns.~(\ref{eqn:gmm_prob}) and (\ref{eqn:gaussian}) can quickly lead to numerical underflows or overflows.
+the direct computation of Eqns.~(\ref{eqn:gmm_prob}) and (\ref{eqn:gaussian}) can quickly lead to numerical underflows or overflows,
+which in turn lead to either poor models or a complete failure to estimate the parameters.
 %To address this problem, the logarithm version of Eqn.~(\ref{eqn:gmm_prob}) can be used:
-To address this problem, the logarithm version of Eqn.~(\ref{eqn:gaussian}) can be used:
+To address this problem, the following reformulation can be used.
+First, logarithm version of Eqn.~(\ref{eqn:gaussian}) is taken:
 %
 \begin{multline}
   \log {{\mathcal{N}}}( \Vec{x} | \Vec{\mu}, \Mat{\Sigma} )
@@ -152,11 +157,13 @@ To address this problem, the logarithm version of Eqn.~(\ref{eqn:gaussian}) can 
   = -\left\{\sfrac{D}{2} \log \left( 2\pi \right)
   +
   \sfrac{1}{2} ~ \log ( |\Mat{\Sigma}| )
-  \right\} \\ - \sfrac{1}{2} (\Vec{x}-\Vec{\mu})^\top \Mat{\Sigma}^{-1} (\Vec{x}-\Vec{\mu}).
+  \right\} \\ - \sfrac{1}{2} (\Vec{x}-\Vec{\mu})^\top \Mat{\Sigma}^{-1} (\Vec{x}-\Vec{\mu}),
 \end{multline}
 
-The corresponding logarithm version of Eqn.~(\ref{eqn:gmm_prob}) is:
-%
+\noindent
+\mbox{which leads to the corresponding logarithm version of Eqn.~(\ref{eqn:gmm_prob}):}
+
+\noindent
 \begin{multline}
 \log \sum\nolimits_{g=1}^{N_G} w_g ~ {{\mathcal{N}}}( \Vec{x} ~|~ \Vec{\mu}_g, \Mat{\Sigma}_g )
  = \\
@@ -180,6 +187,16 @@ which in turn can be rewritten in the form of:
 \noindent
 In the latter form, if we ensure that {$\log(a) \geq \log(b)$} (through swapping $\log(a)$ and $\log(b)$ when required),
 the exponential will always produce values $\leq 1$ which helps to reduce the occurrence of overflows.
+Overall, by keeping most of the computation in the {\it log} domain, 
+both underflows and overflows are considerably reduced.
+
+A further practical issue is the occurrence of degenerate or ill-conditioned covariance matrices,
+stemming from either not enough samples with $l_{g,i} > 0$ contributing to the calculation of $\widehat{\Mat{\Sigma}}_g$ in Eqn.~(\ref{eqn:em_cov}),
+or from too many samples which are essentially the same (ie.,~very low variance).
+A straightforward and effective approach to address this problem is to place an artificial floor
+on the diagonal entries in each covariance matrix after each EM iteration.
+While the optimum value of the floor is data dependent, a small positive constant is typically sufficient to promote numerical stability
+and convergence.
 
 % Formally, the robust version of \mbox{\small $\log(\exp\left[\log(a)\right] + \exp\left[\log(b)\right])$} can be expressed as 
 % $\operatorname{\Psi}(\log(a), \log(b))$ is used as 

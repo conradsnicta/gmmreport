@@ -1,4 +1,4 @@
-\section{\small Parameter Estimation via Expectation Maximisation}
+\section{\small Expectation Maximisation and Multi-Threading}
 \label{sec:param_em}
 
 \noindent
@@ -98,6 +98,8 @@ for each Gaussian $g$ the reduction operation combines them to form the estimate
   \widehat{\Vec{\mu}}_g    & = & \frac{1}{L_g} \sum\nolimits_{t=1}^{N_T} \widetilde{\Vec{\mu}}_g^{[t]},     \\
   \widehat{\Mat{\Sigma}}_g & = & \frac{1}{L_g} \sum\nolimits_{t=1}^{N_T} \widetilde{\Mat{\Sigma}}_g^{[t]} - \widehat{\Vec{\mu}}_g \widehat{\Vec{\mu}}_g^\top.
 \end{eqnarray}
+
+~
 
 \subsection{Improving Numerical Stability}
 

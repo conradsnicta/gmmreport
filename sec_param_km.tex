@@ -1,4 +1,4 @@
-\section{Initial Parameter Estimation via {\it k}-Means}
+\section{Seeding via Multi-Threaded {\it k}-Means}
 \label{sec:param_km}
 
 As a starting point, the initial means can be set to randomly selected training vectors,
@@ -18,7 +18,6 @@ The $k$-means algorithm can be interpreted as a simplified version (or special c
 Instead of each sample being assigned a set probabilities representing cluster membership (soft assignment),
 each sample is assigned to only one cluster (hard assignment).
 Furthermore, it can be assumed that the covariance matrix of each Gaussian is non-informative, diagonal, and/or shared across all Gaussians.
-
 More formally, the estimation of model parameters is as per Eqns.~(\ref{eqn:em_weight}), (\ref{eqn:em_mean}) and (\ref{eqn:em_cov}), 
 but $l_{g,i}$ is redefined~as:%
 %
@@ -29,26 +28,13 @@ but $l_{g,i}$ is redefined~as:%
   0, & \mbox{otherwise}.
   \end{array}
   \right.
+  \label{eqn:binary_likelihood}
 \end{equation}
 %
-where {$\operatorname{dist}(\Vec{a}, \Vec{b})$} is a distance metric,
-such as the squared Euclidean distance: \mbox{$\operatorname{dist}(\Vec{a}, \Vec{b}) = \| \Vec{a} - \Vec{b} \|^{2}_{2}$}.
+where {$\operatorname{dist}(\Vec{a}, \Vec{b})$} is a distance metric.
+Apart from this difference, the parameter estimation is the same as for EM.
+As such, parallelisation is achieved as per Section~\ref{sec:param_em_parallel}.
 
-There is a potential downside to using the Euclidean distance.
-When one of the dimensions within the data has a much larger range than the other dimensions,
-it will dominate the contribution to the distance result, with the other dimensions effectively ignored.
-To address this, it is possible to use the squared Mahalanobis
-distance~\cite{Bishop_2006,Duda01}:
-
-\begin{equation}
-\operatorname{dist}(\Vec{a}, \Vec{b}) = (\Vec{a} - \Vec{b})^\top \Mat{\Sigma}^{-1}_{\mathrm{global}} (\Vec{a} - \Vec{b}),
-\end{equation}
-\noindent where $\Mat{\Sigma}_{\mathrm{global}}$ is a global covariance matrix, estimated from all available training data.
-To maintain efficiency, $\Mat{\Sigma}_{\mathrm{global}}$ is typically diagonal,
-which makes calculating its inverse straightforward (ie., reciprocals of the values on the main diagonal).
-
-As the {\it k}-means algorithm is essentially a simplified version of EM,
-it can be parallelised in the same way as per Section~\ref{sec:param_em_parallel}.
 We note that it is possible to implement the \mbox{{\it k}-means} algorithm is a multitude of ways,
 such as the cluster splitting LBG algorithm~\cite{Linde80},
 or use an elaborate strategy for selecting the initial means~\cite{Arthur_2007}.
@@ -58,6 +44,25 @@ There are also alternative implementations offering relatively fast convergence~
 % hence the speed of the {\it k}-means algorithm is not critical in the context of GMMs.
 
 % \subsection{Addressing Corner Cases}
+\subsection{Issues with Modelling Accuracy and Convergence}
+
+A typical and naive choice for the distance in~(\ref{eqn:binary_likelihood})
+is the squared Euclidean distance, \mbox{$\operatorname{dist}(\Vec{a}, \Vec{b}) = \| \Vec{a} - \Vec{b} \|^{2}_{2}$}.
+However, for mutltivariate datasets formed by combining data from various sensors, there is a serious downside to using the Euclidean distance.
+When one of the dimensions within the data has a much larger range than the other dimensions,
+it will dominate the contribution to the distance result, with the other dimensions effectively ignored.
+This can adversely skew the parameter estimates, easily leading to poor starting points for the EM algorithm.
+This in turn can lead to poor modelling, as the EM algorithm is only guaranteed to reach a local maximum~\cite{Dempster77,Duda01,Mitchell97}.
+To address this, the squared Mahalanobis distance can be used~\cite{Bishop_2006,Duda01}:
+
+\begin{equation}
+\operatorname{dist}(\Vec{a}, \Vec{b}) = (\Vec{a} - \Vec{b})^\top \Mat{\Sigma}^{-1}_{\mathrm{global}} (\Vec{a} - \Vec{b}),
+\end{equation}
+\noindent where $\Mat{\Sigma}_{\mathrm{global}}$ is a global covariance matrix, estimated from all available training data.
+To maintain efficiency, $\Mat{\Sigma}_{\mathrm{global}}$ is typically diagonal,
+which makes calculating its inverse straightforward (ie., reciprocals of the values on the main diagonal).
+
+
 
 In practice it is possible that while iterating at least one of the means has no vectors assigned to it,
 becoming a ``dead'' mean.

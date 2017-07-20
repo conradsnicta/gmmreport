@@ -211,7 +211,7 @@ the parameters have the following meanings:
 
 \begin{small}
 \begin{enumerate}[{-}]
-\itemsep 1ex
+\itemsep 1.5ex
 \item
 {\bf data}\\
 matrix (of type {\it mat}) containing training samples; each sample is stored as a column vector
@@ -288,11 +288,11 @@ these seed modes are inspired by the so-called {\it k-means++} approach~\cite{Ar
 {\bf km\_iter}\\
 the maximum number of iterations of the {\it k}-means algorithm; this is data dependent, but typically 10 iterations are sufficient
 
+\newpage
 \item
 {\bf em\_iter}\\
 the maximum number of iterations of the EM algorithm; this is data dependent, but typically 5 to 10 iterations are sufficient
 
-\newpage
 \item
 {\bf var\_floor}\\
 the variance floor (smallest allowed value) for the diagonal covariances; setting this to a small non-zero value can help with convergence and/or better quality parameter estimates

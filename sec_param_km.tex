@@ -4,7 +4,7 @@
 As a starting point, the initial means can be set to randomly selected training vectors,
 the initial covariance matrices can be set equal to identity matrices, 
 and the initial weights can be uniform.
-However, in a computational implementation, the $\exp(\cdot)$ function as well as the matrix inverse in Eqn.~(\ref{eqn:gaussian}) are typically quite time consuming.
+However, the $\exp(\cdot)$ function as well as the matrix inverse in Eqn.~(\ref{eqn:gaussian}) are typically quite time consuming to compute.
 In order to speed up training, the initial estimate of $\lambda$ is typically provided via the {\it k}-means clustering algorithm~\cite{Bishop_2006,Duda01,Kulis_2012}
 which avoids such time consuming operations.
 
@@ -20,7 +20,9 @@ each sample is assigned to only one cluster (hard assignment).
 Furthermore, it can be assumed that the covariance matrix of each Gaussian is non-informative, diagonal, and/or shared across all Gaussians.
 More formally, the estimation of model parameters is as per Eqns.~(\ref{eqn:em_weight}), (\ref{eqn:em_mean}) and (\ref{eqn:em_cov}), 
 but $l_{g,i}$ is redefined~as:%
-%
+
+\vspace{1ex}
+\noindent
 \begin{equation}
   l_{g,i} = \left\{
   \begin{array}{ll}
@@ -38,7 +40,8 @@ As such, multi-threading is achieved as per Section~\ref{sec:param_em_parallel}.
 We note that it is possible to implement the \mbox{{\it k}-means} algorithm is a multitude of ways,
 such as the cluster splitting LBG algorithm~\cite{Linde80},
 or use an elaborate strategy for selecting the initial means~\cite{Arthur_2007}.
-There are also alternative implementations offering relatively fast convergence~\cite{Elkan_2003}.
+While there are also alternative and more complex implementations offering relatively fast execution~\cite{Elkan_2003},
+we have elected to adapt the baseline \mbox{{\it k}-means} algorithm due to its straightforward amenability to multi-threading. 
 
 % The vast majority of the computational effort for training GMMs is typically taken up by the full EM algorithm (as described in Section~\ref{sec:param_em}),
 % hence the speed of the {\it k}-means algorithm is not critical in the context of GMMs.

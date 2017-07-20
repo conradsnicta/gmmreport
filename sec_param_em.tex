@@ -159,11 +159,9 @@ First, logarithm version of Eqn.~(\ref{eqn:gaussian}) is taken:
   \sfrac{1}{2} ~ \log ( |\Mat{\Sigma}| )
   \right\} \\ - \sfrac{1}{2} (\Vec{x}-\Vec{\mu})^\top \Mat{\Sigma}^{-1} (\Vec{x}-\Vec{\mu}),
 \end{multline}
-
-\noindent
+%
 \mbox{which leads to the corresponding logarithm version of Eqn.~(\ref{eqn:gmm_prob}):}
 
-\noindent
 \begin{multline}
 \log \sum\nolimits_{g=1}^{N_G} w_g ~ {{\mathcal{N}}}( \Vec{x} ~|~ \Vec{\mu}_g, \Mat{\Sigma}_g )
  = \\
@@ -190,9 +188,12 @@ the exponential will always produce values $\leq 1$ which helps to reduce the oc
 Overall, by keeping most of the computation in the {\it log} domain, 
 both underflows and overflows are considerably reduced.
 
-A further practical issue is the occurrence of degenerate or ill-conditioned covariance matrices,
+A further practical issue is the occurrence of \mbox{degenerate} or ill-conditioned covariance matrices,
 stemming from either not enough samples with $l_{g,i} > 0$ contributing to the calculation of $\widehat{\Mat{\Sigma}}_g$ in Eqn.~(\ref{eqn:em_cov}),
 or from too many samples which are essentially the same (ie.,~very low variance).
+When the diagonal entries in a covariance matrix are too close to zero,
+inversion of the matrix is unstable and can cause the calculated log-likelihood to become unreliable
+or non-finite.
 A straightforward and effective approach to address this problem is to place an artificial floor
 on the diagonal entries in each covariance matrix after each EM iteration.
 While the optimum value of the floor is data dependent, a small positive constant is typically sufficient to promote numerical stability

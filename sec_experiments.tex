@@ -3,6 +3,125 @@
 
 \subsection{Speedup from Multi-Threading}
 
+To demonstrate the achievable speedup with the multi-threaded versions of the EM and {\it k}-means algorithms,
+we trained a GMM with 100 Gaussians on a recent 16 core machine using a synthetic dataset comprising 1,000,000 samples with 100 dimensions.
+10 iterations of the {\it k}-means algorithm and 10 iterations of the EM algorithm were used.
+The samples were stored in double precision floating point format, resulting in a total data size of approximately 762~Mb.
+% The corresponding source code is shown in Figure~\ref{fig:timing_prog}.
+
+Figure~\ref{fig:speedup} shows that a speedup of an order of magnitude is achieved when all 16 cores are used.
+Specifically, for the synthetic dataset used in this demonstration,
+the training time was reduced from approximately 340 seconds to about 33 seconds.
+In each case, the {\it k}-means algorithm took approximately 30\% of the total training time.
+%which, in other words, indicates that {\it k}-means executed about 2 times faster than the EM algorithm.
+
+We note that the overall speedup is below the idealised linear speedup.
+This is likely due to overheads related to OpenMP and reduction operations described in Section~\ref{sec:param_em_parallel},
+as well as memory access contention, stemming from concurrent access to memory by multiple cores~\cite{McCool_2012}.
+
+\begin{figure*}[!t]
+\centering
+\begin{minipage}{\textwidth}
+  \centering
+  \begin{minipage}{0.5\textwidth}
+    \centering
+    \includegraphics[width=1.1\textwidth]{plot1.pdf}\\
+    {(a)}
+  \end{minipage}%
+  \begin{minipage}{0.5\textwidth}
+    \centering
+    \includegraphics[width=1.1\textwidth]{plot2.pdf}\\
+    {(b)}
+  \end{minipage}
+\end{minipage}
+\caption
+  {
+  Execution characteristics for training a 100 component GMM
+  to model a synthetic dataset comprising 1,000,000 samples with 100 dimensions
+  using 10 iterations of the {\it k}-means algorithm and 10 iterations of the EM algorithm:
+  {\bf (a)}~total time taken depending on the number of threads;
+  {\bf (b)}~corresponding speedup factor compared to using one thread (blue line), and idealised linear speedup under the assumption of no overheads and no memory access contention (red dotted line).
+  The modelling was done on a machine with dual Intel Xeon E5-2620~v4 CPUs, providing 16 independent processing cores.
+  Compilation was done with GCC 5.4 using the following switches: \texttt{-O3 -march=native -fopenmp}.
+  }
+\label{fig:speedup}
+\end{figure*}
+
+
+\subsection{Comparison with Full-Covariance GMMs}
+
+% I guess we should move the parallelism experiment here, if you go with this
+% approach.
+
+% This paragraph could be reworked---it doesn't really fit with the "flow" of
+% the paper.  But I think it would be nice to show that using a diagonal GMM
+% doesn't cost us too much---because that would be my primary concern as a
+% reviewer (i.e. "this contribution doesn't matter because nobody uses diagonal
+% GMMs").
+In order to validate our intuition that a diagonal GMM is a good choice instead
+of the significantly more complex problem of estimating GMMs with full
+covariance matrices, we compare the {\it gmm\_diag} class (described in Section~\ref{sec:implementation})
+against the full-covariance GMM implementation in the well-established MLPACK C++ machine learning library~\cite{Curtin_2013}.
+
+We select common datasets from the UCI machine learning dataset
+repository~\cite{Lichman_2013}, and train both diagonal and full-covariance
+GMMs on these datasets.  The number of Gaussians in the model was chosen
+according to the original source of the dataset; where possible, 3 times the
+number of classes in the dataset was used.  In some cases, small amounts of
+Gaussian noise needed to be added to the dataset for stability.
+% It takes too long to do BIC on this, we don't have time.  We could handle it
+% after reviews possibly?  Really the number of Gaussians does not matter
+% anyway, we only care here about how long it takes.
+
+These simulations were run on a standard 8-core desktop; both implementations
+used all 8 cores during training, with a maximum of 250 iterations of the EM
+algorithm before the fitting procedure was terminated.  The fitting procedure
+was run 10 times, and the best log-likelihood of those 10 runs are reported,
+as well as the average wall-clock runtime for the fitting.
+
+The results are given in Table \ref{tab:results}, along with the dataset
+information (number of samples, dimensionality, and number of Gaussians
+used for modeling).  We can see that the diagonal GMM implementation in 
+the {\it gmm\_diag} class provides an order-of-magnitude or more speedup over the full covariance
+implementation in MLPACK.
+In most cases there is no significant loss in goodness-of-fit (as measured by log-likelihood).
+% In one case ({\it ozone}) the goodness-of-fit is lower; we conjecture that using a larger $N_G$ for the {\it gmm\_diag} class will improve the accuracy of the model.
+In several cases ({\it winequality}, {\it cup98b}, {\it phy}, {\it covertype})
+the goodness-of-fit is notably higher for the {\it gmm\_diag} class;
+we conjecture that in these cases the diagonal covariance matrices are acting as a form of regularisation to reduce overfitting~\cite{Bishop_2006}.
+
+
+%% CS: I thought about the data you sent by email (matched results) and a good way to explain the story,
+%% CS: but so far I haven'tt come up with something that was easy to grasp and didn't raise more questions.
+%% CS: I think the way forward would be to choose a result from Table I (comparison against full cov GMM)
+%% CS: where gmm_diag is getting a notably worse log-likelihood for the same N_G as the full cov GMM,
+%% CS: and then see if the log-likelihood can be improved by increasing N_G.
+%% CS: At that point we can compare the amout of time taken by full cov GMM and gmm_diag with higher N_G.
+
+% Additionally, we perform a more detailed investigation of the behavior of each
+% implementation on the {\tt corel} dataset.  In order to verify the results of
+% Reynolds~\cite{Reynolds_2000}, we train diagonal and full-covariance GMMs on a
+% variety of choices of $N_g$, collecting the log-likelihood of the trained model
+% at each EM iteration.  This shows us how quickly each model is able to fit to
+% the data.  Figure~\ref{fig:lc} shows the resulting learning curve, demonstrating
+% that the diagonal GMM implementation is able to converge to a better
+% log-likelihood in less time than the full-covariance implementation.
+% 
+% \begin{figure*}
+% \begin{center}
+% % This figure is horrible.  I have not thought of a better way to plot this
+% % here.  But maybe it is a start.  Like for real this is the ugliest graph I
+% % have ever produced in my life.
+% % \includegraphics[width=\textwidth]{data/garbage_fire.png}
+% \end{center}
+% \caption{GMM training time vs. log-likelihood of model for diagonal GMMs (blue)
+% and non-diagonal GMMs (red).  The simulation is performed for many values of
+% $N_g$, showing that for the {\tt corel} dataset, we can get a faster and better
+% fit with our implementation of diagonal GMMs than with a full-covariance GMM,
+% even when the diagonal GMM must have a greater $N_g$ to achieve a better fit.}
+% \label{fig:lc}
+% \end{figure*}
+
 % done with N_G = 30
 % 
 % birch     full        -2.5941e6       82.4212s
@@ -16,7 +135,8 @@
 
 
 
-\begin{table*}
+\begin{table*}[!tb]
+\vspace{5ex}
 \centering
 \small
 \begin{tabular}{|l|c|c|c|c|c|c|c|}
@@ -93,92 +213,3 @@
 % \label{tab:results}
 % \end{table*}
 
-To demonstrate the achievable speedup with the multi-threaded versions of the EM and {\it k}-means algorithms,
-we trained a GMM with 100 Gaussians on a recent 16 core machine using a synthetic dataset comprising 1,000,000 samples with 100 dimensions.
-10 iterations of the {\it k}-means algorithm and 10 iterations of the EM algorithm were used.
-The samples were stored in double precision floating point format, resulting in a total data size of approximately 762~Mb.
-% The corresponding source code is shown in Figure~\ref{fig:timing_prog}.
-
-Figure~\ref{fig:speedup} shows that a speedup of an order of magnitude is achieved when all 16 cores are used.
-Specifically, for the synthetic dataset used in this demonstration,
-the training time was reduced from approximately 340 seconds to about 33 seconds.
-In each case, the {\it k}-means algorithm took approximately 30\% of the total training time.
-%which, in other words, indicates that {\it k}-means executed about 2 times faster than the EM algorithm.
-
-We note that the overall speedup is below the idealised linear speedup.
-This is likely due to overheads related to OpenMP and reduction operations described in Section~\ref{sec:param_em_parallel},
-as well as memory access contention, stemming from concurrent access to memory by multiple cores~\cite{McCool_2012}.
-
-\subsection{Comparison with Full-Covariance GMMs}
-
-% I guess we should move the parallelism experiment here, if you go with this
-% approach.
-
-% This paragraph could be reworked---it doesn't really fit with the "flow" of
-% the paper.  But I think it would be nice to show that using a diagonal GMM
-% doesn't cost us too much---because that would be my primary concern as a
-% reviewer (i.e. "this contribution doesn't matter because nobody uses diagonal
-% GMMs").
-In order to validate our intuition that a diagonal GMM is a good choice instead
-of the significantly more complex problem of estimating GMMs with full
-covariance matrices, we compare the {\it gmm\_diag} class (described in Section~\ref{sec:implementation})
-against the full-covariance GMM implementation in the well-established MLPACK C++ machine learning library~\cite{Curtin_2013}.
-
-We select common datasets from the UCI machine learning dataset
-repository~\cite{Lichman_2013}, and train both diagonal and full-covariance
-GMMs on these datasets.  The number of Gaussians in the model was chosen
-according to the original source of the dataset; where possible, 3 times the
-number of classes in the dataset was used.  In some cases, small amounts of
-Gaussian noise needed to be added to the dataset for stability.
-% It takes too long to do BIC on this, we don't have time.  We could handle it
-% after reviews possibly?  Really the number of Gaussians does not matter
-% anyway, we only care here about how long it takes.
-
-These simulations were run on a standard 8-core desktop; both implementations
-used all 8 cores during training, with a maximum of 250 iterations of the EM
-algorithm before the fitting procedure was terminated.  The fitting procedure
-was run 10 times, and the best log-likelihood of those 10 runs are reported,
-as well as the average wall-clock runtime for the fitting.
-
-The results are given in Table \ref{tab:results}, along with the dataset
-information (number of samples, dimensionality, and number of Gaussians
-used for modeling).  We can see that the diagonal GMM implementation in 
-the {\it gmm\_diag} class provides an order-of-magnitude or more speedup over the full covariance
-implementation in MLPACK.
-In most cases there is no significant loss in goodness-of-fit (as measured by log-likelihood).
-% In one case ({\it ozone}) the goodness-of-fit is lower; we conjecture that using a larger $N_G$ for the {\it gmm\_diag} class will improve the accuracy of the model.
-In several cases ({\it winequality}, {\it cup98b}, {\it phy}, {\it covertype})
-the goodness-of-fit is notably higher for the {\it gmm\_diag} class;
-we conjecture that in these cases the diagonal covariance matrices are acting as a form of regularisation to reduce overfitting~\cite{Bishop_2006}.
-
-
-%% CS: I thought about the data you sent by email (matched results) and a good way to explain the story,
-%% CS: but so far I haven'tt come up with something that was easy to grasp and didn't raise more questions.
-%% CS: I think the way forward would be to choose a result from Table I (comparison against full cov GMM)
-%% CS: where gmm_diag is getting a notably worse log-likelihood for the same N_G as the full cov GMM,
-%% CS: and then see if the log-likelihood can be improved by increasing N_G.
-%% CS: At that point we can compare the amout of time taken by full cov GMM and gmm_diag with higher N_G.
-
-% Additionally, we perform a more detailed investigation of the behavior of each
-% implementation on the {\tt corel} dataset.  In order to verify the results of
-% Reynolds~\cite{Reynolds_2000}, we train diagonal and full-covariance GMMs on a
-% variety of choices of $N_g$, collecting the log-likelihood of the trained model
-% at each EM iteration.  This shows us how quickly each model is able to fit to
-% the data.  Figure~\ref{fig:lc} shows the resulting learning curve, demonstrating
-% that the diagonal GMM implementation is able to converge to a better
-% log-likelihood in less time than the full-covariance implementation.
-% 
-% \begin{figure*}
-% \begin{center}
-% % This figure is horrible.  I have not thought of a better way to plot this
-% % here.  But maybe it is a start.  Like for real this is the ugliest graph I
-% % have ever produced in my life.
-% % \includegraphics[width=\textwidth]{data/garbage_fire.png}
-% \end{center}
-% \caption{GMM training time vs. log-likelihood of model for diagonal GMMs (blue)
-% and non-diagonal GMMs (red).  The simulation is performed for many values of
-% $N_g$, showing that for the {\tt corel} dataset, we can get a faster and better
-% fit with our implementation of diagonal GMMs than with a full-covariance GMM,
-% even when the diagonal GMM must have a greater $N_g$ to achieve a better fit.}
-% \label{fig:lc}
-% \end{figure*}

@@ -2,7 +2,7 @@
 
 \begin{abstract}
 Modelling of multivariate densities is a core component in many signal processing, pattern recognition and machine learning applications.
-The modelling is often done via Gaussian mixture models (GMMs), which use computationally expensive training algorithms.
+The modelling is often done via Gaussian mixture models (GMMs), which use computationally expensive and potentially unstable training algorithms.
 We provide an overview of a fast and robust implementation of GMMs in the C++ language,
 employing multi-threaded versions of the Expectation Maximisation (EM) and \mbox{{\it k}-means} training algorithms.
 Multi-threading is achieved through reformulation of the EM and \mbox{{\it k}-means} algorithms into a MapReduce-like framework.

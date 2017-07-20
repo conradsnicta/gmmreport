@@ -24,6 +24,7 @@
 \usepackage{xfrac}
 \usepackage{fancyvrb}
 \usepackage{balance}
+\usepackage{adjustbox}
 
 \usepackage[british]{babel}
 %\usepackage[none]{hyphenat}
@@ -151,14 +152,19 @@
 % \rfoot{}
 
 \input{sec_intro}
-\vspace{1.51ex}
+\vspace{1.5ex}
+\balance
 \input{sec_param_em}
+\vspace{1.5ex}
 \input{sec_param_km}
+\pagebreak
 \input{sec_implementation}
-\newpage
+\pagebreak
 \input{sec_experiments}
+\newpage
 \input{sec_conclusion}
 
+\pagebreak
 \balance
 % \renewcommand{\baselinestretch}{1.05}\small\normalsize
 \bibliographystyle{ieee}

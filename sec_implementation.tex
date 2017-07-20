@@ -44,6 +44,7 @@ which in turn suggests that full covariance GMMs can be approximated using diago
 % In the following text, we first provide a description of the user accessible classes and functions which comprise the implementation,
 % followed by a demonstration of the achievable training speedup due to multi-threading.
 
+\vspace{1ex}
 \subsection{User Accessible Classes and Functions}
 
 The implementation is provided as two user-friendly classes within the {\it arma} namespace:
@@ -67,9 +68,112 @@ all vector and matrix types have the {\it f} prefix (for example, {\it fmat}),
 while scalars have the type {\it float}.
 The word ``heft'' is explicitly used in the classes as a shorter version of ``weight'', while keeping the same meaning with the context of GMMs.
 
-\begin{small}
+\vspace{6ex}
+%\begin{small}
 \begin{enumerate}[{$\bullet$}]
-\itemsep 0.98ex
+\itemsep 1ex
+
+\item
+{\bf M.learn(data, n\_gaus, dist\_mode, seed\_mode, km\_iter, em\_iter, var\_floor, print\_mode)}\\
+learn the model parameters via the {\it k}-means and/or EM algorithms,
+and return a boolean value, with {\it true} indicating success, and {\it false} indicating failure;
+the parameters have the following meanings:
+
+\begin{small}
+\begin{enumerate}[{-}]
+\itemsep 0.5ex
+\item
+{\bf data}\\
+matrix (of type {\it mat}) containing training samples; each sample is stored as a column vector
+
+\item
+{\bf n\_gaus}\\
+set the number of Gaussians to {\bf n\_gaus};
+to help convergence, it is recommended that the given {\bf data} matrix (above)
+contains at least 10 samples for each Gaussian
+
+\item
+{\bf dist\_mode}\\
+specifies the distance used during the seeding of initial means and \mbox{{\it k}-means} clustering:
+\begin{small}
+\begin{enumerate}[{\bf eucl\_dist}]
+\item Euclidean distance
+\end{enumerate}
+
+\begin{enumerate}[{\bf {maha\_dist}}]
+\item Mahalanobis distance, which uses a global diagonal covariance matrix estimated from the given training samples
+\end{enumerate}
+\end{small}
+
+% \begin{tabular}{ll}
+% {\bf eucl\_dist} & Euclidean distance\\
+% {\bf maha\_dist} & Mahalanobis distance, which uses a \\
+%                  & global diagonal covariance matrix \\
+%                  & estimated from the given training \\
+%                  & samples
+% \end{tabular}
+
+\item
+{\bf seed\_mode}\\
+specifies how the initial means are seeded prior to running \mbox{{\it k}-means} and/or EM algorithms:
+\begin{small}
+\begin{enumerate}[{\bf {~~~keep\_existing}}]
+\item keep the existing model (do not modify the means, covariances and hefts)
+\end{enumerate}
+\begin{enumerate}[{\bf {~~~~static\_subset}}]
+\item a subset of the training samples (repeatable)
+\end{enumerate}
+\begin{enumerate}[{\bf {~random\_subset}}]
+\item a subset of the training samples (random)
+\end{enumerate}
+\begin{enumerate}[{\bf {~~~static\_spread}}]
+\item a maximally spread subset of training samples (repeatable)
+\end{enumerate}
+\begin{enumerate}[{\bf {random\_spread}}]
+\item a maximally spread subset of training samples (random start) \\
+\end{enumerate}
+\end{small}
+
+% \vspace*{0.5em}
+% \begin{tabular}{ll}
+% {\bf keep\_existing} & keep the existing model (do not \\
+%                      & modify the means, covariances \\
+%                      & and hefts) \\
+% {\bf static\_subset} & a subset of the training samples \\
+%                      & (repeatable) \\
+% {\bf random\_subset} & a subset of the training samples \\
+%                      & (random) \\
+% {\bf static\_spread} & a maximally spread subset of \\
+%                      & training samples (repeatable) \\
+% {\bf random\_spread} & a maximally spread subset of \\
+%                      & training samples (random start) \\
+% \end{tabular}
+% \vspace*{0.5em}
+
+\vspace{-1.5ex}
+Note that seeding the initial means with {\bf static\_spread} and {\bf random\_spread}
+can be more time consuming than with {\bf static\_subset} and {\bf random\_subset};
+these seed modes are inspired by the so-called {\it k-means++} approach~\cite{Arthur_2007}, with the aim to improve clustering quality
+\vspace{1ex}
+
+\item
+{\bf km\_iter}\\
+the maximum number of iterations of the {\it k}-means algorithm; this is data dependent, but typically 10 iterations are sufficient
+
+\item
+{\bf em\_iter}\\
+the maximum number of iterations of the EM algorithm; this is data dependent, but typically 5 to 10 iterations are sufficient
+
+\item
+{\bf var\_floor}\\
+the variance floor (smallest allowed value) for the diagonal covariances; setting this to a small non-zero value can help with convergence and/or better quality parameter estimates
+
+\item
+{\bf print\_mode}\\
+boolean value (either {\it true} or {\it false}) which enables/disables the printing of progress during the {\it k}-means and EM algorithms 
+
+\end{enumerate}
+\end{small}
 
 \item
 {\bf M.log\_p(V)}\\
@@ -149,14 +253,7 @@ return a column vector representing a random sample generated according to the m
 {\bf M.generate(N)}\\
 return a matrix containing {\bf N} column vectors, with each vector representing a random sample generated according to the model's parameters
 
-\item
-{\bf M.save(filename)}\\
-save the model to a file
-
-\item
-{\bf M.load(filename)}\\
-load the model from a file
-
+~\\
 \item
 {\bf M.n\_gaus()}\\
 return an unsigned integer (of type {\it uword}) containing the number of means/Gaussians in the model
@@ -169,6 +266,14 @@ return an unsigned integer (of type {\it uword}) containing the dimensionality o
 {\bf M.reset(n\_dims, n\_gaus)}\\
 set the model to have dimensionality {\bf n\_dims}, with {\bf n\_gaus} number of Gaussians, specified as unsigned integers of type {\it uword};
 all the means are set to zero, all diagonal covariances are set to one, and all the hefts (weights) are set to be uniform
+
+\item
+{\bf M.save(filename)}\\
+save the model to a file
+
+\item
+{\bf M.load(filename)}\\
+load the model from a file
 
 \item
 {\bf M.means}\\
@@ -203,109 +308,8 @@ set all the parameters at the same time, using matrices denoted as {\bf means} a
 the layout of the matrices is as per the {\bf .set\_means()} and {\bf .set\_dcovs()} functions above;
 the number of Gaussians and dimensionality can be different from the existing model
 
-\item
-{\bf M.learn(data, n\_gaus, dist\_mode, seed\_mode, km\_iter, em\_iter, var\_floor, print\_mode)}\\
-learn the model parameters via the {\it k}-means and/or EM algorithms,
-and return a boolean value, with {\it true} indicating success, and {\it false} indicating failure;
-the parameters have the following meanings:
-
-\begin{small}
-\begin{enumerate}[{-}]
-\itemsep 1.5ex
-\item
-{\bf data}\\
-matrix (of type {\it mat}) containing training samples; each sample is stored as a column vector
-
-\item
-{\bf n\_gaus}\\
-set the number of Gaussians to {\bf n\_gaus};
-to help convergence, it is recommended that the given {\bf data} matrix (above)
-contains at least 10 samples for each Gaussian
-
-\item
-{\bf dist\_mode}\\
-specifies the distance used during the seeding of initial means and \mbox{{\it k}-means} clustering:
-\begin{small}
-\begin{enumerate}[{\bf eucl\_dist}]
-\item Euclidean distance
 \end{enumerate}
-
-\begin{enumerate}[{\bf {maha\_dist}}]
-\item Mahalanobis distance, which uses a global diagonal covariance matrix estimated from the given training samples
-\end{enumerate}
-\end{small}
-
-% \begin{tabular}{ll}
-% {\bf eucl\_dist} & Euclidean distance\\
-% {\bf maha\_dist} & Mahalanobis distance, which uses a \\
-%                  & global diagonal covariance matrix \\
-%                  & estimated from the given training \\
-%                  & samples
-% \end{tabular}
-
-\item
-{\bf seed\_mode}\\
-specifies how the initial means are seeded prior to running \mbox{{\it k}-means} and/or EM algorithms:
-\begin{small}
-\begin{enumerate}[{\bf {~~~keep\_existing}}]
-\item keep the existing model (do not modify the means, covariances and hefts)
-\end{enumerate}
-\begin{enumerate}[{\bf {~~~~static\_subset}}]
-\item a subset of the training samples (repeatable)
-\end{enumerate}
-\begin{enumerate}[{\bf {~random\_subset}}]
-\item a subset of the training samples (random)
-\end{enumerate}
-\begin{enumerate}[{\bf {~~~static\_spread}}]
-\item a maximally spread subset of training samples (repeatable)
-\end{enumerate}
-\begin{enumerate}[{\bf {random\_spread}}]
-\item a maximally spread subset of training samples (random start) \\
-\end{enumerate}
-\end{small}
-
-% \vspace*{0.5em}
-% \begin{tabular}{ll}
-% {\bf keep\_existing} & keep the existing model (do not \\
-%                      & modify the means, covariances \\
-%                      & and hefts) \\
-% {\bf static\_subset} & a subset of the training samples \\
-%                      & (repeatable) \\
-% {\bf random\_subset} & a subset of the training samples \\
-%                      & (random) \\
-% {\bf static\_spread} & a maximally spread subset of \\
-%                      & training samples (repeatable) \\
-% {\bf random\_spread} & a maximally spread subset of \\
-%                      & training samples (random start) \\
-% \end{tabular}
-% \vspace*{0.5em}
-
-Note that seeding the initial means with {\bf static\_spread} and {\bf random\_spread}
-can be more time consuming than with {\bf static\_subset} and {\bf random\_subset};
-these seed modes are inspired by the so-called {\it k-means++} approach~\cite{Arthur_2007}, with the aim to improve clustering quality
-
-\item
-{\bf km\_iter}\\
-the maximum number of iterations of the {\it k}-means algorithm; this is data dependent, but typically 10 iterations are sufficient
-
-\newpage
-\item
-{\bf em\_iter}\\
-the maximum number of iterations of the EM algorithm; this is data dependent, but typically 5 to 10 iterations are sufficient
-
-\item
-{\bf var\_floor}\\
-the variance floor (smallest allowed value) for the diagonal covariances; setting this to a small non-zero value can help with convergence and/or better quality parameter estimates
-
-\item
-{\bf print\_mode}\\
-boolean value (either {\it true} or {\it false}) which enables/disables the printing of progress during the {\it k}-means and EM algorithms 
-
-\end{enumerate}
-\end{small}
-
-\end{enumerate}
-\end{small}
+%\end{small}
 
 % \noindent
 % The above interface allows the user full control over the parameters of the GMM
@@ -313,10 +317,13 @@ boolean value (either {\it true} or {\it false}) which enables/disables the prin
 % In addition, the mlpack machine learning library \cite{Curtin_2013} wraps the {\tt gmm\_diag} class
 % to provide a unified frontend for training Gaussian Mixture Models both with diagonal and non-diagonal covariance matrices.
 
-\begin{figure}[!b]
+\begin{figure}[!h]
+%\vspace{-1ex}
+\vspace{1ex}
 \hrule
 \vspace{1ex}
 \centering
+\begin{adjustbox}{minipage=\columnwidth,scale={1}{1.2}}
 % possible mono-space fonts: BeraMono, DejaVu Sans Mono, KP Monospaced, LuxiMono, Inconsolata
 %\begin{Verbatim}
 %\begin{Verbatim}[fontsize=\footnotesize,fontseries=b]
@@ -371,11 +378,15 @@ int main()
   
   model.save("my_model.gmm");
   
+  mat modified_dcovs = 2 * model.dcovs;
+  
+  model.set_dcovs(modified_dcovs);
+  
   return 0;
   }
 
 \end{Verbatim}
-\vspace{-1ex}
+\end{adjustbox}
 \hrule
 \vspace{0.5ex}
 \caption
@@ -383,37 +394,10 @@ int main()
   An example C++ program which demonstrates usage of several functions from the {\it\bfseries gmm\_diag} class.
   }
 \label{fig:example_usage}
+
+
+\vspace{17ex}
 \end{figure}
-
-
-% Ensure the figure is on the same page as the discussion.
-\begin{figure*}[t!]
-\centering
-\begin{minipage}{\textwidth}
-  \centering
-  \begin{minipage}{0.5\textwidth}
-    \centering
-    \includegraphics[width=1.1\textwidth]{plot1.pdf}\\
-    {(a)}
-  \end{minipage}%
-  \begin{minipage}{0.5\textwidth}
-    \centering
-    \includegraphics[width=1.1\textwidth]{plot2.pdf}\\
-    {(b)}
-  \end{minipage}
-\end{minipage}
-\caption
-  {
-  Execution characteristics for training a 100 component GMM
-  to model a synthetic dataset comprising 1,000,000 samples with 100 dimensions
-  using 10 iterations of the {\it k}-means algorithm and 10 iterations of the EM algorithm:
-  {\bf (a)}~total time taken depending on the number of threads;
-  {\bf (b)}~corresponding speedup factor compared to using one thread (blue line), and idealised linear speedup under the assumption of no overheads and no memory access contention (red dotted line).
-  The modelling was done on a machine with dual Intel Xeon E5-2620~v4 CPUs, providing 16 independent processing cores.
-  Compilation was done with GCC 5.4 using the following switches: \texttt{-O3 -march=native -fopenmp}.
-  }
-\label{fig:speedup}
-\end{figure*}
 
 
 % \begin{figure}[!b]

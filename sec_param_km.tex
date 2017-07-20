@@ -12,7 +12,8 @@ The baseline {\it k}-means clustering algorithm is a straightforward iterative p
 (i)~calculating the distance from each sample to each mean,
 and
 (ii)~calculating the new version of each mean as the average of samples which were found to be the closest to the previous version of the corresponding mean.
-
+The required number of iterations is data dependent,
+but typically about 10 iterations are sufficient to generate a good initial estimate of $\lambda$.
 
 The $k$-means algorithm can be interpreted as a simplified version (or special case) of the EM algorithm for GMMs~\cite{Kulis_2012}.
 Instead of each sample being assigned a set probabilities representing cluster membership (soft assignment),
@@ -20,9 +21,7 @@ each sample is assigned to only one cluster (hard assignment).
 Furthermore, it can be assumed that the covariance matrix of each Gaussian is non-informative, diagonal, and/or shared across all Gaussians.
 More formally, the estimation of model parameters is as per Eqns.~(\ref{eqn:em_weight}), (\ref{eqn:em_mean}) and (\ref{eqn:em_cov}), 
 but $l_{g,i}$ is redefined~as:%
-
-\vspace{1ex}
-\noindent
+%
 \begin{equation}
   l_{g,i} = \left\{
   \begin{array}{ll}
@@ -46,7 +45,7 @@ we have elected to adapt the baseline \mbox{{\it k}-means} algorithm due to its 
 % The vast majority of the computational effort for training GMMs is typically taken up by the full EM algorithm (as described in Section~\ref{sec:param_em}),
 % hence the speed of the {\it k}-means algorithm is not critical in the context of GMMs.
 
-% \subsection{Addressing Corner Cases}
+\vspace{1ex}
 \subsection{Issues with Modelling Accuracy and Convergence}
 
 A typical and naive choice for the distance in~Eqn.~(\ref{eqn:binary_likelihood})
@@ -58,8 +57,6 @@ This can adversely skew the initial parameter estimates, easily leading to poor 
 This in turn can lead to poor modelling, as the EM algorithm is only guaranteed to reach a local maximum~\cite{Dempster77,Duda01,Mitchell97}.
 To address this problem, the squared Mahalanobis distance can be used~\cite{Bishop_2006,Duda01}:
 
-\vspace{1ex}
-\noindent
 \begin{equation}
 \operatorname{dist}(\Vec{a}, \Vec{b}) = (\Vec{a} - \Vec{b})^\top \Mat{\Sigma}^{-1}_{\mathrm{global}} (\Vec{a} - \Vec{b}),
 \end{equation}

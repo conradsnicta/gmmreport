@@ -172,28 +172,49 @@ diag cov
 corel       Ng = 50
 
 full cov
+[INFO ] Log-likelihood of estimate: 4.51559e+06.
+[INFO ]   em: 540.098768s (9 mins)
+[INFO ] Log-likelihood of estimate: 4.51484e+06.
+[INFO ]   em: 545.279614s (9 mins, 5.2 secs)
+[INFO ] Log-likelihood of estimate: 4.50957e+06.
+[INFO ]   em: 547.335984s (9 mins, 7.3 secs)
+[INFO ] Log-likelihood of estimate: 4.52161e+06.
+[INFO ]   em: 544.622987s (9 mins, 4.6 secs)
+[INFO ] Log-likelihood of estimate: 4.51731e+06.
+[INFO ]   em: 541.843761s (9 mins, 1.8 secs)
+[INFO ] Log-likelihood of estimate: 4.51776e+06.
+[INFO ]   em: 543.093049s (9 mins, 3.0 secs)
+[INFO ] Log-likelihood of estimate: 4.52267e+06.
+[INFO ]   em: 545.825724s (9 mins, 5.8 secs)
+[INFO ] Log-likelihood of estimate: 4.50969e+06.
+[INFO ]   em: 543.795295s (9 mins, 3.7 secs)
+[INFO ] Log-likelihood of estimate: 4.50918e+06.
+[INFO ]   em: 544.170110s (9 mins, 4.1 secs)
+[INFO ] Log-likelihood of estimate: 4.51427e+06.
+[INFO ]   em: 540.662939s (9 mins)
+
 
 diag cov
-[INFO ] Log-likelihood of estimate: 4.43327e+06.
-[INFO ]   em: 7.003052s
-[INFO ] Log-likelihood of estimate: 4.43894e+06.
-[INFO ]   em: 6.797398s
-[INFO ] Log-likelihood of estimate: 4.43306e+06.
-[INFO ]   em: 7.399018s
-[INFO ] Log-likelihood of estimate: 4.43687e+06.
-[INFO ]   em: 6.091271s
-[INFO ] Log-likelihood of estimate: 4.43609e+06.
-[INFO ]   em: 6.168588s
-[INFO ] Log-likelihood of estimate: 4.43877e+06.
-[INFO ]   em: 6.873236s
-[INFO ] Log-likelihood of estimate: 4.43679e+06.
-[INFO ]   em: 6.933034s
-[INFO ] Log-likelihood of estimate: 4.43945e+06.
-[INFO ]   em: 6.823277s
-[INFO ] Log-likelihood of estimate: 4.43173e+06.
-[INFO ]   em: 5.684268s
-[INFO ] Log-likelihood of estimate: 4.43889e+06.
-[INFO ]   em: 6.317919s
+[INFO ] Log-likelihood of estimate: 4.43137e+06.
+[INFO ]   em: 4.530907s
+[INFO ] Log-likelihood of estimate: 4.43508e+06.
+[INFO ]   em: 4.630920s
+[INFO ] Log-likelihood of estimate: 4.43435e+06.
+[INFO ]   em: 4.723449s
+[INFO ] Log-likelihood of estimate: 4.43575e+06.
+[INFO ]   em: 4.686943s
+[INFO ] Log-likelihood of estimate: 4.43601e+06.
+[INFO ]   em: 4.389706s
+[INFO ] Log-likelihood of estimate: 4.43782e+06.
+[INFO ]   em: 4.585529s
+[INFO ] Log-likelihood of estimate: 4.43616e+06.
+[INFO ]   em: 4.483669s
+[INFO ] Log-likelihood of estimate: 4.43794e+06.
+[INFO ]   em: 4.551550s
+[INFO ] Log-likelihood of estimate: 4.43822e+06.
+[INFO ]   em: 4.513964s
+[INFO ] Log-likelihood of estimate: 4.4337e+06.
+[INFO ]   em: 4.674750s
 
 --------------------------------------------------
 
@@ -230,6 +251,26 @@ diag cov
 birch3       Ng = 6
 
 full cov
+[INFO ] Log-likelihood of estimate: -2.70747e+06.
+[INFO ]   em: 20.082617s
+[INFO ] Log-likelihood of estimate: -2.71463e+06.
+[INFO ]   em: 20.180166s
+[INFO ] Log-likelihood of estimate: -2.70982e+06.
+[INFO ]   em: 20.088784s
+[INFO ] Log-likelihood of estimate: -2.7095e+06.
+[INFO ]   em: 20.192632s
+[INFO ] Log-likelihood of estimate: -2.7095e+06.
+[INFO ]   em: 18.126048s
+[INFO ] Log-likelihood of estimate: -2.71178e+06.
+[INFO ]   em: 19.582072s
+[INFO ] Log-likelihood of estimate: -2.71254e+06.
+[INFO ]   em: 19.402303s
+[INFO ] Log-likelihood of estimate: -2.71729e+06.
+[INFO ]   em: 18.322400s
+[INFO ] Log-likelihood of estimate: -2.70166e+06.
+[INFO ]   em: 18.125785s
+[INFO ] Log-likelihood of estimate: -2.70875e+06.
+[INFO ]   em: 19.205664s
 
 diag cov
 [INFO ] Log-likelihood of estimate: -2.71341e+06.

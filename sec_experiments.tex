@@ -72,16 +72,15 @@ Gaussian noise needed to be added to the dataset for stability.
 % It takes too long to do BIC on this, we don't have time.  We could handle it
 % after reviews possibly?  Really the number of Gaussians does not matter
 % anyway, we only care here about how long it takes.
+Both implementations used 10 iterations of {\it k}-means for initialisation,
+followed by running the EM algorithm until convergence or reaching a maximum of 250 iterations.
+The entire fitting procedure was repeated 10 times, each time with a different random starting point.
 
-These simulations were run on a standard 8-core desktop; both implementations
-used all 8 cores during training, with a maximum of 250 iterations of the EM
-algorithm before the fitting procedure was terminated.  The fitting procedure
-was run 10 times, and the best log-likelihood of those 10 runs are reported,
-as well as the average wall-clock runtime for the fitting.
-
-The results are given in Table \ref{tab:results}, along with the dataset
-information (number of samples, dimensionality, and number of Gaussians
-used for modeling).  We can see that the diagonal GMM implementation in 
+The results are given in Table \ref{tab:results}, which shows the best log-likelihood of the 10 runs,
+the average wall-clock runtime for the fitting,
+as well as dataset information
+(number of samples, dimensionality, and number of Gaussians used for modelling).
+We can see that the diagonal GMM implementation in 
 the {\it gmm\_diag} class provides an order-of-magnitude or more speedup over the full covariance
 implementation in MLPACK.
 In most cases there is no significant loss in goodness-of-fit (as measured by log-likelihood).

@@ -1,0 +1,346 @@
+dataset     Ng
+
+cloud        5
+ozone        6
+winequality 30   
+corel       50
+cup98b      30
+birch3       6
+phy         30
+covertype   21
+pokerhand   25
+
+Intel Xeon CPU E5-2620 v4 @ 2.10GHz
+
+need to limit the number of threads to be equal to the number of cores,
+otherwise massive slowdowns are observed with full cov
+
+export OPENBLAS_NUM_THREADS=16
+export OMP_NUM_THREADS=16
+
+--------------------------------------------------
+
+
+
+cloud  Ng = 5
+for i in `seq 1 10`; do bin/mlpack_gmm_train -i datasets/cloud.csv -d 1 -g 5 -v -t 1 | grep 'em: \|Log-likelihood' ; sleep 1; done
+
+full cov
+[INFO ] Log-likelihood of estimate: -59939.2.
+[INFO ]   em: 1.501592s
+[INFO ] Log-likelihood of estimate: -61549.
+[INFO ]   em: 0.910448s
+[INFO ] Log-likelihood of estimate: -61549.
+[INFO ]   em: 0.887231s
+[INFO ] Log-likelihood of estimate: -62469.9.
+[INFO ]   em: 1.273231s
+[INFO ] Log-likelihood of estimate: -62482.7.
+[INFO ]   em: 1.231734s
+[INFO ] Log-likelihood of estimate: -62482.7.
+[INFO ]   em: 1.109349s
+[INFO ] Log-likelihood of estimate: -59939.2.
+[INFO ]   em: 1.377217s
+[INFO ] Log-likelihood of estimate: -59939.2.
+[INFO ]   em: 1.542201s
+[INFO ] Log-likelihood of estimate: -59257.2.
+[INFO ]   em: 1.475313s
+[INFO ] Log-likelihood of estimate: -59939.2.
+[INFO ]   em: 1.400860s
+
+
+diag cov
+[INFO ] Log-likelihood of estimate: -64116.6.
+[INFO ]   em: 0.133136s
+[INFO ] Log-likelihood of estimate: -64707.8.
+[INFO ]   em: 0.127531s
+[INFO ] Log-likelihood of estimate: -67014.6.
+[INFO ]   em: 0.136990s
+[INFO ] Log-likelihood of estimate: -64707.8.
+[INFO ]   em: 0.114872s
+[INFO ] Log-likelihood of estimate: -64116.6.
+[INFO ]   em: 0.158471s
+[INFO ] Log-likelihood of estimate: -67014.6.
+[INFO ]   em: 0.127437s
+[INFO ] Log-likelihood of estimate: -64707.8.
+[INFO ]   em: 0.126124s
+[INFO ] Log-likelihood of estimate: -64116.6.
+[INFO ]   em: 0.122324s
+[INFO ] Log-likelihood of estimate: -66773.4.
+[INFO ]   em: 0.132363s
+[INFO ] Log-likelihood of estimate: -64707.8.
+[INFO ]   em: 0.113821s
+
+--------------------------------------------------
+
+ozone  Ng = 6
+
+full cov
+[INFO ] Log-likelihood of estimate: -230858.
+[INFO ]   em: 11.595758s
+[INFO ] Log-likelihood of estimate: -230801.
+[INFO ]   em: 9.448319s
+[INFO ] Log-likelihood of estimate: -229845.
+[INFO ]   em: 5.954425s
+[INFO ] Log-likelihood of estimate: -230402.
+[INFO ]   em: 8.103485s
+[INFO ] Log-likelihood of estimate: -229865.
+[INFO ]   em: 6.235535s
+[INFO ] Log-likelihood of estimate: -229583.
+[INFO ]   em: 4.664329s
+[INFO ] Log-likelihood of estimate: -226131.
+[INFO ]   em: 8.592509s
+[INFO ] Log-likelihood of estimate: -230881.
+[INFO ]   em: 15.231825s
+[INFO ] Log-likelihood of estimate: -230924.
+[INFO ]   em: 8.325195s
+[INFO ] Log-likelihood of estimate: -229027.
+[INFO ]   em: 14.917487s
+
+diag cov
+[INFO ] Log-likelihood of estimate: -309783.
+[INFO ]   em: 0.137029s
+[INFO ] Log-likelihood of estimate: -307945.
+[INFO ]   em: 0.104316s
+[INFO ] Log-likelihood of estimate: -335023.
+[INFO ]   em: 0.099818s
+[INFO ] Log-likelihood of estimate: -335024.
+[INFO ]   em: 0.091404s
+[INFO ] Log-likelihood of estimate: -335024.
+[INFO ]   em: 0.104620s
+[INFO ] Log-likelihood of estimate: -335031.
+[INFO ]   em: 0.074731s
+[INFO ] Log-likelihood of estimate: -335024.
+[INFO ]   em: 0.086849s
+[INFO ] Log-likelihood of estimate: -309788.
+[INFO ]   em: 0.176329s
+[INFO ] Log-likelihood of estimate: -335024.
+[INFO ]   em: 0.089347s
+[INFO ] Log-likelihood of estimate: -335023.
+[INFO ]   em: 0.101008s
+
+--------------------------------------------------
+
+winequality Ng = 30   
+
+full cov
+[INFO ] Log-likelihood of estimate: -49205.8.
+[INFO ]   em: 15.660321s
+[INFO ] Log-likelihood of estimate: -48734.6.
+[INFO ]   em: 16.952036s
+[INFO ] Log-likelihood of estimate: -47123.1.
+[INFO ]   em: 16.104317s
+[INFO ] Log-likelihood of estimate: -48551.9.
+[INFO ]   em: 16.868757s
+[INFO ] Log-likelihood of estimate: -47898.4.
+[INFO ]   em: 17.892786s
+[INFO ] Log-likelihood of estimate: -49480.3.
+[INFO ]   em: 18.412767s
+[INFO ] Log-likelihood of estimate: -48098.7.
+[INFO ]   em: 19.340099s
+[INFO ] Log-likelihood of estimate: -48706.5.
+[INFO ]   em: 18.270221s
+[INFO ] Log-likelihood of estimate: -47679.3.
+[INFO ]   em: 17.869052s
+[INFO ] Log-likelihood of estimate: -49188.
+[INFO ]   em: 20.759192s
+
+diag cov
+[INFO ] Log-likelihood of estimate: -16010.5.
+[INFO ]   em: 0.652005s
+[INFO ] Log-likelihood of estimate: -15947.
+[INFO ]   em: 0.581018s
+[INFO ] Log-likelihood of estimate: -16229.5.
+[INFO ]   em: 0.700267s
+[INFO ] Log-likelihood of estimate: -16126.3.
+[INFO ]   em: 0.652263s
+[INFO ] Log-likelihood of estimate: -16174.6.
+[INFO ]   em: 0.654133s
+[INFO ] Log-likelihood of estimate: -15994.9.
+[INFO ]   em: 0.683561s
+[INFO ] Log-likelihood of estimate: -15850.
+[INFO ]   em: 0.594331s
+[INFO ] Log-likelihood of estimate: -15847.8.
+[INFO ]   em: 0.679589s
+[INFO ] Log-likelihood of estimate: -15942.
+[INFO ]   em: 0.680779s
+[INFO ] Log-likelihood of estimate: -15905.9.
+[INFO ]   em: 0.573639s
+
+--------------------------------------------------
+
+
+corel       Ng = 50
+
+full cov
+
+diag cov
+[INFO ] Log-likelihood of estimate: 4.43327e+06.
+[INFO ]   em: 7.003052s
+[INFO ] Log-likelihood of estimate: 4.43894e+06.
+[INFO ]   em: 6.797398s
+[INFO ] Log-likelihood of estimate: 4.43306e+06.
+[INFO ]   em: 7.399018s
+[INFO ] Log-likelihood of estimate: 4.43687e+06.
+[INFO ]   em: 6.091271s
+[INFO ] Log-likelihood of estimate: 4.43609e+06.
+[INFO ]   em: 6.168588s
+[INFO ] Log-likelihood of estimate: 4.43877e+06.
+[INFO ]   em: 6.873236s
+[INFO ] Log-likelihood of estimate: 4.43679e+06.
+[INFO ]   em: 6.933034s
+[INFO ] Log-likelihood of estimate: 4.43945e+06.
+[INFO ]   em: 6.823277s
+[INFO ] Log-likelihood of estimate: 4.43173e+06.
+[INFO ]   em: 5.684268s
+[INFO ] Log-likelihood of estimate: 4.43889e+06.
+[INFO ]   em: 6.317919s
+
+--------------------------------------------------
+
+
+cup98b      Ng = 30
+
+full cov
+
+diag cov
+[INFO ] Log-likelihood of estimate: 3.32931e+06.
+[INFO ]   em: 9.763315s
+[INFO ] Log-likelihood of estimate: 2.84735e+06.
+[INFO ]   em: 11.839428s
+[INFO ] Log-likelihood of estimate: 3.86302e+06.
+[INFO ]   em: 6.983922s
+[INFO ] Log-likelihood of estimate: 3.84406e+06.
+[INFO ]   em: 11.165889s
+[INFO ] Log-likelihood of estimate: 4.0758e+06.
+[INFO ]   em: 13.422831s
+[INFO ] Log-likelihood of estimate: 3.44535e+06.
+[INFO ]   em: 10.746466s
+[INFO ] Log-likelihood of estimate: 3.5455e+06.
+[INFO ]   em: 10.298159s
+[INFO ] Log-likelihood of estimate: 3.95332e+06.
+[INFO ]   em: 10.352027s
+[INFO ] Log-likelihood of estimate: 2.54859e+06.
+[INFO ]   em: 10.009770s
+[INFO ] Log-likelihood of estimate: 2.24089e+06.
+[INFO ]   em: 11.311467s
+
+--------------------------------------------------
+
+
+birch3       Ng = 6
+
+full cov
+
+diag cov
+[INFO ] Log-likelihood of estimate: -2.71341e+06.
+[INFO ]   em: 2.390970s
+[INFO ] Log-likelihood of estimate: -2.71654e+06.
+[INFO ]   em: 4.325580s
+[INFO ] Log-likelihood of estimate: -2.71347e+06.
+[INFO ]   em: 2.392016s
+[INFO ] Log-likelihood of estimate: -2.71578e+06.
+[INFO ]   em: 1.720524s
+[INFO ] Log-likelihood of estimate: -2.71583e+06.
+[INFO ]   em: 1.470255s
+[INFO ] Log-likelihood of estimate: -2.71567e+06.
+[INFO ]   em: 2.656336s
+[INFO ] Log-likelihood of estimate: -2.71578e+06.
+[INFO ]   em: 2.869905s
+[INFO ] Log-likelihood of estimate: -2.71578e+06.
+[INFO ]   em: 2.325312s
+[INFO ] Log-likelihood of estimate: -2.72264e+06.
+[INFO ]   em: 4.270544s
+[INFO ] Log-likelihood of estimate: -2.71422e+06.
+[INFO ]   em: 2.093839s
+
+--------------------------------------------------
+
+
+phy         Ng = 30
+need to add noise
+for i in `seq 1 10`; do bin/mlpack_gmm_train -i datasets/phy.csv -d 1 -g 30 -v -N 1.0 -t 1 | grep 'em: \|Log-likelihood' ; sleep 1; done
+
+full cov
+
+diag cov
+[INFO ] Log-likelihood of estimate: -1.90512e+07.
+[INFO ]   em: 27.850164s
+[INFO ] Log-likelihood of estimate: -1.87594e+07.
+[INFO ]   em: 26.840587s
+[INFO ] Log-likelihood of estimate: -1.93808e+07.
+[INFO ]   em: 28.240412s
+[INFO ] Log-likelihood of estimate: -1.91111e+07.
+[INFO ]   em: 28.233280s
+[INFO ] Log-likelihood of estimate: -1.90028e+07.
+[INFO ]   em: 27.166298s
+[INFO ] Log-likelihood of estimate: -1.8954e+07.
+[INFO ]   em: 30.374718s
+[INFO ] Log-likelihood of estimate: -1.91596e+07.
+[INFO ]   em: 27.619887s
+[INFO ] Log-likelihood of estimate: -1.93825e+07.
+[INFO ]   em: 30.265108s
+[INFO ] Log-likelihood of estimate: -1.95129e+07.
+[INFO ]   em: 29.368232s
+
+--------------------------------------------------
+
+
+covertype   Ng = 21
+need to add noise
+for i in `seq 1 10`; do bin/mlpack_gmm_train -i datasets/covertype.csv -d 1 -g 21 -N 1.0 -v -t 1 | grep 'em: \|Log-likelihood' ; sleep 1; done
+
+full cov
+
+diag cov
+[INFO ] Log-likelihood of estimate: -6.9038e+07.
+[INFO ]   em: 67.192284s (1 mins, 7.1 secs)
+[INFO ] Log-likelihood of estimate: -6.90439e+07.
+[INFO ]   em: 66.526740s (1 mins, 6.5 secs)
+[INFO ] Log-likelihood of estimate: -6.90244e+07.
+[INFO ]   em: 68.067800s (1 mins, 8.0 secs)
+[INFO ] Log-likelihood of estimate: -6.90311e+07.
+[INFO ]   em: 66.462415s (1 mins, 6.4 secs)
+[INFO ] Log-likelihood of estimate: -6.90286e+07.
+[INFO ]   em: 68.679495s (1 mins, 8.6 secs)
+[INFO ] Log-likelihood of estimate: -6.90321e+07.
+[INFO ]   em: 65.153170s (1 mins, 5.1 secs)
+[INFO ] Log-likelihood of estimate: -6.90327e+07.
+[INFO ]   em: 66.989708s (1 mins, 6.9 secs)
+[INFO ] Log-likelihood of estimate: -6.90285e+07.
+[INFO ]   em: 66.543999s (1 mins, 6.5 secs)
+[INFO ] Log-likelihood of estimate: -6.90469e+07.
+[INFO ]   em: 65.963924s (1 mins, 5.9 secs)
+[INFO ] Log-likelihood of estimate: -6.90555e+07.
+[INFO ]   em: 67.066653s (1 mins, 7.0 secs)
+
+--------------------------------------------------
+
+
+pokerhand   Ng = 25
+
+full cov
+
+diag cov
+[INFO ] Log-likelihood of estimate: -1.85761e+07.
+[INFO ]   em: 60.708972s (1 mins)
+[INFO ] Log-likelihood of estimate: -1.72032e+07.
+[INFO ]   em: 59.503612s
+[INFO ] Log-likelihood of estimate: -1.79552e+07.
+[INFO ]   em: 58.645510s
+[INFO ] Log-likelihood of estimate: -1.86113e+07.
+[INFO ]   em: 58.465651s
+[INFO ] Log-likelihood of estimate: -2.08149e+07.
+[INFO ]   em: 59.938170s
+[INFO ] Log-likelihood of estimate: -1.85736e+07.
+[INFO ]   em: 59.533261s
+[INFO ] Log-likelihood of estimate: -2.08122e+07.
+[INFO ]   em: 58.376616s
+[INFO ] Log-likelihood of estimate: -1.78987e+07.
+[INFO ]   em: 59.123519s
+[INFO ] Log-likelihood of estimate: -1.65754e+07.
+[INFO ]   em: 57.403433s
+[INFO ] Log-likelihood of estimate: -1.57541e+07.
+[INFO ]   em: 56.494908s
+
+--------------------------------------------------
+

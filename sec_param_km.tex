@@ -1,5 +1,7 @@
+\vspace{2ex}
 \section{Initialisation via Multi-Threaded {\it k}-Means}
 \label{sec:param_km}
+\vspace{1ex}
 
 As a starting point, the initial means can be set to randomly selected training vectors,
 the initial covariance matrices can be set equal to identity matrices, 
@@ -21,7 +23,7 @@ each sample is assigned to only one cluster (hard assignment).
 Furthermore, it can be assumed that the covariance matrix of each Gaussian is non-informative, diagonal, and/or shared across all Gaussians.
 More formally, the estimation of model parameters is as per Eqns.~(\ref{eqn:em_weight}), (\ref{eqn:em_mean}) and (\ref{eqn:em_cov}), 
 but $l_{g,i}$ is redefined~as:%
-%
+
 \begin{equation}
   l_{g,i} = \left\{
   \begin{array}{ll}

@@ -191,7 +191,7 @@ return a row vector (of type {\it rowvec}) containing log-likelihoods of each co
 
 \item
 {\bf M.log\_p(X, g)}\\
-return a row vector containing log-likelihoods of each column vector in matrix {\bf X},
+return a row vector (of type {\it rowvec}) containing log-likelihoods of each column vector in matrix {\bf X},
 according to Gaussian with index {\bf g}  (specified as an unsigned integer of type {\it uword})
 
 \item
@@ -247,11 +247,11 @@ parameter {\bf dist\_mode} is either {\bf eucl\_dist} or {\bf prob\_dist}, as pe
 
 \item
 {\bf M.generate()}\\
-return a column vector representing a random sample generated according to the model's parameters
+return a column vector (of type {\it vec}) representing a random sample generated according to the model's parameters
 
 \item
 {\bf M.generate(N)}\\
-return a matrix containing {\bf N} column vectors, with each vector representing a random sample generated according to the model's parameters
+return a matrix (of type {\it mat}) containing {\bf N} column vectors, with each vector representing a random sample generated according to the model's parameters
 
 ~\\
 \item
@@ -289,23 +289,23 @@ read-only row vector (of type {\it rowvec}) containing the hefts (weights)
 
 \item
 {\bf M.set\_means(X)}\\
-set the means (centroids) to be as specified in matrix {\bf X}, with each mean (centroid) stored as a column vector;
+set the means (centroids) to be as specified in matrix {\bf X} (of type {\it mat}), with each mean (centroid) stored as a column vector;
 the number of means and their dimensionality must match the existing model
 
 \item
 {\bf M.set\_dcovs(X)}\\
-set the diagonal covariances to be as specified in matrix~{\bf X}, with the set of diagonal covariances for each Gaussian stored as a column vector;
+set the diagonal covariances to be as specified in matrix~{\bf X} (of type {\it mat}), with the set of diagonal covariances for each Gaussian stored as a column vector;
 the number of diagonal covariance vectors and their dimensionality must match the existing model
 
 \item
 {\bf M.set\_hefts(V)}\\
-set the hefts (weights) of the model to be as specified in row vector {\bf V};
+set the hefts (weights) of the model to be as specified in row vector {\bf V} (of type {\it rowvec});
 the number of hefts must match the existing model
 
 \item
 {\bf M.set\_params(means, dcovs, hefts)}\\
 set all the parameters at the same time, using matrices denoted as {\bf means} and {\bf dcovs} as well as the row vector denoted as {\bf hefts};
-the layout of the matrices is as per the {\bf .set\_means()} and {\bf .set\_dcovs()} functions above;
+the layout of the matrices and vectors is as per the {\bf .set\_means()}, {\bf .set\_dcovs()} and {\bf .set\_hefts()} functions above;
 the number of Gaussians and dimensionality can be different from the existing model
 
 \end{enumerate}

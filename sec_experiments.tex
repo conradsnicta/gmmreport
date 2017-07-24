@@ -42,7 +42,7 @@ as well as memory access contention, stemming from concurrent access to memory b
   {\bf (a)}~total~time~taken depending on the number of threads;
   {\bf (b)}~corresponding speedup factor compared to using one thread (blue line), and idealised linear speedup under the assumption of no overheads and no memory access contention (red dotted line).
   The modelling was done on a machine with dual Intel Xeon E5-2620-v4 CPUs, providing 16 independent processing cores running at 2.1~GHz.
-  Compilation was done with the GCC 5.4 C++ compiler using the following switches: \texttt{-O3 -march=native -fopenmp}.
+  Compilation was done with the GCC 5.4 C++ compiler with the following configuration options: \texttt{-O3 -march=native -fopenmp}.
   }
 \label{fig:speedup}
 \end{figure*}
@@ -100,14 +100,14 @@ we conjecture that in these cases the diagonal covariance matrices are acting as
 \multirow{2}{*}{\bfseries dataset} & {\bfseries num.}    & {\bfseries num.} & {\bfseries num.}  & {\bfseries MLPACK}   & {\bfseries {gmm\_diag}} & $\sfrac{\mbox{\bfseries MLPACK}}{\mbox{\bfseries gmm\_diag}}$ & {\bfseries MLPACK}             & {\bfseries {gmm\_diag}}        \\
                                    & {\bfseries samples} & {\bfseries dims} & {\bfseries Gaus.} & {\bfseries fit time} & {\bfseries fit time}    & {\bfseries fit time ratio}                                    & {$\mathbf \log~p(X|\lambda) $} & {$\mathbf \log~p(X|\lambda) $} \\
 \hline
-  cloud       & {\tt ~~~~2,048} & {\tt 10} & {\tt ~5} & {\tt ~~~~1.50s} &  {\tt\bfseries ~0.14s} & {\tt ~10.7} & {\tt-~59.98{\tiny$\times$}10$^{\mathtt 3}$} & {\tt-~64.12{\tiny$\times$}10$^{\mathtt 3}$} \\
-  ozone       & {\tt ~~~~2,534} & {\tt 72} & {\tt ~6} & {\tt ~~~~8.59s} &  {\tt\bfseries ~0.10s} & {\tt ~85.9} & {\tt-226.13{\tiny$\times$}10$^{\mathtt 3}$} & {\tt-307.95{\tiny$\times$}10$^{\mathtt 3}$} \\
-  winequality & {\tt ~~~~6,497} & {\tt 11} & {\tt 30} & {\tt ~~~16.10s} &  {\tt\bfseries ~0.68s} & {\tt ~23.7} & {\tt-~47.12{\tiny$\times$}10$^{\mathtt 3}$} & {\tt-~15.85{\tiny$\times$}10$^{\mathtt 3}$} \\
-  corel       & {\tt ~~~37,749} & {\tt 32} & {\tt 50} & {\tt ~~544.62s} &  {\tt\bfseries ~4.55s} & {\tt 119.7} & {\tt+~~4.52{\tiny$\times$}10$^{\mathtt 6}$} & {\tt+~~4.44{\tiny$\times$}10$^{\mathtt 6}$} \\
-  birch3      & {\tt ~~100,000} & {\tt ~2} & {\tt ~6} & {\tt ~~~18.13s} &  {\tt\bfseries ~2.39s} & {\tt ~~7.6} & {\tt-~~2.70{\tiny$\times$}10$^{\mathtt 6}$} & {\tt-~~2.71{\tiny$\times$}10$^{\mathtt 6}$} \\
-  phy         & {\tt ~~150,000} & {\tt 78} & {\tt 30} & {\tt ~3867.12s} &  {\tt\bfseries 29.25s} & {\tt 132.2} & {\tt-~~2.10{\tiny$\times$}10$^{\mathtt 7}$} & {\tt-~~1.88{\tiny$\times$}10$^{\mathtt 7}$} \\
-  covertype   & {\tt ~~581,012} & {\tt 55} & {\tt 21} & {\tt 10360.53s} &  {\tt\bfseries 64.83s} & {\tt 159.8} & {\tt-~~9.46{\tiny$\times$}10$^{\mathtt 7}$} & {\tt-~~6.90{\tiny$\times$}10$^{\mathtt 7}$} \\
-  pokerhand   & {\tt 1,000,000} & {\tt 10} & {\tt 25} & {\tt ~3653.94s} &  {\tt\bfseries 55.85s} & {\tt ~65.4} & {\tt-~~1.90{\tiny$\times$}10$^{\mathtt 7}$} & {\tt-~~1.68{\tiny$\times$}10$^{\mathtt 7}$} \\
+  cloud       & {\tt ~~~~2,048} & {\tt 10} & {\tt ~5} & {\tt ~~~~1.50s} &  {\tt\bfseries ~0.14s} & {\tt ~10.7} & {\tt~-59.98{\tiny$\times$}10$^{\mathtt 3}$} & {\tt          ~-64.12{\tiny$\times$}10$^{\mathtt 3}$} \\
+  ozone       & {\tt ~~~~2,534} & {\tt 72} & {\tt ~6} & {\tt ~~~~8.59s} &  {\tt\bfseries ~0.10s} & {\tt ~85.9} & {\tt-226.13{\tiny$\times$}10$^{\mathtt 3}$} & {\tt          -307.95{\tiny$\times$}10$^{\mathtt 3}$} \\
+  winequality & {\tt ~~~~6,497} & {\tt 11} & {\tt 30} & {\tt ~~~16.10s} &  {\tt\bfseries ~0.68s} & {\tt ~23.7} & {\tt~-47.12{\tiny$\times$}10$^{\mathtt 3}$} & {\tt\bfseries ~-15.85{\tiny$\times$}10$^{\mathtt 3}$} \\
+  corel       & {\tt ~~~37,749} & {\tt 32} & {\tt 50} & {\tt ~~544.62s} &  {\tt\bfseries ~4.55s} & {\tt 119.7} & {\tt~~+4.52{\tiny$\times$}10$^{\mathtt 6}$} & {\tt          ~~+4.44{\tiny$\times$}10$^{\mathtt 6}$} \\
+  birch3      & {\tt ~~100,000} & {\tt ~2} & {\tt ~6} & {\tt ~~~18.13s} &  {\tt\bfseries ~2.39s} & {\tt ~~7.6} & {\tt~~-2.70{\tiny$\times$}10$^{\mathtt 6}$} & {\tt          ~~-2.71{\tiny$\times$}10$^{\mathtt 6}$} \\
+  phy         & {\tt ~~150,000} & {\tt 78} & {\tt 30} & {\tt ~3867.12s} &  {\tt\bfseries 29.25s} & {\tt 132.2} & {\tt~~-2.10{\tiny$\times$}10$^{\mathtt 7}$} & {\tt\bfseries ~~-1.88{\tiny$\times$}10$^{\mathtt 7}$} \\
+  covertype   & {\tt ~~581,012} & {\tt 55} & {\tt 21} & {\tt 10360.53s} &  {\tt\bfseries 64.83s} & {\tt 159.8} & {\tt~~-9.46{\tiny$\times$}10$^{\mathtt 7}$} & {\tt\bfseries ~~-6.90{\tiny$\times$}10$^{\mathtt 7}$} \\
+  pokerhand   & {\tt 1,000,000} & {\tt 10} & {\tt 25} & {\tt ~3653.94s} &  {\tt\bfseries 55.85s} & {\tt ~65.4} & {\tt~~-1.90{\tiny$\times$}10$^{\mathtt 7}$} & {\tt\bfseries ~~-1.68{\tiny$\times$}10$^{\mathtt 7}$} \\
 \hline
 \end{tabular}
 \vspace{1ex}

@@ -1,0 +1,1322 @@
+\def\doctitle{An Open Source C++ Implementation of Multi-Threaded Gaussian~Mixture~Models, k-Means and Expectation Maximisation}
+\def\docauthor{Conrad Sanderson, Ryan Curtin}
+
+\documentclass[10pt,a4paper]{article}
+\usepackage[includefoot,includehead,a4paper,top=0.5cm,bottom=1cm,left=2cm,right=2cm]{geometry}
+\usepackage{fancyhdr}
+\usepackage[usenames,dvipsnames]{color}  % see http://en.wikibooks.org/wiki/LaTeX/Colors
+\usepackage{titlesec}
+\usepackage[latin1]{inputenc}
+%\usepackage[pdfborder={0 0 0},colorlinks=true,urlcolor=ForestGreen,linkcolor=black,citecolor=ForestGreen,bookmarks=true]{hyperref}
+\usepackage[pdfborder={0 0 0},colorlinks=true,urlcolor=ForestGreen,linkcolor=ForestGreen,citecolor=ForestGreen,bookmarks=true,pdftitle={\doctitle},pdfauthor={\docauthor}]{hyperref}
+\usepackage[labelfont=bf]{caption}
+\usepackage{enumerate}
+
+\usepackage{graphicx}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{url}
+\usepackage{mathtools}
+\usepackage{xspace}
+\usepackage{multirow}
+\usepackage{booktabs}
+\usepackage{algorithmic}
+\usepackage{algorithm}
+\usepackage{xfrac}
+\usepackage{fancyvrb}
+\usepackage{balance}
+\usepackage{adjustbox}
+
+\usepackage[british]{babel}
+\usepackage[none]{hyphenat}
+\sloppy
+
+\usepackage{parskip}
+
+%\usepackage{times}
+\usepackage{palatino}     % changes the default sans serif font
+\usepackage{inconsolata}  % changes the default typewriter font
+
+%\renewcommand{\ttdefault}{pcr}
+
+%\edef\oldtt{\ttdefault}
+%\usepackage[scaled]{beramono}
+%\usepackage[T1]{fontenc}
+%\renewcommand*\ttdefault{\oldtt}
+%\newcommand{\bera}[1]{{\fontfamily{fvm}\selectfont #1}}
+
+% disable ligatures such as "fi" being joined into one symbol
+%\usepackage{microtype}
+%\DisableLigatures[f]{encoding = *, family = * }
+
+\graphicspath{{./}{./figures/}}
+
+\DeclareMathOperator*{\argmin}{argmin}
+
+\def\Vec#1{{\boldsymbol{#1}}}
+\def\Mat#1{{\boldsymbol{#1}}}
+\def\TODO#1{{\color{red}{\bf [TODO:} {\it{#1}}{\bf ]}}}
+\def\NOTE#1{{\bf [NOTE:} {\it\color{blue}{#1}}{\bf ]}.}
+\def\CHK#1{{\bf [CHECK:} {\it\color{red} {#1}}{\bf ]}.}
+\def\eg{eg.\xspace}
+\def\ie{ie.\xspace}
+\def\etal{et~al.\xspace}
+
+\renewcommand{\baselinestretch}{1.1}\small\normalsize
+
+% \setlength{\parindent}{0ex}
+% \setlength{\parskip}{2ex plus1ex minus1ex}
+% \setlength{\parskip}{2ex}
+
+\titleformat*{\section}{\bf\normalsize\large}
+\titleformat*{\subsection}{\bf\normalsize}
+
+%\titlespacing{\section}{0pt}{\parskip}{0ex}
+%\titlespacing{\subsection}{0pt}{\parskip}{0ex}
+%\titlespacing{\subsubsection}{0pt}{\parskip}{0ex}
+
+%\makeatletter
+%\g@addto@macro\normalsize{%
+%  \setlength\abovedisplayskip{1ex}
+%  \setlength\belowdisplayskip{1ex}
+%  \setlength\abovedisplayshortskip{1ex}
+%  \setlength\belowdisplayshortskip{1ex}
+%}
+%\makeatother
+
+\begin{document}
+
+\pagestyle{empty}
+\lhead{}
+\lhead{\textcolor{Green}{\small\doctitle}}
+\chead{}
+\rhead{}
+\lfoot{}
+\cfoot{}
+\cfoot{\small \thepage}
+\rfoot{}
+
+
+\begin{center}
+{\Large\bf\doctitle}
+\end{center}
+\vspace{1ex}
+\begin{center}
+
+\begin{minipage}{0.5\textwidth}
+{\large Conrad Sanderson~{$^{\dagger\diamond\ast}$} and Ryan Curtin~{$^{\ddagger\ast}$}}\\
+
+\begin{small}
+{$^\dagger$}  Data61, CSIRO, Australia\\
+{$^\ddagger$} Symantec Corporation, USA\\
+{$^\diamond$} University of Queensland, Australia\\
+{$^\ast$}     Arroyo Consortium
+\end{small}
+\end{minipage}
+\end{center}
+
+% \newpage
+% \pagestyle{fancy}
+% \lhead{}
+% %\lhead{\textcolor{Green}{\small\doctitle}}
+% \chead{}
+% \rhead{}
+% \lfoot{}
+% \cfoot{}
+% %\cfoot{\small \thepage}
+% \rfoot{}
+
+
+\vspace{-2ex}
+\section*{Abstract}
+\vspace{-2ex}
+
+\renewcommand{\baselinestretch}{1.0}\small\normalsize
+\begin{small}
+Modelling of multivariate densities is a core component in many signal processing, pattern recognition and machine learning applications.
+The modelling is often done via Gaussian mixture models (GMMs), which use computationally expensive and potentially unstable training algorithms.
+We provide an overview of a fast and robust implementation of GMMs in the C++ language,
+employing multi-threaded versions of the Expectation Maximisation (EM) and \mbox{{\it k}-means} training algorithms.
+Multi-threading is achieved through reformulation of the EM and \mbox{{\it k}-means} algorithms into a MapReduce-like framework.
+%and employing OpenMP compiler directives.
+Furthermore, the implementation uses several techniques to improve numerical stability and modelling accuracy.
+We demonstrate that the multi-threaded implementation achieves a speedup of an order of magnitude on a recent 16 core machine,
+and that it can achieve higher modelling accuracy than a previously well-established publically accessible implementation.
+The multi-threaded implementation is included as a user-friendly class in recent releases of the open source Armadillo C++ linear algebra library.
+The library is provided under the permissive Apache~2.0 license, allowing unencumbered use in commercial products.
+\end{small}
+\renewcommand{\baselinestretch}{1.1}\small\normalsize
+
+\vspace{-1ex}
+\section{Introduction}
+\vspace{-1ex}
+
+Modelling multivariate data through a convex mixture of Gaussians, also known as a Gaussian mixture model (GMM),
+has many uses in fields such as signal processing, econometrics, pattern recognition, machine learning and computer vision.
+Examples of applications include
+multi-stage feature extraction for action recognition~\cite{Carvajal_2016a},
+modelling of intermediate features derived from deep convolutional neural networks~\cite{Ge_ICIP_2015,LeCun_Nature_2015},
+classification of human epithelial cell images~\cite{Wiliem_PR_2014},
+implicit sparse coding for face recognition~\cite{Wong_2014},
+speech-based identity verification~\cite{Reynolds_2000},
+and probabilistic foreground estimation for surveillance systems~\cite{Reddy_2013}.
+GMMs are also commonly used as the emission distribution for hidden Markov models~\cite{Bilmes98}.
+
+In the GMM approach, a distribution of samples (vectors) is modelled as:
+
+\vspace{-3ex}
+\begin{equation}
+  p(\Vec{x} | \lambda) = \sum\nolimits_{g=1}^{N_G} w_g ~ {{\mathcal{N}}}( \Vec{x} | \Vec{\mu}_g, \Mat{\Sigma}_g )
+  \label{eqn:gmm_prob}
+\end{equation}%
+
+\vspace{-2ex}
+where $\Vec{x}$ is a $D$-dimensional vector,
+$w_g$ is the weight for component $g$ (with constraints $\sum\nolimits_{g=1}^{N_G} w_g = 1$, $w_g \geq 0$),
+and
+${{\mathcal{N}}}( \Vec{x} | \Vec{\mu}, \Mat{\Sigma})$ is a $D$-dimensional Gaussian density function with mean $\Vec{\mu}$ and covariance matrix $\Mat{\Sigma}$:
+
+\vspace{-3ex}
+\begin{equation}
+  {{\mathcal{N}}}( \Vec{x} | \Vec{\mu}, \Mat{\Sigma} )  = 
+  \frac{1}{ (2\pi)^{\frac{D}{2}} | \Mat{\Sigma}|^{\frac{1}{2}} }
+  \exp \left[ -\frac{1}{2} (\Vec{x}-\Vec{\mu})^\top \Mat{\Sigma}^{-1} (\Vec{x}-\Vec{\mu}) \right]
+  \label{eqn:gaussian}
+\end{equation}%
+
+\vspace{-2ex}
+where $|\Mat{\Sigma}|$ and $\Mat{\Sigma}^{-1}$ denote the determinant and inverse of $\Mat{\Sigma}$, respectively,
+while $\Vec{x}^\top$ denotes the transpose of $\Vec{x}$.
+The full parameter set can be compactly stated as {\small $\lambda = \{ w_g, \Vec{\mu}_g, \Mat{\Sigma}_g \}_{g=1}^{N_G}$},
+where $N_G$ is the number of Gaussians.
+
+Given a training dataset and a value for $N_G$,
+the estimation of $\lambda$ is typically done through a
+tailored instance of Expectation Maximisation (EM) algorithm~\cite{Dempster77, McLachlan-2008, Moon96, Redner84}.
+The {\it k}-means algorithm~\cite{Bishop_2006,Duda01,Linde80} is also typically used for providing the initial estimate of $\lambda$ for the EM algorithm.
+Choosing the optimal $N_G$ is data dependent and beyond the scope of this work; see~\cite{Hamerly_2003,Pelleg_2000} for example methods.
+
+%The {\it k}-means and EM algorithms are computationally intensive.
+Unfortunately, GMM parameter estimation via the EM algorithm is computationally intensive
+and can suffer from numerical stability issues.
+Given the ever growing sizes of datasets and the need for fast, robust and accurate modelling of such datasets,
+we have provided an open source implementation of multi-threaded (parallelised) versions 
+of the \mbox{{\it k}-means} and EM algorithms.
+In addition, core functions are recast in order to considerably reduce the likelihood of numerical instability due to floating point underflows and overflows.
+The implementation is provided as a user-friendly class in recent releases of the cross-platform Armadillo C++ linear algebra library~\cite{Armadillo_JOSS_2016}.
+The library is licensed under the permissive Apache~2.0 license~\cite{Laurent_2008},
+thereby allowing unencumbered use in commercial products.
+
+We continue the report as follows.
+In Section~\ref{sec:param_em} we provide an overview of parameter estimation via the EM algorithm,
+its reformulation for multi-threaded execution,
+and approaches for improving numerical stability.
+In Section~\ref{sec:param_km} we provide a summary of the {\it k}-means algorithm
+along with approaches for improving its convergence and modelling accuracy.
+The implementation in C++ is overviewed in~Section~\ref{sec:implementation},
+where we list and describe the user accessible functions.
+In Section~\ref{sec:eval}
+we provide a demonstration that the implementation can achieve a speedup of an order of magnitude on a recent 16 core machine,
+as well as obtain higher modelling accuracy than a previously well-established publically accessible implementation.
+
+% Parallelisation is achieved through refactoring the original EM and {\it k}-means algorithms
+% into a MapReduce-like framework~\cite{MapReduce_2004} and employing OpenMP compiler directives~\cite{OpenMP_2007}.
+
+
+
+\section{Expectation Maximisation and Multi-Threading}
+\label{sec:param_em}
+\vspace{-1ex}
+
+The overall likelihood for a set of samples, $X=\{\Vec{x}_i\}_{i=1}^{N_V}$,
+is found using $p(X | \lambda) = \prod\nolimits_{i=1}^{N_V} p(\Vec{x}_i | \lambda)$.
+A~parameter set $\lambda$ that suitably models the underlying distribution of $X$ can be estimated using a particular instance of the Expectation Maximisation (EM) algorithm~\cite{Dempster77, McLachlan-2008, Moon96, Redner84}.
+As its name suggests, the EM algorithm is comprised of iterating two steps: the {\it expectation} step, followed by the {\it maximisation} step.
+GMM parameters generated by the previous iteration~($\lambda^{\textrm{old}}$) are used
+by the current iteration to generate a new set of parameters~($\lambda^{\textrm{new}}$),
+such that $p(X|\lambda^{\textrm{new}}) \geq p(X|\lambda^{\textrm{old}})$.
+
+In a direct implementation of the EM algorithm specific to GMMs,
+the estimated versions of the parameters ($\widehat{w}_g$, $\widehat{\Vec{\mu}}_g$, $\widehat{\Mat{\Sigma}}_g$)
+within one iteration are calculated as follows:
+%
+\begin{eqnarray}
+  l_{g,i}                  & = & \frac{w_g ~ {{\mathcal{N}}}( \Vec{x}_i | \Vec{\mu}_g, \Mat{\Sigma}_g )}{\sum\nolimits_{k=1}^{N_G} w_k ~ {{\mathcal{N}}}( \Vec{x}_i | \Vec{\mu}_k, \Mat{\Sigma}_k )}, \label{eqn:aposteriori} \\
+  L_g                      & = & \sum\nolimits_{i=1}^{N_V} l_{g,i}, \label{eqn:em_sum_lhood} \\
+  \widehat{w}_g            & = & \frac{L_g}{N_V},  \label{eqn:em_weight} \\
+  \widehat{\Vec{\mu}}_g    & = & \frac{1}{L_g} \sum\nolimits_{i=1}^{N_V} \Vec{x}_i ~ l_{g,i}  \label{eqn:em_mean}, \\
+  \widehat{\Mat{\Sigma}}_g & = & \frac{1}{L_g} \sum\nolimits_{i=1}^{N_V} (\Vec{x}_i - \widehat{\Vec{\mu}}_g)(\Vec{x}_i - \widehat{\Vec{\mu}}_g)^\top l_{g,i}. \label{eqn:em_cov}
+%                           & = &  \frac{1}{L_g} \left[ \sum\nolimits_{i=1}^{N_V} \Vec{x}_i \Vec{x}_i^\top l_{g,i} \right] - \widehat{\Vec{\mu}}_g \widehat{\Vec{\mu}}_g^\top.
+\end{eqnarray}
+
+Once the estimated parameters for all Gaussians are found, the parameters are updated,
+{\small $\left\{ w_g, \Vec{\mu}_g, \Mat{\Sigma}_g \right\}_{g=1}^{N_G} = \left\{ \widehat{w}_g, \widehat{\Vec{\mu}}_g, \widehat{\Mat{\Sigma}}_g \right\}_{g=1}^{N_G}$},
+and the iteration starts anew.
+The process is typically repeated until the number of iterations has reached a pre-defined number,
+and/or the increase in the overall likelihood after each iteration falls below a pre-defined threshold.
+
+In Eqn.~(\ref{eqn:aposteriori}), $l_{g,i} \in [0,1]$ is the {a-posteriori} probability of Gaussian $g$ given $\Vec{x}_i$ and current parameters.
+Thus the estimates $\widehat{\Vec{\mu}}_g$ and $\widehat{\Mat{\Sigma}}_g$ are weighted versions of the
+sample mean and sample covariance, respectively.
+
+Overall, the algorithm is a hill climbing procedure for maximising $p(X | \lambda)$.
+While there are no guarantees that it will reach a global maximum, it is guaranteed to monotonically converge to a saddle point or a local maximum~\cite{Dempster77,Duda01,Mitchell97}.
+The above implementation can also be interpreted as an unsupervised probabilistic clustering procedure,
+with $N_G$ being the assumed number of clusters.
+For a full derivation of the EM algorithm tailored to GMMs, the reader is directed to~\cite{Bilmes98,Redner84}. % or Appendix~A. %~\ref{app:em_algorithm}.
+
+\subsection{Reformulation for Multi-Threaded Execution}
+\label{sec:param_em_parallel}
+\vspace{-1ex}
+
+The EM algorithm is quite computationally intensive.
+This is in large part due to the use of the {$\exp(\cdot)$} function, which needs to be applied numerous times for each and every sample.
+Fortunately, CPUs with a multitude of cores are now quite common and accessible, allowing for multi-threaded (parallel) execution.
+
+One approach for parallelisation is the MapReduce framework~\cite{MapReduce_2004},
+where data is split into chunks and farmed out to separate workers for processing (mapping).
+The results are then collected and combined (reduced) to produce the final result.
+Below we provide a reformulation of the EM algorithm into a MapReduce-like framework.
+
+As Eqn.~(\ref{eqn:aposteriori}) can be executed independently for each sample,
+the summations in Eqns.~(\ref{eqn:em_sum_lhood}) and (\ref{eqn:em_mean}) can be split into separate sets of summations,
+where the summation in each set can be executed independently and in parallel with other sets.
+To allow similar splitting of the summation for calculating covariance matrices,
+Eqn.~(\ref{eqn:em_cov}) needs to be rewritten into the following form:
+
+\vspace{-3ex}
+\begin{equation}
+  \widehat{\Mat{\Sigma}}_g = \frac{1}{L_g} \left[ \sum\nolimits_{i=1}^{N_V} \Vec{x}_i \Vec{x}_i^\top l_{g,i} \right] - \widehat{\Vec{\mu}}_g \widehat{\Vec{\mu}}_g^\top.
+\end{equation}
+
+\vspace{-1ex}
+The multi-threaded estimation of the parameters can now be formally stated as follows.
+Given $N_T$ threads, the training samples are split into $N_T$ chunks, with each chunk containing approximately the same amount of samples.
+For thread with index $t \in [1,N_T]$, the start index of the samples is denoted by $i^{[t]}_{\textrm{start}}$,
+while the end index is denoted by $i^{[t]}_{\textrm{end}}$.
+For~each thread $t$ and Gaussian $g \in [1,N_G]$, accumulators $\widetilde{L}_g^{[t]}$, $\widetilde{\Vec{\mu}}_g^{[t]}$ and $\widetilde{\Mat{\Sigma}}_g^{[t]}$
+are calculated as follows:
+
+\vspace{-5ex}
+\begin{eqnarray}
+  %\mbox{for} ~~ g = 1, \cdots, N_g:  \nonumber \\
+  %
+  \widetilde{L}_g^{[t]}            & = & \sum\nolimits_{j = i^{[t]}_{\textrm{start}}}^{i^{[t]}_{\textrm{end}}} l_{g,j},                             \\ % acc_norm_lhoods
+  \widetilde{\Vec{\mu}}_g^{[t]}    & = & \sum\nolimits_{j = i^{[t]}_{\textrm{start}}}^{i^{[t]}_{\textrm{end}}} l_{g,j} ~ \Vec{x}_j,                 \\ % acc_mean
+  %\widetilde{\Mat{\Sigma}}_g^{[t]} & = & \sum\nolimits_{j = i^{[t]}_{\textrm{start}}}^{i^{[t]}_{\textrm{end}}} l_{g,j} ~ \Vec{x}_j \odot \Vec{x}_j    % acc_dcov
+  \widetilde{\Mat{\Sigma}}_g^{[t]} & = & \sum\nolimits_{j = i^{[t]}_{\textrm{start}}}^{i^{[t]}_{\textrm{end}}} l_{g,j} ~ \Vec{x}_j \Vec{x}_j^\top.    % acc_dcov
+\end{eqnarray}%
+
+\vspace{-2ex}
+where $l_{g,j}$ is defined in Eqn.~(\ref{eqn:aposteriori}).
+%while $\odot$ represents the Schur product (element-wise multiplication).
+
+Once the accumulators for all threads are calculated,
+for each Gaussian $g$ the reduction operation combines them to form the estimates of $\widehat{\Vec{\mu}}_g$ and $\widehat{\Mat{\Sigma}}_g$ as follows:
+
+\vspace{-3ex}
+\begin{eqnarray}
+  L_g                      & = & \sum\nolimits_{t=1}^{N_T} \widetilde{L}_g^{[t]},                           \label{eqn:combined_L_g} \\
+  %\widehat{w}_g            & = & \frac{L_g}{N_V},                                                                                   \\
+  \widehat{\Vec{\mu}}_g    & = & \frac{1}{L_g} \sum\nolimits_{t=1}^{N_T} \widetilde{\Vec{\mu}}_g^{[t]},                              \\
+  \widehat{\Mat{\Sigma}}_g & = & \frac{1}{L_g} \sum\nolimits_{t=1}^{N_T} \widetilde{\Mat{\Sigma}}_g^{[t]} - \widehat{\Vec{\mu}}_g \widehat{\Vec{\mu}}_g^\top.
+\end{eqnarray}
+
+\vspace{-2ex}
+The estimation of $\widehat{w}_g$ is as per Eqn.~(\ref{eqn:em_weight}), but using $L_g$ from Eqn.~(\ref{eqn:combined_L_g}).
+
+\subsection{Improving Numerical Stability}
+\vspace{-1ex}
+
+Due to the necessarily limited precision of numerical floating point representations~\cite{Goldberg_1991,Monniaux_2008},
+the direct computation of Eqns.~(\ref{eqn:gmm_prob}) and (\ref{eqn:gaussian}) can quickly lead to numerical underflows or overflows,
+which in turn lead to either poor models or a complete failure to estimate the parameters.
+%To address this problem, the logarithm version of Eqn.~(\ref{eqn:gmm_prob}) can be used:
+To address this problem, the following reformulation can be used.
+First, logarithm version of Eqn.~(\ref{eqn:gaussian}) is taken:
+
+\vspace{-3ex}
+\begin{equation}
+  \log {{\mathcal{N}}}( \Vec{x} | \Vec{\mu}, \Mat{\Sigma} )
+  = -\left\{\frac{D}{2} \log \left( 2\pi \right) + \frac{1}{2} ~ \log ( |\Mat{\Sigma}| ) \right\}
+    -\frac{1}{2} (\Vec{x}-\Vec{\mu})^\top \Mat{\Sigma}^{-1} (\Vec{x}-\Vec{\mu}),
+\end{equation}
+
+\vspace{-1ex}
+which leads to the corresponding logarithm version of Eqn.~(\ref{eqn:gmm_prob}):
+
+\vspace{-3ex}
+\begin{equation}
+\log \sum\nolimits_{g=1}^{N_G} w_g ~ {{\mathcal{N}}}( \Vec{x} ~|~ \Vec{\mu}_g, \Mat{\Sigma}_g )
+=
+\log \sum\nolimits_{g=1}^{N_G} \exp\left[ \log \left\{ w_g {{\mathcal{N}}}( \Vec{x} ~|~ \Vec{\mu}_g, \Mat{\Sigma}_g ) \right\} \right].
+\label{eqn:log_gmm}
+\end{equation}
+
+\vspace{-2ex}
+The right hand side of Eqn.~(\ref{eqn:log_gmm}) can be expressed as a repeated addition in the form of:
+
+\vspace{-3ex}
+\begin{equation}
+\log\left( \exp\left[\log(a)\right] + \exp\left[\log(b)\right] \right),
+\end{equation}
+
+\vspace{-1ex}
+which in turn can be rewritten in the form of:
+
+\vspace{-3ex}
+\begin{equation}
+\log(a) + \log\left( 1 + \exp\left[ \log(b) - \log(a) \right] \right).
+\end{equation}
+
+\vspace{-1ex}
+In the latter form, if we ensure that {$\log(a) \geq \log(b)$} (through swapping $\log(a)$ and $\log(b)$ when required),
+the exponential will always produce values $\leq 1$ which helps to reduce the occurrence of overflows.
+Overall, by keeping most of the computation in the {\it log} domain, 
+both underflows and overflows are considerably reduced.
+
+A further practical issue is the occurrence of \mbox{degenerate} or ill-conditioned covariance matrices,
+stemming from either not enough samples with $l_{g,i} > 0$ contributing to the calculation of $\widehat{\Mat{\Sigma}}_g$ in Eqn.~(\ref{eqn:em_cov}),
+or from too many samples which are essentially the same (ie.,~very low variance).
+When the diagonal entries in a covariance matrix are too close to zero,
+inversion of the matrix is unstable and can cause the calculated log-likelihood to become unreliable
+or non-finite.
+A straightforward and effective approach to address this problem is to place an artificial floor
+on the diagonal entries in each covariance matrix after each EM iteration.
+While the optimum value of the floor is data dependent, a small positive constant is typically sufficient to promote numerical stability
+and convergence.
+
+% Formally, the robust version of \mbox{\small $\log(\exp\left[\log(a)\right] + \exp\left[\log(b)\right])$} can be expressed as 
+% $\operatorname{\Psi}(\log(a), \log(b))$ is used as 
+% %
+% \begin{eqnarray}
+% \operatorname{\Psi}(\log(a), \log(b))
+% & = & \left\{
+% \begin{array}{ll}
+% \operatorname{\Omega}(\log(a),\log(b)), & \mbox{if} ~ \log(a) \geq \log(b) \\
+% \operatorname{\Omega}(\log(b),\log(a)), & \mbox{otherwise}
+% \end{array}
+% \right. \nonumber \\
+% %
+% \operatorname{\Omega}(\log(a), \log(b))
+% & = & \left\{
+% \begin{array}{ll}
+% \log(a),                   & \mbox{if} ~ (\log(b)-\log(a)) < \operatorname{log\_floor} \mbox{~or~} (\log(b)-\log(a)) \notin \mathbb{R} \\
+% \log(a) + \log(1 + \exp(\log(b)-\log(a))),  & \mbox{otherwise} 
+% \end{array}
+% \right.  \nonumber
+% \end{eqnarray}
+% %
+% In the above,
+% $\operatorname{log\_floor}$ is a machine dependent constant, equal to approximately
+% $\log(10^{-323})$ when using double precision floating point values%
+% \footnote
+%   {
+%   The exact value in the C++ implementation is equal to {\it log({std::numeric\_limits{\textless}T{\textgreater}::min()})},
+%   where {\it T} represents a floating point type (ie., either {\it float} or {\it double}).
+%   }%
+% .
+
+
+% Given the logarithm versions of Eqns.~(\ref{eqn:gmm_prob}) and (\ref{eqn:gaussian}),
+% the logarithm version of Eqn.~(\ref{eqn:aposteriori}) can be expressed as:
+
+\section{Initialisation via Multi-Threaded {\it k}-Means}
+\label{sec:param_km}
+\vspace{-1ex}
+
+As a starting point, the initial means can be set to randomly selected training vectors,
+the initial covariance matrices can be set equal to identity matrices, 
+and the initial weights can be uniform.
+However, the $\exp(\cdot)$ function as well as the matrix inverse in Eqn.~(\ref{eqn:gaussian}) are typically quite time consuming to compute.
+In order to speed up training, the initial estimate of $\lambda$ is typically provided via the {\it k}-means clustering algorithm~\cite{Bishop_2006,Duda01,Kulis_2012}
+which avoids such time consuming operations.
+
+The baseline {\it k}-means clustering algorithm is a straightforward iterative procedure comprised of two steps:
+(i)~calculating the distance from each sample to each mean,
+and
+(ii)~calculating the new version of each mean as the average of samples which were found to be the closest to the previous version of the corresponding mean.
+The required number of iterations is data dependent,
+but about 10 iterations are often sufficient to generate a good initial estimate of $\lambda$.
+
+The $k$-means algorithm can be interpreted as a simplified version (or special case) of the EM algorithm for GMMs~\cite{Kulis_2012}.
+Instead of each sample being assigned a set probabilities representing cluster membership (soft assignment),
+each sample is assigned to only one cluster (hard assignment).
+Furthermore, it can be assumed that the covariance matrix of each Gaussian is non-informative, diagonal, and/or shared across all Gaussians.
+More formally, the estimation of model parameters is as per Eqns.~(\ref{eqn:em_weight}), (\ref{eqn:em_mean}) and (\ref{eqn:em_cov}), 
+but $l_{g,i}$ is redefined~as:%
+%
+\begin{equation}
+  l_{g,i} = \left\{
+  \begin{array}{ll}
+  1, & \mbox{if} ~ g = \argmin\limits_{k=1, \cdots, N_G} \operatorname{dist}(\Vec{\mu}_k, \Vec{x}_i) \\
+  0, & \mbox{otherwise}.
+  \end{array}
+  \right.
+  \label{eqn:binary_likelihood}
+\end{equation}
+%
+where {$\operatorname{dist}(\Vec{a}, \Vec{b})$} is a distance metric.
+Apart from this difference, the parameter estimation is the same as for EM.
+As such, multi-threading is achieved as per Section~\ref{sec:param_em_parallel}.
+
+We note that it is possible to implement the \mbox{{\it k}-means} algorithm is a multitude of ways,
+such as the cluster splitting LBG algorithm~\cite{Linde80},
+or use an elaborate strategy for selecting the initial means~\cite{Arthur_2007}.
+While there are also alternative and more complex implementations offering relatively fast execution~\cite{Elkan_2003},
+we have elected to adapt the baseline \mbox{{\it k}-means} algorithm due to its straightforward amenability to multi-threading. 
+
+% The vast majority of the computational effort for training GMMs is typically taken up by the full EM algorithm (as described in Section~\ref{sec:param_em}),
+% hence the speed of the {\it k}-means algorithm is not critical in the context of GMMs.
+
+\subsection{Issues with Modelling Accuracy and Convergence}
+\vspace{-1ex}
+
+A typical and naive choice for the distance in~Eqn.~(\ref{eqn:binary_likelihood})
+is the squared Euclidean distance, \mbox{$\operatorname{dist}(\Vec{a}, \Vec{b}) = \| \Vec{a} - \Vec{b} \|^{2}_{2}$}.
+However, for multivariate datasets formed by combining data from various sensors, there is a notable downside to using the Euclidean distance.
+When one of the dimensions within the data has a much larger range than the other dimensions,
+it will dominate the contribution to the overall distance, with the other dimensions effectively ignored.
+This can adversely skew the initial parameter estimates, easily leading to poor initial conditions for the EM algorithm.
+This in turn can lead to poor modelling, as the EM algorithm is only guaranteed to reach a local maximum~\cite{Dempster77,Duda01,Mitchell97}.
+To address this problem, the squared Mahalanobis distance can be used~\cite{Bishop_2006,Duda01}:
+%
+\begin{equation}
+\operatorname{dist}(\Vec{a}, \Vec{b}) = (\Vec{a} - \Vec{b})^\top \Mat{\Sigma}^{-1}_{\mathrm{global}} (\Vec{a} - \Vec{b}),
+\end{equation}
+\noindent where $\Mat{\Sigma}_{\mathrm{global}}$ is a global covariance matrix, estimated from all available training data.
+To maintain efficiency, $\Mat{\Sigma}_{\mathrm{global}}$ is typically diagonal,
+which makes calculating its inverse straightforward (ie., reciprocals of the values on the main diagonal).
+
+
+
+In practice it is possible that while iterating at least one of the means has no vectors assigned to it,
+becoming a ``dead'' mean.
+This might stem from an unfortunate starting point, 
+or specifying a relatively large value for $N_G$ for modelling a relatively small dataset.
+As such, an additional heuristic is required to attempt to resolve this situation.
+An effective approach for resurrecting a ``dead'' mean is to make it equal to one of the vectors
+that has been assigned to the most ``popular'' mean,
+where the most ``popular'' mean is the mean that currently has the most vectors assigned to it.
+
+
+
+% The pseudo-code for a direct implementation of a baseline $k$-means algorithm is shown in Figure~\ref{fig:kmeans_pseudocode}.
+% 
+% \begin{figure}[!b]
+% \hrule
+% \vspace{0.5ex}
+% \begin{small}
+% \begin{tabbing}
+% 01: {\bf for} $g=1, ~\cdots, ~N_G$ \\
+% 02: ~~ $\Vec{\mu}_g = \Vec{x}_{ \mbox{\it randi}(1, N_V) } $ ~~~ {\small // randomly select initial means} \\
+% 03: {\bf endfor} \\
+% 04: {\it iteration} = $1$ \\
+% 05: {\it final\_iteration} = $10$ ~~~ ~~~ ~~~ {\small // empirically chosen termination condition} \\
+% 06: {\it finished} = FALSE \\
+% 07: {\bf while} {\it finished} $\neq$ TRUE \\
+% 08: ~~ {\bf for} $i=1, ~\cdots, ~N_V$ \\
+% 09: ~~ ~~ \( y_i = {\displaystyle \arg \min_{g=1, \cdots, N_G}} \operatorname{\mbox{\it dist}}(\Vec{\mu}_g, \Vec{x}_i) \) ~~~ {\small // label each vector as belonging to its closest mean} \\
+% 10: ~~ {\bf endfor} \\
+% 11: ~~ {\bf for} $g=1, ~\cdots, ~N_G$ \\
+% 12: ~~ ~~ $n_g = \sum\nolimits_{i=1}^{N_V} \delta(y_i, g) $  ~~~ ~~~ ~~~ ~~~ ~ {\small // count the number of vectors assigned to each mean} \\
+% 13: ~~ ~~ $\widehat{\Vec{\mu}}_g = \frac{1}{n_g} \sum\nolimits_{i=1}^{N_V} \Vec{x}_i \delta(y_i, g) $ ~~~ ~~~ {\small // find the new mean using vectors assigned to the old mean} \\
+% 14: ~~ {\bf endfor} \\
+% 15: ~~ {\it same} = TRUE \\
+% 16: ~~ {\bf for} $g=1, ~\cdots, ~N_G$ \\
+% 17: ~~ ~~ {\bf if} $\widehat{\Vec{\mu}}_g \neq \Vec{\mu}_g $  ~~~ ~~~ ~~~ ~~~ ~~~ ~~~ ~~~~ {\small // see if the means have changed since the last iteration} \\
+% 18: ~~ ~~ ~~ {\it same} = FALSE \\
+% 19: ~~ ~~ {\bf endif} \\
+% 20: ~~ {\bf endfor} \\
+% 21: ~~ {\bf for} $g=1, ~\cdots, ~N_G$ \\
+% 22: ~~ ~~ $\Vec{\mu}_g = \widehat{\Vec{\mu}}_g$ ~~~ {\small // update the mean vectors} \\
+% 23: ~~ {\bf endfor} \\
+% 24: ~~ {\it iteration} = {\it iteration} + 1 \\
+% 25: ~~ {\bf if} ({\it same} == TRUE) {\bf or} ({\it iteration} $>$ {\it final\_iteration})  \\
+% 26: ~~ ~~ {\it finished} = TRUE \\
+% 27: ~~ {\bf endif} \\
+% 28: {\bf endwhile}
+% \end{tabbing}
+% \end{small}
+% \vspace{-1ex}
+% \hrule
+% \caption
+%   {
+%   \small
+%   \TODO{change to normal equations}.
+%   Pseudo-code for a direct implementation of the classic $k$-means algorithm.
+%   Each training vector is denoted as $\Vec{x}_i$, where $i = 1, \cdots, N_V$, with $N_V$ indicating the number of vectors available for training.
+%   Each mean vector is denoted as $\Vec{\mu}_g$, where $g = 1, \cdots, N_G$, with $N_G$ indicating the number of required means (centroids).
+%   The~{\it randi}$(min,max)$ function generates a uniformly distributed random integer value in the $[min,max]$ interval.
+%   The~{\it dist}$(\Vec{x},\Vec{y})$ function calculates a distance between vectors $\Vec{x}$ and $\Vec{y}$, with a distance of zero indicating that the vectors are equal.
+%   The~$\delta(\cdot,\cdot)$ function (Kronecker delta) is equal to either $1$ or $0$, corresponding to its two arguments either matching or not matching.
+%   }
+% \label{fig:kmeans_pseudocode}
+% \end{figure}
+
+% Once the estimated means $\{ \Vec{\mu}_g \}_{g=1}^{N_G}$ have been found,
+% the initial weights $\{ w_g \}_{g=1}^{N_G}$ and initial covariance matrices $\{ {\Mat{\Sigma}_g} \}_{g=1}^{N_G}$
+% are estimated as follows:
+% %
+% \begin{eqnarray}
+% w_g & = & \frac{n_g}{N_V} \\
+% {\mbox {\boldmath $\Sigma$}_g} & = & \frac{1}{n_g} \sum\nolimits_{i=1}^{N_V} (\Vec{x}_i - \Vec{\mu}_g)(\Vec{x}_i - \Vec{\mu}_g)^T \delta(y_i, g)
+% \label{eqn:k-means_cov}
+% \end{eqnarray}
+% %
+% \noindent
+% where $n_g$ is defined on line 12 of the pseudo-code and $y_i$ on line 9.
+
+\section{Implementation in C++}
+\label{sec:implementation}
+\vspace{-1ex}
+
+We have provided a numerical implementation of Gaussian Mixture Models in the C++ language
+as part of recent releases of the open source Armadillo C++ linear algebra library~\cite{Armadillo_JOSS_2016}. %,Armadillo_PASC_2017}.
+The library is available under the permissive Apache~2.0 license~\cite{Laurent_2008},
+and can be obtained from
+%{\texttt{http://arma.sourceforge.net}}.
+\href{http://arma.sourceforge.net}{http://arma.sourceforge.net}.
+To considerably reduce execution time,
+the implementation contains multi-threaded versions of the EM and {\it k}-means training algorithms
+(as overviewed in Sections~\ref{sec:param_em} and~\ref{sec:param_km}).
+Implementation of multi-threading is achieved with the aid of OpenMP {\it pragma} directives~\cite{OpenMP_2007}.
+% Parallelisation is achieved through refactoring the original EM and {\it k}-means algorithms
+% into a MapReduce-like framework~\cite{MapReduce_2004} and employing OpenMP compiler directives~\cite{OpenMP_2007}.
+
+% TODO: choice for $\Mat{\Sigma}$: full or diagonal.
+% effects: fewer free parameters; much simpler matrix inverse; simpler computation of the determinant.
+% can still model correlations in data through the use of several gaussians -- ref to old Reynolds paper?
+
+There are two main choices for the type of covariance matrix $\Mat{\Sigma}$: full and diagonal.
+% The values on the main diagonal (diagonal elements) are variances for each dimension,
+% while the off diagonal elements are the covariances across dimensions.
+While full covariance matrices have more capacity for modelling data,
+diagonal covariance matrices provide several practical advantages:
+%
+\begin{enumerate}[{\bf (i)}]
+\item
+the computationally expensive (and potentially unstable) matrix inverse operation in Eqn.~(\ref{eqn:gaussian})
+is reduced to simply to taking the reciprocals of the diagonal elements,
+
+\item
+the determinant operation is considerably simplified to taking the product of the diagonal elements,
+
+\item
+diagonal covariance matrices contain fewer parameters that need to be estimated, and hence require fewer training samples~\cite{Duda01}.
+\end{enumerate}
+
+Given the above practical considerations, the implementation uses diagonal covariance matrices.
+We note that diagonal covariance GMMs with $N_G > 1$ can model distributions of samples with correlated elements,
+which in turn suggests that full covariance GMMs can be approximated using diagonal covariance GMMs with a larger number of Gaussians~\cite{Reynolds_2000}.
+% It has also been empirically observed that diagonal covariance GMMs outperform full covariance GMMs~\cite{Reynolds95, Reynolds95b, Reynolds00}.
+
+% In the following text, we first provide a description of the user accessible classes and functions which comprise the implementation,
+% followed by a demonstration of the achievable training speedup due to multi-threading.
+
+\subsection{User Accessible Classes and Functions}
+\vspace{-1ex}
+
+The implementation is provided as two user-friendly classes within the {\it arma} namespace:
+{\it\bfseries gmm\_diag} and {\it\bfseries fgmm\_diag}.
+The~former uses double precision floating point values, while the latter uses single precision floating point values.
+For an instance of the double precision {\it gmm\_diag} class named as~{\bf M},
+its member functions and variables are listed below.
+The interface allows the user full control over the parameters for GMM fitting,
+as well as easy and flexible access to the trained model.
+Figure~\ref{fig:example_usage} contains a complete C++ program which demonstrates usage of the {\it gmm\_diag} class.
+
+In the description below, all vectors and matrices refer to corresponding objects from the Armadillo library;
+scalars have the type {\it double},
+matrices have the type {\it mat},
+column vectors have the type {\it vec},
+row vectors have the type {\it rowvec},
+row vectors of unsigned integers have the type {\it urowvec},
+and indices have the type {\it uword} (representing an unsigned integer).
+When using the single precision {\it fgmm\_diag} class,
+all vector and matrix types have the {\it f} prefix (for example, {\it fmat}),
+while scalars have the type {\it float}.
+The word ``heft'' is explicitly used in the classes as a shorter version of ``weight'', while keeping the same meaning with the context of GMMs.
+
+\begin{small}
+\begin{enumerate}[{$\bullet$}]
+\itemsep 1ex
+
+\item
+{\bf M.log\_p(V)}\\
+return a scalar (double precision floating point value) representing the log-likelihood of column vector {\bf V}
+
+\item
+{\bf M.log\_p(V, g)}\\
+return a scalar (double precision floating point value) representing the log-likelihood of column vector {\bf V},
+according to Gaussian with index~{\bf g} (specified as an unsigned integer of type {\it uword})
+
+\item
+{\bf M.log\_p(X)}\\
+return a row vector (of type {\it rowvec}) containing log-likelihoods of each column vector in matrix {\bf X}
+
+
+\item
+{\bf M.log\_p(X, g)}\\
+return a row vector (of type {\it rowvec}) containing log-likelihoods of each column vector in matrix {\bf X},
+according to Gaussian with index {\bf g}  (specified as an unsigned integer of type {\it uword})
+
+\item
+{\bf M.avg\_log\_p(X)}\\
+return a scalar (double precision floating point value) representing the average log-likelihood of all column vectors in matrix {\bf X}
+
+\item
+{\bf M.avg\_log\_p(X, g)}\\
+return a scalar (double precision floating point value) representing the average log-likelihood of all column vectors in matrix {\bf X},
+according to Gaussian with index~{\bf g}  (specified as an unsigned integer of type {\it uword})
+
+\item
+{\bf M.assign(V, dist\_mode)}\\
+return an unsigned integer (of type {\it uword}) representing the index of the
+closest mean (or Gaussian) to vector {\bf V}; the parameter {\bf dist\_mode} is one
+of:
+\begin{small}
+\begin{enumerate}[{\bf {~eucl\_dist}}]
+\item
+Euclidean distance (takes only means into account)
+\end{enumerate}
+
+\begin{enumerate}[{\bf {prob\_dist}}]
+\item
+probabilistic ``distance'', defined as the inverse likelihood (takes into account means, covariances and hefts)
+\end{enumerate}
+\end{small}
+
+% \begin{tabular}{ll}
+% {\bf eucl\_dist} & Euclidean distance (takes only means \\
+%                  & into account) \\
+% {\bf prob\_dist} & probabilistic ``distance'', defined as the \\
+%                  & inverse likelihood (takes into account \\
+%                  & means, covariances and hefts) \\
+% \end{tabular}
+
+\item
+{\bf M.assign(X, dist\_mode)}\\
+return a row vector of unsigned integers (of type {\it urowvec}) containing the indices of the closest means (or Gaussians) to each column vector in matrix {\bf X};
+parameter {\bf dist\_mode} is {\bf eucl\_dist} or {\bf prob\_dist}, as per the {\bf .assign()} function above
+
+\item
+{\bf M.raw\_hist(X, dist\_mode)}\\
+return a row vector of unsigned integers (of type {\it urowvec}) representing the raw histogram of counts;
+each entry is the number of counts corresponding to a Gaussian;
+each count is the number times the corresponding Gaussian was the closest to each column vector in matrix {\bf X};
+parameter {\bf dist\_mode} is {\bf eucl\_dist} or {\bf prob\_dist}, as per the {\bf .assign()} function above
+
+\item
+{\bf M.norm\_hist(X, dist\_mode)}\\
+similar to the {\bf .raw\_hist()} function above; return a row vector (of type {\it rowvec}) containing normalised counts; the vector sums to one;
+parameter {\bf dist\_mode} is either {\bf eucl\_dist} or {\bf prob\_dist}, as per the {\bf .assign()} function above
+
+\item
+{\bf M.generate()}\\
+return a column vector (of type {\it vec}) representing a random sample generated according to the model's parameters
+
+\item
+{\bf M.generate(N)}\\
+return a matrix (of type {\it mat}) containing {\bf N} column vectors, with each vector representing a random sample generated according to the model's parameters
+
+\item
+{\bf M.n\_gaus()}\\
+return an unsigned integer (of type {\it uword}) containing the number of means/Gaussians in the model
+
+\item
+{\bf M.n\_dims()}\\
+return an unsigned integer (of type {\it uword}) containing the dimensionality of the means/Gaussians in the model
+
+\item
+{\bf M.reset(n\_dims, n\_gaus)}\\
+set the model to have dimensionality {\bf n\_dims}, with {\bf n\_gaus} number of Gaussians, specified as unsigned integers of type {\it uword};
+all the means are set to zero, all diagonal covariances are set to one, and all the hefts (weights) are set to be uniform
+
+\item
+{\bf M.save(filename)}\\
+save the model to a file
+
+\item
+{\bf M.load(filename)}\\
+load the model from a file
+
+\item
+{\bf M.means}\\
+read-only matrix (of type {\it mat}) containing the means (centroids), stored as column vectors
+
+\item
+{\bf M.dcovs}\\
+read-only matrix (of type {\it mat}) containing the diagonal covariances, with the set of diagonal covariances for each Gaussian stored as a column vector
+
+\item
+{\bf M.hefts}\\
+read-only row vector (of type {\it rowvec}) containing the hefts (weights)
+
+\item
+{\bf M.set\_means(X)}\\
+set the means (centroids) to be as specified in matrix {\bf X} (of type {\it mat}), with each mean (centroid) stored as a column vector;
+the number of means and their dimensionality must match the existing model
+
+\item
+{\bf M.set\_dcovs(X)}\\
+set the diagonal covariances to be as specified in matrix~{\bf X} (of type {\it mat}), with the set of diagonal covariances for each Gaussian stored as a column vector;
+the number of diagonal covariance vectors and their dimensionality must match the existing model
+
+\item
+{\bf M.set\_hefts(V)}\\
+set the hefts (weights) of the model to be as specified in row vector {\bf V} (of type {\it rowvec});
+the number of hefts must match the existing model
+
+\item
+{\bf M.set\_params(means, dcovs, hefts)}\\
+set all the parameters at the same time, using matrices denoted as {\bf means} and {\bf dcovs} as well as the row vector denoted as {\bf hefts};
+the layout of the matrices and vectors is as per the {\bf .set\_means()}, {\bf .set\_dcovs()} and {\bf .set\_hefts()} functions above;
+the number of Gaussians and dimensionality can be different from the existing model
+
+\item
+{\bf M.learn(data, n\_gaus, dist\_mode, seed\_mode, km\_iter, em\_iter, var\_floor, print\_mode)}\\
+learn the model parameters via the {\it k}-means and/or EM algorithms,
+and return a boolean value, with {\it true} indicating success, and {\it false} indicating failure;
+the parameters have the following meanings:
+
+\begin{small}
+\begin{enumerate}[{-}]
+\itemsep 0.5ex
+\item
+{\bf data}\\
+matrix (of type {\it mat}) containing training samples; each sample is stored as a column vector
+
+\item
+{\bf n\_gaus}\\
+set the number of Gaussians to {\bf n\_gaus};
+to help convergence, it is recommended that the given {\bf data} matrix (above)
+contains at least 10 samples for each Gaussian
+
+\item
+{\bf dist\_mode}\\
+specifies the distance used during the seeding of initial means and \mbox{{\it k}-means} clustering:
+\begin{small}
+\begin{enumerate}[{\bf eucl\_dist}]
+\item Euclidean distance
+\end{enumerate}
+
+\begin{enumerate}[{\bf {maha\_dist}}]
+\item Mahalanobis distance, which uses a global diagonal covariance matrix estimated from the given training samples
+\end{enumerate}
+\end{small}
+
+% \begin{tabular}{ll}
+% {\bf eucl\_dist} & Euclidean distance\\
+% {\bf maha\_dist} & Mahalanobis distance, which uses a \\
+%                  & global diagonal covariance matrix \\
+%                  & estimated from the given training \\
+%                  & samples
+% \end{tabular}
+
+\item
+{\bf seed\_mode}\\
+specifies how the initial means are seeded prior to running \mbox{{\it k}-means} and/or EM algorithms:
+\begin{small}
+\begin{enumerate}[{\bf {~~~keep\_existing}}]
+\item keep the existing model (do not modify the means, covariances and hefts)
+\end{enumerate}
+\begin{enumerate}[{\bf {~~~~static\_subset}}]
+\item a subset of the training samples (repeatable)
+\end{enumerate}
+\begin{enumerate}[{\bf {~random\_subset}}]
+\item a subset of the training samples (random)
+\end{enumerate}
+\begin{enumerate}[{\bf {~~~static\_spread}}]
+\item a maximally spread subset of training samples (repeatable)
+\end{enumerate}
+\begin{enumerate}[{\bf {random\_spread}}]
+\item a maximally spread subset of training samples (random start) \\
+\end{enumerate}
+\end{small}
+
+% \vspace*{0.5em}
+% \begin{tabular}{ll}
+% {\bf keep\_existing} & keep the existing model (do not \\
+%                      & modify the means, covariances \\
+%                      & and hefts) \\
+% {\bf static\_subset} & a subset of the training samples \\
+%                      & (repeatable) \\
+% {\bf random\_subset} & a subset of the training samples \\
+%                      & (random) \\
+% {\bf static\_spread} & a maximally spread subset of \\
+%                      & training samples (repeatable) \\
+% {\bf random\_spread} & a maximally spread subset of \\
+%                      & training samples (random start) \\
+% \end{tabular}
+% \vspace*{0.5em}
+
+\vspace{-1.5ex}
+Note that seeding the initial means with {\bf static\_spread} and {\bf random\_spread}
+can be more time consuming than with {\bf static\_subset} and {\bf random\_subset};
+these seed modes are inspired by the so-called {\it k-means++} approach~\cite{Arthur_2007}, with the aim to improve clustering quality.
+\vspace{1ex}
+
+\item
+{\bf km\_iter}\\
+the maximum number of iterations of the {\it k}-means algorithm; this is data dependent, but typically 10 iterations are sufficient
+
+\item
+{\bf em\_iter}\\
+the maximum number of iterations of the EM algorithm; this is data dependent, but typically 5 to 10 iterations are sufficient
+
+\item
+{\bf var\_floor}\\
+the variance floor (smallest allowed value) for the diagonal covariances; setting this to a small non-zero value can help with convergence and/or better quality parameter estimates
+
+\item
+{\bf print\_mode}\\
+boolean value (either {\it true} or {\it false}) which enables/disables the printing of progress during the {\it k}-means and EM algorithms 
+
+\end{enumerate}
+\end{small}
+
+\end{enumerate}
+\end{small}
+
+% \noindent
+% The above interface allows the user full control over the parameters of the GMM
+% fitting, and easy access to the trained results.
+% In addition, the mlpack machine learning library \cite{Curtin_2013} wraps the {\tt gmm\_diag} class
+% to provide a unified frontend for training Gaussian Mixture Models both with diagonal and non-diagonal covariance matrices.
+
+\begin{figure}[!h]
+%\vspace{-1ex}
+\vspace{1ex}
+\hrule
+\vspace{1ex}
+\centering
+\begin{adjustbox}{minipage=\columnwidth,scale={1}{0.95}}
+%\begin{adjustbox}{minipage=\columnwidth,scale={1}{1.2}}
+% possible mono-space fonts: BeraMono, DejaVu Sans Mono, KP Monospaced, LuxiMono, Inconsolata
+%\begin{Verbatim}
+%\begin{Verbatim}[fontsize=\footnotesize,fontseries=b]
+\begin{Verbatim}[fontsize=\footnotesize]
+#include <armadillo>
+
+using namespace arma;
+
+int main()
+  {
+  // create synthetic data containing
+  // 2 clusters with normal distribution
+  
+  uword d = 5;       // dimensionality
+  uword N = 10000;   // number of samples (vectors)
+  
+  mat data(d, N, fill::zeros);
+  
+  vec mean1 = linspace<vec>(1,d,d);
+  vec mean2 = mean1 + 2;
+  
+  uword i = 0;
+  
+  while(i < N)
+    {
+    if(i < N)  { data.col(i) = mean1 + randn<vec>(d); ++i; }
+    if(i < N)  { data.col(i) = mean1 + randn<vec>(d); ++i; }
+    if(i < N)  { data.col(i) = mean2 + randn<vec>(d); ++i; }
+    }
+  
+  // model the data as a diagonal GMM with 2 Gaussians
+  
+  gmm_diag model;
+  
+  bool status = model.learn(data, 2, maha_dist, random_subset,
+                            10, 5, 1e-10, true);
+  
+  if(status == false)  { cout << "learning failed" << endl; }
+  
+  model.means.print("means:");
+  
+  double overall_likelihood = model.avg_log_p(data);
+  
+  rowvec     set_likelihood = model.log_p( data.cols(0,9) );
+  double  scalar_likelihood = model.log_p( data.col(0)    );
+  
+  uword   gaus_id  = model.assign( data.col(0),    eucl_dist );
+  urowvec gaus_ids = model.assign( data.cols(0,9), prob_dist );
+  
+  urowvec histogram1 = model.raw_hist (data, prob_dist);
+   rowvec histogram2 = model.norm_hist(data, eucl_dist);
+  
+  model.save("my_model.gmm");
+  
+  mat modified_dcovs = 2 * model.dcovs;
+  
+  model.set_dcovs(modified_dcovs);
+  
+  return 0;
+  }
+
+\end{Verbatim}
+\end{adjustbox}
+\hrule
+\vspace{0.5ex}
+\caption
+  {
+  An example C++ program which demonstrates usage of a subset of functions available in the {\it\bfseries gmm\_diag} class.
+  }
+\label{fig:example_usage}
+
+
+\vspace{17ex}
+\end{figure}
+
+
+% \begin{figure}[!b]
+% \hrule
+% \vspace{1ex}
+% \centering
+% \begin{Verbatim}[fontfamily=fvm,fontsize=\footnotesize]
+% #include <fstream>
+% #include <armadillo>
+% 
+% using namespace std;
+% using namespace arma;
+% 
+% int main()
+%   {
+%   // create synthetic data with 100 clusters
+%   
+%   uword n_gaus = 100;
+%   
+%   uword d = 100;      // dimensionality
+%   uword N = 1000000;  // number of samples (vectors)
+%   
+%   cout << "generating synthetic data" << endl;
+%   
+%   mat data(d, N, fill::zeros);
+%   
+%   mat means(d, n_gaus, fill::zeros);
+%   
+%   for(uword g=0; g < n_gaus; ++g)
+%     {
+%     means.col(g) = g + linspace<vec>(1,d,d);
+%     }
+%   
+%   uword i = 0;
+%   
+%   while(i < N)
+%     {
+%     for(uword g=0; g < n_gaus; ++g)
+%       {
+%       if(i < N)  { data.col(i) = means.col(g) + 2*randn<vec>(d); ++i; }
+%       }
+%     }
+%   
+%   cout << "modelling data" << endl;
+%   
+%   wall_clock timer;
+%   timer.tic();
+%   
+%   gmm_diag model;
+%   
+%   const uword km_iter = 10;
+%   const uword em_iter = 10;
+%   
+%   bool status = model.learn(data, n_gaus, maha_dist, random_subset, km_iter, em_iter, 1e-10, true);
+%   
+%   if(status == false)  { cout << "learning failed" << endl; }
+%   
+%   cout << "timer.toc(): " << timer.toc() << endl;
+%   
+%   return 0;
+%   }
+% \end{Verbatim}
+% \vspace{-1ex}
+% \hrule
+% \vspace{0.5ex}
+% \caption
+%   {
+%   C++ source code for timing of modelling synthetic data with the {\it gmm\_diag} class.
+%   }
+% \label{fig:timing_prog}
+% \end{figure}
+
+
+\section{Evaluation}
+\label{sec:eval}
+\vspace{-1ex}
+
+\subsection{Speedup from Multi-Threading}
+\vspace{-1ex}
+
+To demonstrate the achievable speedup with the multi-threaded versions of the EM and {\it k}-means algorithms,
+we trained a GMM with 100 Gaussians on a recent 16 core machine using a synthetic dataset comprising 1,000,000 samples with 100 dimensions.
+10 iterations of the {\it k}-means algorithm and 10 iterations of the EM algorithm were used.
+The samples were stored in double precision floating point format, resulting in a total data size of approximately 762~Mb.
+% The corresponding source code is shown in Figure~\ref{fig:timing_prog}.
+
+Figure~\ref{fig:speedup} shows that a speedup of an order of magnitude is achieved when all 16 cores are used.
+Specifically, for the synthetic dataset used in this demonstration,
+the training time was reduced from approximately 340 seconds to about 33 seconds.
+In each case, the {\it k}-means algorithm took approximately 30\% of the total training time.
+%which, in other words, indicates that {\it k}-means executed about 2 times faster than the EM algorithm.
+
+We note that the overall speedup is below the idealised linear speedup.
+This is likely due to overheads related to OpenMP and reduction operations described in Section~\ref{sec:param_em_parallel},
+as well as memory access contention, stemming from concurrent access to memory by multiple cores~\cite{McCool_2012}.
+
+\begin{figure*}[!t]
+\centering
+\begin{minipage}{\textwidth}
+  \centering
+  \begin{minipage}{0.5\textwidth}
+    \centering
+    \includegraphics[width=1.1\textwidth]{plot1.pdf}\\
+    {(a)}
+  \end{minipage}%
+  \begin{minipage}{0.5\textwidth}
+    \centering
+    \includegraphics[width=1.1\textwidth]{plot2.pdf}\\
+    {(b)}
+  \end{minipage}
+\end{minipage}
+\caption
+  {
+  Execution characteristics for training a 100 component GMM
+  to model a synthetic dataset comprising 1,000,000 samples with 100 dimensions,
+  using 10 iterations of the {\it k}-means algorithm and 10 iterations of the EM algorithm:
+  {\bf (a)}~total~time~taken depending on the number of threads;
+  {\bf (b)}~corresponding speedup factor compared to using one thread (blue line), and idealised linear speedup under the assumption of no overheads and no memory access contention (red dotted line).
+  The modelling was done on a machine with dual Intel Xeon E5-2620-v4 CPUs, providing 16 independent processing cores running at 2.1~GHz.
+  Compilation was done with the GCC 5.4 C++ compiler with the following configuration options: \texttt{-O3 -march=native -fopenmp}.
+  }
+\label{fig:speedup}
+\end{figure*}
+
+
+\subsection{Comparison with Full-Covariance GMMs in MLPACK}
+\vspace{-1ex}
+
+% I guess we should move the parallelism experiment here, if you go with this
+% approach.
+
+% This paragraph could be reworked---it doesn't really fit with the "flow" of
+% the paper.  But I think it would be nice to show that using a diagonal GMM
+% doesn't cost us too much---because that would be my primary concern as a
+% reviewer (i.e. "this contribution doesn't matter because nobody uses diagonal
+% GMMs").
+In order to validate our intuition that a diagonal GMM is a good choice instead
+of the significantly more complex problem of estimating GMMs with full covariance matrices,
+we compare the {\it gmm\_diag} class (described in Section~\ref{sec:implementation})
+against the full-covariance GMM implementation in the well-established MLPACK C++ machine learning library~\cite{Curtin_2013}.
+
+We selected common datasets from the UCI machine learning dataset repository~\cite{Lichman_2013},
+and trained both diagonal and full-covariance GMMs on these datasets.
+The number of Gaussians was chosen according to the original source of each dataset;
+where possible, 3 times the number of classes in the dataset was used.
+In some cases, small amounts of Gaussian noise was added to the dataset to ensure
+training stability of the full-covariance GMMs.
+% It takes too long to do BIC on this, we don't have time.  We could handle it
+% after reviews possibly?  Really the number of Gaussians does not matter
+% anyway, we only care here about how long it takes.
+Both implementations used 10 iterations of {\it k}-means for initialisation,
+followed by running the EM algorithm until convergence or reaching a maximum of 250 iterations.
+The entire fitting procedure was repeated 10 times, each time with a different random starting point.
+
+The results are given in Table \ref{tab:results}, which shows the best log-likelihood of the 10 runs,
+the average wall-clock runtime for the fitting,
+as well as dataset information
+(number of samples, dimensionality, and number of Gaussians used for modelling).
+We can see that the diagonal GMM implementation in 
+the {\it gmm\_diag} class provides speedups from one to two orders-of-magnitude
+over the full-covariance implementation in \mbox{MLPACK}.
+% The speedup is more pronounced the more dimensions there are in a dataset.
+Furthermore, in most cases there is no significant loss in goodness-of-fit (as measured by log-likelihood).
+% In one case ({\it ozone}) the goodness-of-fit is lower; we conjecture that using a larger $N_G$ for the {\it gmm\_diag} class will improve the accuracy of the model.
+In several cases ({\it winequality}, {\it phy}, {\it covertype}, {\it pokerhand})
+the log-likelihood is notably higher for the {\it gmm\_diag} class;
+we conjecture that in these cases the diagonal covariance matrices are acting as a form of regularisation to reduce overfitting~\cite{Bishop_2006}.
+
+
+\begin{table*}[!tb]
+%\vspace{5ex}
+\centering
+\footnotesize
+\begin{tabular}{|l|c|c|c|c|c|c|c|c|}
+\hline
+\multirow{2}{*}{\bfseries dataset} & {\bfseries num.}    & {\bfseries num.} & {\bfseries num.}  & {\bfseries MLPACK}   & {\bfseries {gmm\_diag}} & $\sfrac{\mbox{\bfseries MLPACK}}{\mbox{\bfseries gmm\_diag}}$ & {\bfseries MLPACK}             & {\bfseries {gmm\_diag}}        \\
+                                   & {\bfseries samples} & {\bfseries dims} & {\bfseries Gaus.} & {\bfseries fit time} & {\bfseries fit time}    & {\bfseries fit time ratio}                                    & {$\mathbf \log~p(X|\lambda) $} & {$\mathbf \log~p(X|\lambda) $} \\
+\hline
+  cloud       & {\tt ~~~~2,048} & {\tt 10} & {\tt ~5} & {\tt ~~~~1.50s} &  {\tt\bfseries ~0.14s} & {\tt ~10.7} & {\tt~-59.98{\tiny$\times$}10$^{\mathtt 3}$} & {\tt          ~-64.12{\tiny$\times$}10$^{\mathtt 3}$} \\
+  ozone       & {\tt ~~~~2,534} & {\tt 72} & {\tt ~6} & {\tt ~~~~8.59s} &  {\tt\bfseries ~0.10s} & {\tt ~85.9} & {\tt-226.13{\tiny$\times$}10$^{\mathtt 3}$} & {\tt          -307.95{\tiny$\times$}10$^{\mathtt 3}$} \\
+  winequality & {\tt ~~~~6,497} & {\tt 11} & {\tt 30} & {\tt ~~~16.10s} &  {\tt\bfseries ~0.68s} & {\tt ~23.7} & {\tt~-47.12{\tiny$\times$}10$^{\mathtt 3}$} & {\tt\bfseries ~-15.85{\tiny$\times$}10$^{\mathtt 3}$} \\
+  corel       & {\tt ~~~37,749} & {\tt 32} & {\tt 50} & {\tt ~~544.62s} &  {\tt\bfseries ~4.55s} & {\tt 119.7} & {\tt~~+4.52{\tiny$\times$}10$^{\mathtt 6}$} & {\tt          ~~+4.44{\tiny$\times$}10$^{\mathtt 6}$} \\
+  birch3      & {\tt ~~100,000} & {\tt ~2} & {\tt ~6} & {\tt ~~~18.13s} &  {\tt\bfseries ~2.39s} & {\tt ~~7.6} & {\tt~~-2.70{\tiny$\times$}10$^{\mathtt 6}$} & {\tt          ~~-2.71{\tiny$\times$}10$^{\mathtt 6}$} \\
+  phy         & {\tt ~~150,000} & {\tt 78} & {\tt 30} & {\tt ~3867.12s} &  {\tt\bfseries 29.25s} & {\tt 132.2} & {\tt~~-2.10{\tiny$\times$}10$^{\mathtt 7}$} & {\tt\bfseries ~~-1.88{\tiny$\times$}10$^{\mathtt 7}$} \\
+  covertype   & {\tt ~~581,012} & {\tt 55} & {\tt 21} & {\tt 10360.53s} &  {\tt\bfseries 64.83s} & {\tt 159.8} & {\tt~~-9.46{\tiny$\times$}10$^{\mathtt 7}$} & {\tt\bfseries ~~-6.90{\tiny$\times$}10$^{\mathtt 7}$} \\
+  pokerhand   & {\tt 1,000,000} & {\tt 10} & {\tt 25} & {\tt ~3653.94s} &  {\tt\bfseries 55.85s} & {\tt ~65.4} & {\tt~~-1.90{\tiny$\times$}10$^{\mathtt 7}$} & {\tt\bfseries ~~-1.68{\tiny$\times$}10$^{\mathtt 7}$} \\
+\hline
+\end{tabular}
+\vspace{1ex}
+\caption
+  {
+  Comparison of fitting time (seconds) and goodness-of-fit (as measured by log-likelihood) using full covariance GMMs from the MLPACK library~\cite{Curtin_2013}
+  against diagonal GMMs in the {\it gmm\_diag} class,
+  on common datasets from the UCI machine learning dataset repository~\cite{Lichman_2013}.
+  The lower the fitting time, the better.
+  The higher the $\log p(X|\lambda)$, the better.
+  }
+\label{tab:results}
+\end{table*}
+
+
+%% CS: I thought about the data you sent by email (matched results) and a good way to explain the story,
+%% CS: but so far I haven'tt come up with something that was easy to grasp and didn't raise more questions.
+%% CS: I think the way forward would be to choose a result from Table I (comparison against full cov GMM)
+%% CS: where gmm_diag is getting a notably worse log-likelihood for the same N_G as the full cov GMM,
+%% CS: and then see if the log-likelihood can be improved by increasing N_G.
+%% CS: At that point we can compare the amout of time taken by full cov GMM and gmm_diag with higher N_G.
+
+% Additionally, we perform a more detailed investigation of the behavior of each
+% implementation on the {\tt corel} dataset.  In order to verify the results of
+% Reynolds~\cite{Reynolds_2000}, we train diagonal and full-covariance GMMs on a
+% variety of choices of $N_g$, collecting the log-likelihood of the trained model
+% at each EM iteration.  This shows us how quickly each model is able to fit to
+% the data.  Figure~\ref{fig:lc} shows the resulting learning curve, demonstrating
+% that the diagonal GMM implementation is able to converge to a better
+% log-likelihood in less time than the full-covariance implementation.
+% 
+% \begin{figure*}
+% \begin{center}
+% % This figure is horrible.  I have not thought of a better way to plot this
+% % here.  But maybe it is a start.  Like for real this is the ugliest graph I
+% % have ever produced in my life.
+% % \includegraphics[width=\textwidth]{data/garbage_fire.png}
+% \end{center}
+% \caption{GMM training time vs. log-likelihood of model for diagonal GMMs (blue)
+% and non-diagonal GMMs (red).  The simulation is performed for many values of
+% $N_g$, showing that for the {\tt corel} dataset, we can get a faster and better
+% fit with our implementation of diagonal GMMs than with a full-covariance GMM,
+% even when the diagonal GMM must have a greater $N_g$ to achieve a better fit.}
+% \label{fig:lc}
+% \end{figure*}
+
+% done with N_G = 30
+% 
+% birch     full        -2.5941e6       82.4212s
+% birch     gmm_diag    -2.62008e6      8.1022s
+% 
+% phy       full        -2.36e7         5102.751s
+% phy       gmm_diag    -7.94981e6      78.44s
+% 
+% covertype full        -1.09351e8      13221.844s
+% covertype gmm_diag    -5.190e7        344.413s
+
+
+
+% \begin{table*}[!tb]
+% \vspace{5ex}
+% \centering
+% \small
+% \begin{tabular}{|l|c|c|c|c|c|c|c|}
+% \hline
+% {\bf Dataset} & {\bf $N_v$} & {\bf dims} & {\bf $N_g$} & {\bf MLPACK fit time} & {\bfseries {\it\bfseries gmm\_diag} fit time} & {\bf MLPACK $\log(p(X|\lambda))$} & {\bf {\it\bfseries gmm\_diag} $\log(p(X|\lambda))$} \\
+% \hline
+%   cloud       & ~~2,048 & 10 &  5 & ~~~~~1.375s & ~~~{\bf 0.164s} & $-59.9  \times 10^{3}$ & $-63.0  \times 10^{3}$ \\
+%   ozone       & ~~2,534 & 72 &  6 & ~~~~~1.982s & ~~~{\bf 0.202s} & $-230   \times 10^{3}$ & $-399   \times 10^{3}$ \\
+%   winequality & ~~6,497 & 11 & 30 & ~~~~18.201s & ~~~{\bf 1.257s} & $-47.5  \times 10^{3}$ & $-15.6  \times 10^{3}$ \\
+%   corel       & ~37,749 & 32 & 50 & ~~~501.601s &  ~{\bf 22.016s} & $~~2.99 \times 10^{6}$ & $~~2.89 \times 10^{6}$ \\
+%   cup98b      & ~95,413 & 56 & 30 &  ~1207.860s &  ~{\bf 48.425s} & $-11.9  \times 10^{6}$ & $-6.62  \times 10^{6}$ \\
+% % birch3      & 100,000 & 2  &  6 & \\
+%   birch3      & 100,000 & ~2 & 30 & ~~~~82.421s &  ~~{\bf 8.102s} & $-2.59  \times 10^{6}$ & $-2.62  \times 10^{6}$ \\
+%   phy         & 150,000 & 78 & 30 &  ~5102.751s &  ~{\bf 78.440s} & $-2.36  \times 10^{7}$ & $-7.94  \times 10^{6}$ \\
+% % covertype   & 581,012 & 55 & 21 & \\
+%   covertype   & 581,012 & 55 & 30 &  13221.844s &  {\bf 344.413s} & $-1.09  \times 10^{8}$ & $-5.19  \times 10^{7}$ \\
+% % pokerhand   & 1000000 & 10 & 25 & 30 & \\
+% \hline
+% \end{tabular}
+% \caption
+%   {
+%   Comparison of fitting time (seconds) and goodness-of-fit (as measured by log-likelihood) using full covariance GMMs from the MLPACK library~\cite{Curtin_2013}
+%   against diagonal GMMs in the {\it gmm\_diag} class,
+%   on common datasets from the UCI machine learning dataset repository~\cite{Lichman_2013}.
+%   $N_v$ indicates the number of samples, {\it dims} indicates dimensionality, and $N_G$ the number of Gaussians.
+%   }
+% \label{tab:results}
+% \end{table*}
+
+% \begin{table*}
+% \begin{center}
+% \begin{tabular}{|l|c|c|c|c|c|c|c|}
+% \hline
+% {\bf dataset} & {\bf $N_v$} & {\bf dims} & {\bf $N_g$} & {\bf full-covariance fit time} & {\bf Armadillo fit time} & {\bf full-diagonal $\log(p(X|\lambda))$} & {\bf Armadillo $\log(p(X|\lambda))$} \\
+% \hline
+% cloud & 2048 & 10 & 5 & 1.375s & {\bf 0.164s} & -59.9k & -63.0k \\
+% ozone & 2534 & 72 & 6 & 1.982s & {\bf 0.202s} & -230k & -399k \\
+% winequality & 6497 & 11 & 30 & 18.201s & {\bf 1.257s} & -47.5k & -15.6k
+% \\
+% corel & 37749 & 32 & 50 & 501.601s & {\bf 22.016s} & 2.99M & 2.89M \\
+% cup98b & 95413 & 56 & 30 & 1207.86s & {\bf 48.425s} & -11.9M & -6.62M \\
+% birch3 & 100000 & 2 & 6 & \\
+% phy & 150000 & 78 & 30 & & {\bf 78.44s} & & -7.94M \\
+% covertype & 581012 & 55 & 21 & \\
+% pokerhand & 1000000 & 10 & 25 & 30 & \\
+% \hline
+% \end{tabular}
+% \end{center}
+% \caption{Datasets used for comparisons with full-covariance GMM estimation.}
+% \label{tab:results}
+% \end{table*}
+
+% \begin{table*}
+% \begin{center}
+% \begin{tabular}{|l|c|c|c|c|c|c|c|}
+% \hline
+% {\bf dataset} & {\bf $N_v$} & {\bf dims} & {\bf $N_g$} & {\bf
+% full-covariance fit time} & {\bf Armadillo fit time} & {\bf full-diagonal
+% $\log(p(X|\lambda))$} & {\bf Armadillo $\log(p(X|\lambda))$} \\
+% \hline
+% cloud & 2048 & 10 & 5 & 1.375s & {\bf 0.164s} & -59.9k & -63.0k \\
+% ozone & 2534 & 72 & 6 & 1.982s & {\bf 0.202s} & -230k & -399k \\
+% winequality & 6497 & 11 & 30 & 18.201s & {\bf 1.257s} & -47.5k & -15.6k \\
+% corel & 37749 & 32 & 50 & 501.601s & {\bf 22.016s} & 2.99M & 2.89M \\
+% cup98b & 95413 & 56 & 30 & & {\bf 48.425s} &  & -6.62M \\
+% birch3 & 100000 & 2 & 6 & \\
+% phy & 150000 & 78 & 30 & \\
+% covertype & 581012 & 55 & 21 & \\
+% pokerhand & 1000000 & 10 & 25 & 30 & \\
+% \hline
+% \end{tabular}
+% \end{center}
+% \caption{Datasets used for comparisons with full-covariance GMM estimation.}
+% \label{tab:results}
+% \end{table*}
+
+\section{Conclusion}
+\vspace{-1ex}
+
+% In this paper we have demonstrated a parallelised implementation of Gaussian
+% Mixture Models, which is released as part of the publicly available Armadillo
+% C++ linear algebra library.  Through effective parallelization and restriction
+% of the problem to diagonal-covariance settings, we show that the Armadillo
+% implementation is able to significantly outperform other GMM implementations
+% without significant fitting losses.
+
+In this paper we have demonstrated a multi-threaded and robust implementation
+of Gaussian Mixture Models in the C++ language.
+Multi-threading is achieved through reformulation of the Expectation-Maximisation and {\it k}-means algorithms into a MapReduce-like framework.
+The implementation also uses several techniques to improve numerical stability and improve modelling accuracy.
+We demonstrated that the implementation achieves a speedup of an order of magnitude on a recent 16 core machine,
+and that it can achieve higher modelling accuracy than a previously well-established publically accessible implementation.
+The multi-threaded implementation is released as open source software
+and included in recent releases of the cross-platform Armadillo C++ linear algebra library.
+The library is provided under the permissive Apache~2.0 license, allowing unencumbered use in commercial products.
+
+\small
+\bibliographystyle{ieee}
+\bibliography{refs}
+
+% \newpage
+% \appendix
+% \input{app_em}
+
+
+\end{document}

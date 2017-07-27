@@ -155,7 +155,7 @@ Modelling multivariate data through a convex mixture of Gaussians, also known as
 has many uses in fields such as signal processing, econometrics, pattern recognition, machine learning and computer vision.
 Examples of applications include
 multi-stage feature extraction for action recognition~\cite{Carvajal_2016a},
-modelling of intermediate features derived from deep convolutional neural networks~\cite{Ge_ICIP_2015,LeCun_Nature_2015},
+modelling of intermediate features derived from deep convolutional neural networks~\cite{Ge_ICIP_2015,Ge_2016,LeCun_Nature_2015},
 classification of human epithelial cell images~\cite{Wiliem_PR_2014},
 implicit sparse coding for face recognition~\cite{Wong_2014},
 speech-based identity verification~\cite{Reynolds_2000},
@@ -203,11 +203,11 @@ Given the ever growing sizes of datasets and the need for fast, robust and accur
 we have provided an open source implementation of multi-threaded (parallelised) versions 
 of the \mbox{{\it k}-means} and EM algorithms.
 In addition, core functions are recast in order to considerably reduce the likelihood of numerical instability due to floating point underflows and overflows.
-The implementation is provided as a user-friendly class in recent releases of the cross-platform Armadillo C++ linear algebra library~\cite{Armadillo_JOSS_2016}.
+The implementation is provided as a user-friendly class in recent releases of the cross-platform Armadillo C++ linear algebra library~\cite{Armadillo_JOSS_2016,Armadillo_PASC_2017}.
 The library is licensed under the permissive Apache~2.0 license~\cite{Laurent_2008},
 thereby allowing unencumbered use in commercial products.
 
-We continue the report as follows.
+We continue the paper as follows.
 In Section~\ref{sec:param_em} we provide an overview of parameter estimation via the EM algorithm,
 its reformulation for multi-threaded execution,
 and approaches for improving numerical stability.
@@ -263,7 +263,7 @@ Overall, the algorithm is a hill climbing procedure for maximising $p(X | \lambd
 While there are no guarantees that it will reach a global maximum, it is guaranteed to monotonically converge to a saddle point or a local maximum~\cite{Dempster77,Duda01,Mitchell97}.
 The above implementation can also be interpreted as an unsupervised probabilistic clustering procedure,
 with $N_G$ being the assumed number of clusters.
-For a full derivation of the EM algorithm tailored to GMMs, the reader is directed to~\cite{Bilmes98,Redner84}. % or Appendix~A. %~\ref{app:em_algorithm}.
+For a full derivation of the EM algorithm tailored to GMMs, the reader is directed to~\cite{Bilmes98,Redner84} or Appendix~A. %~\ref{app:em_algorithm}.
 
 \subsection{Reformulation for Multi-Threaded Execution}
 \label{sec:param_em_parallel}
@@ -735,11 +735,11 @@ all the means are set to zero, all diagonal covariances are set to one, and all 
 
 \item
 {\bf M.save(filename)}\\
-save the model to a file
+save the model to a file and return a {\it bool} indicating either success ({\it true}) or failure ({\it false})
 
 \item
 {\bf M.load(filename)}\\
-load the model from a file
+load the model from a file and return a {\it bool} indicating either success ({\it true}) or failure ({\it false})
 
 \item
 {\bf M.means}\\
@@ -768,6 +768,7 @@ the number of diagonal covariance vectors and their dimensionality must match th
 set the hefts (weights) of the model to be as specified in row vector {\bf V} (of type {\it rowvec});
 the number of hefts must match the existing model
 
+\pagebreak
 \item
 {\bf M.set\_params(means, dcovs, hefts)}\\
 set all the parameters at the same time, using matrices denoted as {\bf means} and {\bf dcovs} as well as the row vector denoted as {\bf hefts};
@@ -801,7 +802,7 @@ specifies the distance used during the seeding of initial means and \mbox{{\it k
 \item Euclidean distance
 \end{enumerate}
 
-\begin{enumerate}[{\bf {maha\_dist}}]
+\begin{enumerate}[{\bf ~{maha\_dist}}]
 \item Mahalanobis distance, which uses a global diagonal covariance matrix estimated from the given training samples
 \end{enumerate}
 \end{small}
@@ -817,41 +818,35 @@ specifies the distance used during the seeding of initial means and \mbox{{\it k
 \item
 {\bf seed\_mode}\\
 specifies how the initial means are seeded prior to running \mbox{{\it k}-means} and/or EM algorithms:
-\begin{small}
-\begin{enumerate}[{\bf {~~~keep\_existing}}]
-\item keep the existing model (do not modify the means, covariances and hefts)
-\end{enumerate}
-\begin{enumerate}[{\bf {~~~~static\_subset}}]
-\item a subset of the training samples (repeatable)
-\end{enumerate}
-\begin{enumerate}[{\bf {~random\_subset}}]
-\item a subset of the training samples (random)
-\end{enumerate}
-\begin{enumerate}[{\bf {~~~static\_spread}}]
-\item a maximally spread subset of training samples (repeatable)
-\end{enumerate}
-\begin{enumerate}[{\bf {random\_spread}}]
-\item a maximally spread subset of training samples (random start) \\
-\end{enumerate}
-\end{small}
 
-% \vspace*{0.5em}
-% \begin{tabular}{ll}
-% {\bf keep\_existing} & keep the existing model (do not \\
-%                      & modify the means, covariances \\
-%                      & and hefts) \\
-% {\bf static\_subset} & a subset of the training samples \\
-%                      & (repeatable) \\
-% {\bf random\_subset} & a subset of the training samples \\
-%                      & (random) \\
-% {\bf static\_spread} & a maximally spread subset of \\
-%                      & training samples (repeatable) \\
-% {\bf random\_spread} & a maximally spread subset of \\
-%                      & training samples (random start) \\
-% \end{tabular}
-% \vspace*{0.5em}
+% \begin{small}
+% \begin{enumerate}[{\bf {~~~keep\_existing}}]
+% \item keep the existing model (do not modify the means, covariances and hefts)
+% \end{enumerate}
+% \begin{enumerate}[{\bf {~~~~~static\_subset}}]
+% \item a subset of the training samples (repeatable)
+% \end{enumerate}
+% \begin{enumerate}[{\bf {random\_subset}}]
+% \item a subset of the training samples (random)
+% \end{enumerate}
+% \begin{enumerate}[{\bf {~~~~static\_spread}}]
+% \item a maximally spread subset of training samples (repeatable)
+% \end{enumerate}
+% \begin{enumerate}[{\bf {random\_spread}}]
+% \item a maximally spread subset of training samples (random start) \\
+% \end{enumerate}
+% \end{small}
 
-\vspace{-1.5ex}
+\vspace*{0.5em}
+\begin{tabular}{rl}
+{\bf keep\_existing} & keep the existing model (do not modify the means, covariances and hefts) \\
+{\bf static\_subset} & a subset of the training samples (repeatable) \\
+{\bf random\_subset} & a subset of the training samples (random) \\
+{\bf static\_spread} & a maximally spread subset of training samples (repeatable) \\
+{\bf random\_spread} & a maximally spread subset of training samples (random start) \\
+\end{tabular}
+\vspace*{0.5em}
+
 Note that seeding the initial means with {\bf static\_spread} and {\bf random\_spread}
 can be more time consuming than with {\bf static\_subset} and {\bf random\_subset};
 these seed modes are inspired by the so-called {\it k-means++} approach~\cite{Arthur_2007}, with the aim to improve clustering quality.
@@ -891,7 +886,7 @@ boolean value (either {\it true} or {\it false}) which enables/disables the prin
 \hrule
 \vspace{1ex}
 \centering
-\begin{adjustbox}{minipage=\columnwidth,scale={1}{0.95}}
+\begin{adjustbox}{minipage=\columnwidth,scale={1}{1.1}}
 %\begin{adjustbox}{minipage=\columnwidth,scale={1}{1.2}}
 % possible mono-space fonts: BeraMono, DejaVu Sans Mono, KP Monospaced, LuxiMono, Inconsolata
 %\begin{Verbatim}
@@ -963,9 +958,6 @@ int main()
   An example C++ program which demonstrates usage of a subset of functions available in the {\it\bfseries gmm\_diag} class.
   }
 \label{fig:example_usage}
-
-
-\vspace{17ex}
 \end{figure}
 
 
@@ -1039,7 +1031,7 @@ int main()
 % \label{fig:timing_prog}
 % \end{figure}
 
-
+\clearpage
 \section{Evaluation}
 \label{sec:eval}
 \vspace{-1ex}
@@ -1063,7 +1055,7 @@ We note that the overall speedup is below the idealised linear speedup.
 This is likely due to overheads related to OpenMP and reduction operations described in Section~\ref{sec:param_em_parallel},
 as well as memory access contention, stemming from concurrent access to memory by multiple cores~\cite{McCool_2012}.
 
-\begin{figure*}[!t]
+\begin{figure*}[!b]
 \centering
 \begin{minipage}{\textwidth}
   \centering
@@ -1139,7 +1131,7 @@ we conjecture that in these cases the diagonal covariance matrices are acting as
 \begin{table*}[!tb]
 %\vspace{5ex}
 \centering
-\footnotesize
+\small
 \begin{tabular}{|l|c|c|c|c|c|c|c|c|}
 \hline
 \multirow{2}{*}{\bfseries dataset} & {\bfseries num.}    & {\bfseries num.} & {\bfseries num.}  & {\bfseries MLPACK}   & {\bfseries {gmm\_diag}} & $\sfrac{\mbox{\bfseries MLPACK}}{\mbox{\bfseries gmm\_diag}}$ & {\bfseries MLPACK}             & {\bfseries {gmm\_diag}}        \\
@@ -1310,13 +1302,301 @@ The multi-threaded implementation is released as open source software
 and included in recent releases of the cross-platform Armadillo C++ linear algebra library.
 The library is provided under the permissive Apache~2.0 license, allowing unencumbered use in commercial products.
 
+\appendix
+\section*{Appendix A: Abridged Derivation of the EM Algorithm for Gaussian Mixture Models}
+\label{app:em_algorithm}
+
+In the Gaussian Mixture Model (GMM) approach, the distribution of samples (vectors) is modelled as:
+%
+\begin{equation}
+	p(\Vec{x} | \Theta) = \sum\nolimits_{m=1}^{M} w_m p(\Vec{x}| \theta_m)
+	\label{eqn:mixture_fn}
+\end{equation}
+
+\noindent
+where $\Vec{x}$ is a $D$-dimensional vector,
+$w_m$ is a weight (with constraints $\sum\nolimits_{m=1}^{M} w_m = 1$, $w_m \geq 0$),
+and
+$p(\Vec{x}| \theta_m)$ is a multivariate Gaussian density function with parameter set $\theta_m = \{ \Vec{\mu}_m, \Mat{\Sigma}_m \}$:
+%
+\begin{equation}
+	p(\Vec{x}| \theta_m) =  {{\mathcal{N}}}( \Vec{x} | \Vec{\mu}_m, \Mat{\Sigma}_m )  = 
+		\frac{1}{ (2\pi)^{\frac{D}{2}} | \Mat{\Sigma}_m|^{\frac{1}{2}} }
+		\exp \left[ -\frac{1}{2} (\Vec{x}-\Vec{\mu}_m)^T \Mat{\Sigma}_m^{-1} (\Vec{x}-\Vec{\mu}_m) \right]
+%
+\end{equation}%
+
+\noindent
+where $\Vec{\mu}_m$ is the mean vector and $\Mat{\Sigma}_m$ is the covariance matrix.
+Thus the complete parameter set for Eqn.~(\ref{eqn:mixture_fn}) is expressed as $\Theta = \{w_m, \theta_m\}_{m=1}^{M}$.
+Given a set of training samples, $X=\{\Vec{x}_i\}_{i=1}^{N}$,
+we need to find $\Theta$ that suitably models the underlying distribution.
+Stated more formally, we need to find $\Theta$ that maximises the following likelihood function:
+%
+\begin{equation}
+	p(X | \Theta) = \prod\nolimits_{i=1}^{N} p(\Vec{x}_i | \Theta)
+	\label{eqn:lhood_fn}
+\end{equation}
+
+The Expectation-Maximisation (EM) algorithm~\cite{Dempster77, McLachlan-2008, Moon96, Redner84} is an iterative likelihood function optimisation technique,
+often used in the pattern recognition and machine learning~\cite{Bishop_2006,Duda01}.
+It is a general method for finding the maximum-likelihood estimate of the parameters of an assumed distribution,
+when either the training data is incomplete or has missing values, or when the likelihood function can be made analytically tractable
+by assuming the existence of (and values for) {\it missing} data.
+
+To apply the EM algorithm to finding $\Theta$, we must first assume that our training data $X$ is incomplete
+and assume the existence of missing data $Y = \{y_i\}_{i=1}^{N}$,
+where each $y_i$ indicates the mixture component that ``generated'' the corresponding $\Vec{x}_i$.
+Thus $y_i \in [1,M] ~ \forall ~ i$ and $y_i = m$ if the $i$-th feature vector ($\Vec{x}_i$) was ``generated'' by the $m$-th component.
+If we know the values for $Y$, then Eqn.~(\ref{eqn:lhood_fn}) can be modified to:
+%
+\begin{equation}
+	p(X,Y | \Theta) = \prod\nolimits_{i=1}^{N} w_{y_i} p(\Vec{x}_i| \theta_{y_i})
+	\label{eqn:lhood_fn_modified}
+\end{equation}
+
+\noindent
+As its name suggests, the EM algorithm is comprised of two steps which are iterated: (i)~expectation, followed by (ii)~maximisation.
+In the expectation step, the expected value of the complete data log-likelihood, $\log p(X,Y | \Theta)$,
+is found with respect to the unknown data $Y = \{y_i\}_{i=1}^{N}$ given training data $X=\{\Vec{x}_i\}_{i=1}^{N}$ and current parameter estimates,
+$\Theta^{[k]}$ (where $k$ indicates the iteration number):
+%
+\begin{equation}
+	Q(\Theta, \Theta^{[k]}) = E \left[ \log p(X,Y | \Theta) ~|~ X,\Theta^{[k]} \right]
+	\label{eqn:q_fn}
+\end{equation}
+
+\noindent
+Since $Y$ is a random variable with distribution $p(\mbox{\boldmath $y$}|X,\Theta^{[k]})$, Eqn.~(\ref{eqn:q_fn}) can be written as:
+%
+\begin{equation}
+	Q(\Theta, \Theta^{[k]}) = \int_{\mbox{\boldmath $y$} \in \Upsilon}
+								\log p(X,\mbox{\boldmath $y$} | \Theta) ~ p(\mbox{\boldmath $y$}|X,\Theta^{[k]}) ~~ d \mbox{\boldmath $y$}
+	\label{eqn:q_fn2}
+\end{equation}
+
+\noindent
+where \mbox{\boldmath $y$} is an instance of the missing data and $\Upsilon$ is the space of values \mbox{\boldmath $y$} can take on.
+The maximisation step then maximises the expectation:
+%
+\begin{equation}
+	\Theta^{[k+1]} = \arg \max_{\Theta} Q(\Theta, \Theta^{[k]})
+	\label{eqn:maximize}
+\end{equation}
+
+\noindent
+The expectation and maximisation steps are iterated until convergence,
+or when the increase in likelihood falls below a pre-defined threshold.
+As can be seen in Eqn.~(\ref{eqn:q_fn2}), we require $p(\mbox{\boldmath $y$}|X,\Theta^{[k]})$.
+We can define it as follows:
+%
+\begin{equation}
+	p(\mbox{\boldmath $y$}|X,\Theta^{[k]}) = \prod\nolimits_{i=1}^{N} p(y_i | \Vec{x}_i, \Theta^{[k]})
+\end{equation}
+
+\noindent
+Given initial parameters%
+%
+\footnote{Parameters for $k=0$ can be found via the {\it k}-means algorithm~\cite{Bishop_2006,Duda01,Linde80} (see also Section \ref{sec:param_km}).}
+%
+~$\Theta^{[k]}$,
+we can compute $p(\Vec{x}_i | \theta_m^{[k]})$.
+Moreover, we can interpret the mixing weights ($w_m$) as {a-priori} probabilities of each mixture component, ie., $w_m = p(m | \Theta^{[k]})$.
+Hence we can apply Bayes' rule~\cite{Duda01} to obtain:
+%
+\begin{eqnarray}
+	p(y_i | \Vec{x}_i, \Theta^{[k]}) & = & \frac{ p(\Vec{x}_i | \theta_{y_i}^{[k]}) p(y_i | \Theta^{[k]}) }{ p(\Vec{x}_i | \Theta^{[k]}) } \\
+	~ & = & \frac{ p(\Vec{x}_i | \theta_{y_i}^{[k]}) p(y_i | \Theta^{[k]}) }{ \sum\nolimits_{n=1}^{M} p(\Vec{x}_i | \theta_{n}^{[k]}) p(n | \Theta^{[k]})}
+	\label{eqn:p_yi}
+\end{eqnarray}
+
+\noindent
+Expanding Eqn.~(\ref{eqn:q_fn2}) yields:
+%
+\begin{eqnarray}
+	Q(\Theta, \Theta^{[k]}) & = & \int_{\mbox{\boldmath $y$} \in \Upsilon}
+									\log p(X,\mbox{\boldmath $y$} | \Theta) ~ p(\mbox{\boldmath $y$}|X,\Theta^{[k]}) ~~ d \mbox{\boldmath $y$} \\
+							~ & = & \sum\nolimits_{\mbox{\boldmath $y$} \in \Upsilon}  \log \prod\nolimits_{i=1}^{N} w_{y_i} p(\Vec{x}_i | \theta_{y_i})  
+																		\prod\nolimits_{j=1}^{N} p(y_j | \Vec{x}_j, \Theta^{[k]} ) \\
+							~ & = & \sum\nolimits_{y_1=1}^{M} \sum\nolimits_{y_2=1}^{M} \cdots \sum\nolimits_{y_N=1}^{M} 
+															\sum\nolimits_{i=1}^{N} \log \left[ w_{y_i} p(\Vec{x}_i | \theta_{y_i}) \right] 
+															\prod\nolimits_{j=1}^{N} p(y_j | \Vec{x}_j, \Theta^{[k]} )  \label{eqn:q_fn_expanded}
+\end{eqnarray}%
+
+\noindent
+It can be shown~\cite{Bilmes98} that Eqn.~(\ref{eqn:q_fn_expanded}) can be simplified to:
+%
+\begin{eqnarray}
+	Q(\Theta, \Theta^{[k]}) & = & \sum\nolimits_{m=1}^{M}  \sum\nolimits_{i=1}^{N} \log[ w_m  p(\Vec{x}_i | \theta_m)] ~ p(m|\Vec{x}_i, \Theta^{[k]}) \\
+							~ & = & \sum\nolimits_{m=1}^{M}  \sum\nolimits_{i=1}^{N} \log[ w_m ] ~  p(m|\Vec{x}_i, \Theta^{[k]}) +
+									\sum\nolimits_{m=1}^{M}	\sum\nolimits_{i=1}^{N} \log[  p(\Vec{x}_i | \theta_m) ] ~ p(m|\Vec{x}_i, \Theta^{[k]}) ~~~ \\
+							~ & = & Q_1 ~~~ + ~~~ Q_2 
+\end{eqnarray}%
+
+\noindent
+Hence $Q_1$ and $Q_2$ can be maximised separately, to obtain $w_m$ and $\theta_m = \{ \Vec{\mu}_m, \Mat{\Sigma}_m \}$, respectively.
+To find the expression which maximises $w_m$, we need to introduce the Lagrange multiplier~\cite{Duda01} $\psi$,
+with the constraint $\sum\nolimits_m w_m = 1$, take the derivative of $Q_1$ with respect to $w_m$ and set the result to zero:
+%
+\begin{eqnarray}
+	\frac{\partial Q_1}{\partial w_m} & = & 0 \\
+						\therefore ~ 0  & = & \frac{\partial}{\partial w_m}
+											\left\{ \sum\nolimits_{m=1}^{M} \sum\nolimits_{i=1}^{N} \log[ w_m ]  ~ p(m|\Vec{x}_i, \Theta^{[k]})
+											 		+ \psi \left[ (\sum\nolimits_m w_m) -1 \right] \right\} \\
+									~ & = & \sum\nolimits_{i=1}^{N} \frac{1}{w_m} ~ p(m|\Vec{x}_i, \Theta^{[k]}) + \psi \label{eqn:q1_alpha_opt}
+\end{eqnarray}
+
+\noindent
+Rearranging Eqn.~(\ref{eqn:q1_alpha_opt}) to obtain a value for $\psi$:
+%
+\begin{eqnarray}
+	-\psi w_m & = & \sum\nolimits_{i=1}^{N} p(m|\Vec{x}_i, \Theta^{[k]})
+\end{eqnarray}
+
+\noindent
+Summing both sides over $m$ yields:
+%
+\begin{eqnarray}
+	-\psi \sum\nolimits_m w_m & = & \sum\nolimits_{i=1}^{N} \sum\nolimits_m p(m|\Vec{x}_i, \Theta^{[k]}) \\
+	-\psi 1 & = & \sum\nolimits_{i=1}^{N} 1 \\
+	\psi & =  & -N	\label{eqn:lambda_equals_negN}
+\end{eqnarray}
+
+\noindent
+By substituting Eqn.~(\ref{eqn:lambda_equals_negN}) into Eqn.~(\ref{eqn:q1_alpha_opt}) we obtain:
+%
+\begin{eqnarray}
+			N & = & \sum\nolimits_{i=1}^{N} \frac{1}{w_m} ~ p(m|\Vec{x}_i, \Theta^{[k]}) \\
+	\therefore ~ w_m & = & \frac{1}{N} \sum\nolimits_{i=1}^{N} p(m|\Vec{x}_i, \Theta^{[k]}) 
+	\label{eqn:alpha_m_solved}
+\end{eqnarray}
+
+\noindent
+To find expressions which maximise $\Vec{\mu}_m$ and $\Mat{\Sigma}_m$, let us now expand $Q_2$:
+%
+\begin{eqnarray}
+	Q_2 & = &   \sum\nolimits_{m=1}^{M}	\sum\nolimits_{i=1}^{N} \log[  p(\Vec{x}_i | \theta_m) ] ~ p(m|\Vec{x}_i, \Theta^{[k]}) 	\\
+	 ~  & = &   \sum\nolimits_{m=1}^{M} \sum\nolimits_{i=1}^{N} \left[
+					- \frac{1}{2} \log(|\Mat{\Sigma}_m|) - \frac{1}{2} (\Vec{x}_i - \Vec{\mu}_m)^T \Mat{\Sigma}_m^{-1} (\Vec{x}_i - \Vec{\mu}_m)
+					\right] p(m|\Vec{x}_i, \Theta^{[k]})  \label{eqn:q2_expanded}
+\end{eqnarray}
+
+\noindent
+where $-\frac{D}{2} \log(2\pi)$ was omitted since it vanishes when taking a derivative with respect to $\Vec{\mu}_m$ or $\Mat{\Sigma}^{-1}_m$.
+To find the expression which maximises $\Vec{\mu}_m$, we need to take the derivative of $Q_2$ with respect to $\Vec{\mu}_m$, and set the result to zero:
+%
+\begin{eqnarray}
+	\frac{\partial Q_2}{\partial \Vec{\mu}_m} & = & 0   \\
+ 0 & = & \frac{\partial}{\partial \Vec{\mu}_m} \left\{ \sum\nolimits_{m=1}^{M} \sum\nolimits_{i=1}^{N} \left[
+					- \frac{1}{2} \log(|\Sigma_m|) - \frac{1}{2} (\Vec{x}_i - \Vec{\mu}_m)^T \Mat{\Sigma}_m^{-1} (\Vec{x}_i - \Vec{\mu}_m)
+					\right] p(m|\Vec{x}_i, \Theta^{[k]}) \right\} ~~~ ~~~ ~~~  \label{eqn:q2_mu_partone}
+\end{eqnarray}%
+
+\noindent
+L\"{u}tkepohl~\cite{Lutkepohl96} states that
+\mbox{$\frac{ \partial \Vec{z}^T \Mat{A} \Vec{z} }{ \partial \Vec{z} } =  (\Mat{A} + \Mat{A}^T)\Vec{z}$},
+~ $(\Mat{A}^{-1})^T = (\Mat{A}^T)^{-1}$ and if $\Mat{A}$ is symmetric, then $\Mat{A} = \Mat{A}^T$.
+Since $\Mat{\Sigma}_m$ is symmetric, Eqn.~(\ref{eqn:q2_mu_partone}) reduces to:
+%
+\begin{eqnarray}
+	0 & = & \sum\nolimits_{i=1}^{N} - \frac{1}{2} 2 \Mat{\Sigma}_m^{-1} (\Vec{x}_i - \Vec{\mu}_m) p(m|\Vec{x}_i, \Theta^{[k]}) \\
+	~ & = & \sum\nolimits_{i=1}^{N} \left[ - \Mat{\Sigma}_m^{-1} \Vec{x}_i p(m|\Vec{x}_i, \Theta^{[k]}) + \Mat{\Sigma}_m^{-1} \Vec{\mu}_m p(m|\Vec{x}_i, \Theta^{[k]})  \right] ~~~ \\
+	\therefore ~ \sum\nolimits_{i=1}^{N} \Mat{\Sigma}_m^{-1} \Vec{\mu}_m p(m|\Vec{x}_i, \Theta^{[k]}) & = & \sum\nolimits_{i=1}^{N} \Mat{\Sigma}_m^{-1} \Vec{x}_i p(m|\Vec{x}_i, \Theta^{[k]}) 
+\end{eqnarray}%
+
+\noindent
+Multiplying both sides by $\Mat{\Sigma}_m$ yields:
+%
+\begin{eqnarray}
+	\sum\nolimits_{i=1}^{N} \Vec{\mu}_m p(m|\Vec{x}_i, \Theta^{[k]}) & = & \sum\nolimits_{i=1}^{N} \Vec{x}_i p(m|\Vec{x}_i, \Theta^{[k]})  \\
+\therefore ~ \Vec{\mu}_m & = & \frac{ \sum\nolimits_{i=1}^{N} \Vec{x}_i p(m|\Vec{x}_i, \Theta^{[k]}) }
+								   { \sum\nolimits_{i=1}^{N} p(m|\Vec{x}_i, \Theta^{[k]}) }
+\end{eqnarray}
+
+\noindent
+L\"{u}tkepohl~\cite{Lutkepohl96} states that:  
+$|\Mat{A}^{-1}| = |\Mat{A}|^{-1}$ 
+and 
+$\mbox{tr}(\Mat{A}\Mat{B}) = \mbox{tr}(\Mat{B}\Mat{A})$.
+Since $\mbox{tr}{(\Vec{z}A\Vec{z}^T)} = \mbox{tr}(\mbox{scalar})$,
+we can rewrite Eqn.~(\ref{eqn:q2_expanded}) as:
+%
+\begin{eqnarray}
+	Q_2 & = &   \sum\nolimits_{m=1}^{M} \sum\nolimits_{i=1}^{N} \left[
+					\frac{1}{2} \log(|\Mat{\Sigma}_m^{-1}|) - \frac{1}{2} \mbox{tr}(\Mat{\Sigma}_m^{-1} (\Vec{x}_i - \Vec{\mu}_m) (\Vec{x}_i - \Vec{\mu}_m)^T)
+					\right] p(m|\Vec{x}_i, \Theta^{[k]})  \label{eqn:q2_rewritten}
+\end{eqnarray}
+
+\noindent
+According to L\"{u}tkepohl~\cite{Lutkepohl96},
+$\frac{\partial \log(|\Mat{A}|)}{\partial \Mat{A}} = (\Mat{A}^{T})^{-1}$
+and $\frac{\partial \mbox{tr}(\Mat{B}\Mat{A})}{\partial \Mat{B}} = \Mat{A}^T$.
+Moreover, we note that $\Vec{z}\Vec{z}^T$ is a symmetric matrix.
+To find an expression which maximises~$\Mat{\Sigma}_m$,
+we can take the derivative of Eqn.~(\ref{eqn:q2_rewritten}) with respect to $\Mat{\Sigma}_m^{-1}$
+and set the result to zero:
+%
+\begin{eqnarray}
+	0 & = & \frac{\partial Q_2}{\partial \Mat{\Sigma}_m^{-1}}  \\
+	~ & = & \frac{\partial}{\partial  \Mat{\Sigma}_m^{-1}} \left\{
+		\sum\nolimits_{m=1}^{M} \sum\nolimits_{i=1}^{N} \left[
+					\frac{1}{2} \log(|\Mat{\Sigma}_m^{-1}|) - \frac{1}{2} \mbox{tr}\left(\Mat{\Sigma}_m^{-1} (\Vec{x}_i - \Vec{\mu}_m) (\Vec{x}_i - \Vec{\mu}_m)^T \right)
+					\right] p(m|\Vec{x}_i, \Theta^{[k]})
+	\right\} \\
+	~ & = & \sum\nolimits_{i=1}^{N} \left[ \frac{1}{2} \Mat{\Sigma}_m - \frac{1}{2} (\Vec{x}_i - \Vec{\mu}_m) (\Vec{x}_i - \Vec{\mu}_m)^T \right] p(m|\Vec{x}_i, \Theta^{[k]}) \\
+\end{eqnarray}%
+
+\noindent
+thus
+%
+\begin{eqnarray}
+	\frac{1}{2} \Mat{\Sigma}_m \sum\nolimits_{i=1}^{N} p(m|\Vec{x}_i, \Theta^{[k]}) & = & \frac{1}{2} \sum\nolimits_{i=1}^{N} 
+																		(\Vec{x}_i - \Vec{\mu}_m) (\Vec{x}_i - \Vec{\mu}_m)^T p(m|\Vec{x}_i, \Theta^{[k]}) \\
+	\therefore ~ \Mat{\Sigma}_m & = & \frac{\sum\nolimits_{i=1}^{N} (\Vec{x}_i - \Vec{\mu}_m) (\Vec{x}_i - \Vec{\mu}_m)^T p(m|\Vec{x}_i, \Theta^{[k]})}
+						{\sum\nolimits_{i=1}^{N} p(m|\Vec{x}_i, \Theta^{[k]})}
+\end{eqnarray}
+%\end{small}
+
+\noindent
+In summary,
+%
+\begin{eqnarray}
+	w_m^{[k+1]}	& = & \frac{1}{N} \sum\nolimits_{i=1}^{N} p(m|\Vec{x}_i, \Theta^{[k]})  \label{eqn:copy_of_solved_alpha}  \\  
+	\Vec{\mu}_m^{[k+1]} & = & \frac{ \sum\nolimits_{i=1}^{N} \Vec{x}_i ~ p(m|\Vec{x}_i, \Theta^{[k]}) }
+								   { \sum\nolimits_{i=1}^{N} p(m|\Vec{x}_i, \Theta^{[k]}) }  \label{eqn:copy_of_solved_mu} \\
+	\Mat{\Sigma}_m^{[k+1]}	& = & \frac{\sum\nolimits_{i=1}^{N} (\Vec{x}_i - \Vec{\mu}_m^{[k+1]}) (\Vec{x}_i - \Vec{\mu}_m^{[k+1]})^T p(m|\Vec{x}_i, \Theta^{[k]})}
+						{\sum\nolimits_{i=1}^{N} p(m|\Vec{x}_i, \Theta^{[k]})}  \label{eqn:copy_of_solved_sigma}
+\end{eqnarray}
+
+\noindent
+where
+%
+\begin{equation}
+	p(m | \Vec{x}_i, \Theta^{[k]}) = \frac{ p(\Vec{x}_i | \theta_{m}^{[k]}) p(m | \Theta^{[k]}) }{ \sum\nolimits_{n=1}^{M} p(\Vec{x}_i | \theta_{n}^{[k]}) p(n | \Theta^{[k]})}
+\end{equation}
+%
+which can be explicitly stated as:
+%
+\begin{equation}
+	p(m | \Vec{x}_i, \Theta^{[k]}) = \frac{ {\mathcal{N}}( \Vec{x}_i | \Vec{\mu}_m^{[k]},  \Mat{\Sigma}_m^{[k]} )  w_m^{[k]} }
+										{ \sum\nolimits_{n=1}^{M} {\mathcal{N}}( \Vec{x}_i | \Vec{\mu}_n^{[k]}, \Mat{\Sigma}_n^{[k]} ) w_n^{[k]} }
+\end{equation}
+
+\noindent
+If we let $l_{m,i} = p(m | \Vec{x}_i, \Theta^{[k]})$ and $L_m = \sum\nolimits_{i=1}^{N} l_{m,i} $, we can restate Eqns.~(\ref{eqn:copy_of_solved_alpha})
+to~(\ref{eqn:copy_of_solved_sigma}) as:
+%
+\begin{eqnarray}
+	w_m^{[k+1]}	& = & \frac{L_m}{N} \\  
+	\Vec{\mu}_m^{[k+1]} & = & \frac{1}{L_m} \sum\nolimits_{i=1}^{N} \Vec{x}_i ~ l_{m,i} \\
+	\Mat{\Sigma}_m^{[k+1]}	& = & \frac{1}{L_m} \sum\nolimits_{i=1}^{N} (\Vec{x}_i - \Vec{\mu}_m^{[k+1]}) (\Vec{x}_i - \Vec{\mu}_m^{[k+1]})^T  l_{m,i}
+\end{eqnarray}
+
+
+\newpage
+\renewcommand{\baselinestretch}{1.06}\small\normalsize
 \small
 \bibliographystyle{ieee}
 \bibliography{refs}
-
-% \newpage
-% \appendix
-% \input{app_em}
-
 
 \end{document}

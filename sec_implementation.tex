@@ -36,6 +36,7 @@ the determinant operation is considerably simplified to taking the product of th
 diagonal covariance matrices contain fewer parameters that need to be estimated, and hence require fewer training samples~\cite{Duda01}.
 \end{enumerate}
 
+\noindent
 Given the above practical considerations, the implementation uses diagonal covariance matrices.
 We note that diagonal covariance GMMs with $N_G > 1$ can model distributions of samples with correlated elements,
 which in turn suggests that full covariance GMMs can be approximated using diagonal covariance GMMs with a larger number of Gaussians~\cite{Reynolds_2000}.
@@ -116,23 +117,23 @@ specifies the distance used during the seeding of initial means and \mbox{{\it k
 \item
 {\bf seed\_mode}\\
 specifies how the initial means are seeded prior to running \mbox{{\it k}-means} and/or EM algorithms:
-\begin{small}
-\begin{enumerate}[{\bf {~~~keep\_existing}}]
+\begin{footnotesize}
+\begin{enumerate}[{\tt\bfseries {keep\_existing}}]
 \item keep the existing model (do not modify the means, covariances and hefts)
 \end{enumerate}
-\begin{enumerate}[{\bf {~~~~static\_subset}}]
+\begin{enumerate}[{\tt\bfseries {static\_subset}}]
 \item a subset of the training samples (repeatable)
 \end{enumerate}
-\begin{enumerate}[{\bf {~random\_subset}}]
+\begin{enumerate}[{\tt\bfseries {random\_subset}}]
 \item a subset of the training samples (random)
 \end{enumerate}
-\begin{enumerate}[{\bf {~~~static\_spread}}]
-\item a maximally spread subset of training samples (repeatable)
+\begin{enumerate}[{\tt\bfseries {static\_spread}}]
+\item a maximally spread subset of training samples \mbox{(repeatable)}
 \end{enumerate}
-\begin{enumerate}[{\bf {random\_spread}}]
+\begin{enumerate}[{\tt\bfseries {random\_spread}}]
 \item a maximally spread subset of training samples (random start) \\
 \end{enumerate}
-\end{small}
+\end{footnotesize}
 
 % \vspace*{0.5em}
 % \begin{tabular}{ll}
@@ -151,8 +152,8 @@ specifies how the initial means are seeded prior to running \mbox{{\it k}-means}
 % \vspace*{0.5em}
 
 \vspace{-1.5ex}
-Note that seeding the initial means with {\bf static\_spread} and {\bf random\_spread}
-can be more time consuming than with {\bf static\_subset} and {\bf random\_subset};
+Note that seeding the initial means with {\tt\bfseries static\_spread} and {\tt\bfseries random\_spread}
+can be more time consuming than with {\tt\bfseries static\_subset} and {\tt\bfseries random\_subset};
 these seed modes are inspired by the so-called {\it k-means++} approach~\cite{Arthur_2007}, with the aim to improve clustering quality.
 \vspace{1ex}
 
@@ -209,14 +210,14 @@ return an unsigned integer (of type {\it uword}) representing the index of the
 closest mean (or Gaussian) to vector {\bf V}; the parameter {\bf dist\_mode} is one
 of:
 \begin{small}
-\begin{enumerate}[{\bf {~eucl\_dist}}]
+\begin{enumerate}[{\tt\bfseries {eucl\_dist}}]
 \item
 Euclidean distance (takes only means into account)
 \end{enumerate}
 
-\begin{enumerate}[{\bf {prob\_dist}}]
+\begin{enumerate}[{\tt\bfseries {prob\_dist}}]
 \item
-probabilistic ``distance'', defined as the inverse likelihood (takes into account means, covariances and hefts)
+probabilistic ``distance'', defined as the inverse likelihood (takes into account means, covariances, hefts)
 \end{enumerate}
 \end{small}
 
@@ -253,7 +254,6 @@ return a column vector (of type {\it vec}) representing a random sample generate
 {\bf M.generate(N)}\\
 return a matrix (of type {\it mat}) containing {\bf N} column vectors, with each vector representing a random sample generated according to the model's parameters
 
-~\\
 \item
 {\bf M.n\_gaus()}\\
 return an unsigned integer (of type {\it uword}) containing the number of means/Gaussians in the model
@@ -269,11 +269,11 @@ all the means are set to zero, all diagonal covariances are set to one, and all 
 
 \item
 {\bf M.save(filename)}\\
-save the model to a file
+save the model to a file and return a {\it bool} indicating either success ({\it true}) or failure ({\it false})
 
 \item
 {\bf M.load(filename)}\\
-load the model from a file
+load the model from a file and return a {\it bool} indicating either success ({\it true}) or failure ({\it false})
 
 \item
 {\bf M.means}\\

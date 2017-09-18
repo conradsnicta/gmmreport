@@ -4696,7 +4696,8 @@ between column types.}%
    \tabskip=0pt\relax% no column spacing
    \everycr{}% ensure no problems here
    \@IEEEprevauthorblockincolfalse% no author blocks yet
-   \def\@IEEEauthorblockXinterlinespace{2.7ex}% default interline space
+   %\def\@IEEEauthorblockXinterlinespace{2.7ex}% default interline space
+   \def\@IEEEauthorblockXinterlinespace{2.6ex}%
    \vtop\bgroup%vtop box
    \halign\bgroup&\relax\hfil\@IEEEcurfontRESTORE\relax ##\relax
    \hfil\@IEEEcurfontSAVE\@IEEEauthorstrutrule\cr}

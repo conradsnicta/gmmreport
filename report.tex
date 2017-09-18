@@ -78,6 +78,7 @@
 
 \begin{document}
 
+
 \pagestyle{empty}
 %\pagestyle{fancy}
 \lhead{}
@@ -109,12 +110,36 @@
 \end{minipage}
 \end{center}
 
+\vspace{5ex}
 
+\begin{itemize}
+
+\item
+Published as:\\
+
+\vspace{-2ex}
+\begin{minipage}{0.9\textwidth}
+\begin{small}
+Conrad Sanderson and Ryan Curtin.\\
+\scalebox{0.925}{An Open Source C++ Implementation of Multi-Threaded Gaussian~Mixture~Models, k-Means and Expectation Maximisation.}\\
+International Conference on Signal Processing and Communication Systems, 2017.
+%\href{http://dx.doi.org/TODO}{http://dx.doi.org/TODO} % TODO: insert link to DOI
+\end{small}
+\end{minipage}
+
+\vspace{2ex}
+
+\item
+Associated C++ source code: \href{http://arma.sourceforge.net}{http://arma.sourceforge.net}
+
+
+\end{itemize}
+
+\vspace{10ex}
+\hrule
 
 \section*{Abstract}
 
-\renewcommand{\baselinestretch}{1.0}\small\normalsize
-\begin{small}
 Modelling of multivariate densities is a core component in many signal processing, pattern recognition and machine learning applications.
 The modelling is often done via Gaussian mixture models (GMMs), which use computationally expensive and potentially unstable training algorithms.
 We provide an overview of a fast and robust implementation of GMMs in the C++ language,
@@ -126,10 +151,11 @@ We demonstrate that the multi-threaded implementation achieves a speedup of an o
 and that it can achieve higher modelling accuracy than a previously well-established publically accessible implementation.
 The multi-threaded implementation is included as a user-friendly class in recent releases of the open source Armadillo C++ linear algebra library.
 The library is provided under the permissive Apache~2.0 license, allowing unencumbered use in commercial products.
-\end{small}
-\renewcommand{\baselinestretch}{1.1}\small\normalsize
 
+\vspace{4ex}
+\hrule
 
+\newpage
 
 \section{Introduction}
 
@@ -202,6 +228,7 @@ as well as obtain higher modelling accuracy than a previously well-established p
 
 
 
+\newpage
 \section{Expectation Maximisation and Multi-Threading}
 \label{sec:param_em}
 
@@ -519,6 +546,15 @@ return a row vector (of type {\it rowvec}) containing log-likelihoods of each co
 according to Gaussian with index {\bf g}  (specified as an unsigned integer of type {\it uword})
 
 \item
+{\bf M.sum\_log\_p(X)}\\
+return a scalar (double precision floating point value) representing the sum of log-likelihoods of all column vectors in matrix {\bf X}
+
+\item
+{\bf M.sum\_log\_p(X, g)}\\
+return a scalar (double precision floating point value) representing the sum of log-likelihoods of all column vectors in matrix {\bf X},
+according to Gaussian with index~{\bf g}  (specified as an unsigned integer of type {\it uword})
+
+\item
 {\bf M.avg\_log\_p(X)}\\
 return a scalar (double precision floating point value) representing the average log-likelihood of all column vectors in matrix {\bf X}
 
@@ -625,7 +661,6 @@ the number of diagonal covariance vectors and their dimensionality must match th
 set the hefts (weights) of the model to be as specified in row vector {\bf V} (of type {\it rowvec});
 the number of hefts must match the existing model
 
-\pagebreak
 \item
 {\bf M.set\_params(means, dcovs, hefts)}\\
 set all the parameters at the same time, using matrices denoted as {\bf means} and {\bf dcovs} as well as the row vector denoted as {\bf hefts};

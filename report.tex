@@ -41,6 +41,8 @@
 \usepackage{microtype}
 \DisableLigatures[f]{encoding = *, family = * }
 
+\def\_{{\tt\char95}}
+
 \graphicspath{{./}{./figures/}}
 
 \DeclareMathOperator*{\argmin}{argmin}
@@ -110,33 +112,7 @@
 \end{minipage}
 \end{center}
 
-\vspace{5ex}
-
-\begin{itemize}
-
-\item
-Published as:\\
-
-\vspace{-2ex}
-\begin{minipage}{0.9\textwidth}
-\begin{small}
-Conrad Sanderson and Ryan Curtin.\\
-\scalebox{0.925}{An Open Source C++ Implementation of Multi-Threaded Gaussian~Mixture~Models, k-Means and Expectation Maximisation.}\\
-International Conference on Signal Processing and Communication Systems, 2017.
-%\href{http://dx.doi.org/TODO}{http://dx.doi.org/TODO} % TODO: insert link to DOI
-\end{small}
-\end{minipage}
-
 \vspace{2ex}
-
-\item
-Associated C++ source code: \href{http://arma.sourceforge.net}{http://arma.sourceforge.net}
-
-
-\end{itemize}
-
-\vspace{10ex}
-\hrule
 
 \section*{Abstract}
 
@@ -152,8 +128,27 @@ and that it can achieve higher modelling accuracy than a previously well-establi
 The multi-threaded implementation is included as a user-friendly class in recent releases of the open source Armadillo C++ linear algebra library.
 The library is provided under the permissive Apache~2.0 license, allowing unencumbered use in commercial products.
 
-\vspace{4ex}
+\vfill
 \hrule
+\begin{small}
+Published as:\\
+
+\vspace{-2ex}
+\begin{minipage}{0.9\textwidth}
+% \begin{small}
+Conrad Sanderson and Ryan Curtin.\\
+\mbox{\it An Open Source C++ Implementation of Multi-Threaded Gaussian~Mixture~Models, k-Means and Expectation Maximisation.}\\
+International Conference on Signal Processing and Communication Systems, 2017.
+%\href{http://dx.doi.org/TODO}{http://dx.doi.org/TODO} % TODO: insert link to DOI
+% \end{small}
+\end{minipage}
+
+\vspace{2ex}
+
+Associated C++ source code: \href{http://arma.sourceforge.net}{\tt http://arma.sourceforge.net}
+\end{small}
+
+
 
 \newpage
 
@@ -172,19 +167,16 @@ GMMs are also commonly used as the emission distribution for hidden Markov model
 
 In the GMM approach, a distribution of samples (vectors) is modelled as:
 
-\vspace{-3ex}
 \begin{equation}
   p(\Vec{x} | \lambda) = \sum\nolimits_{g=1}^{N_G} w_g ~ {{\mathcal{N}}}( \Vec{x} | \Vec{\mu}_g, \Mat{\Sigma}_g )
   \label{eqn:gmm_prob}
 \end{equation}%
 
-\vspace{-2ex}
 where $\Vec{x}$ is a $D$-dimensional vector,
 $w_g$ is the weight for component $g$ (with constraints $\sum\nolimits_{g=1}^{N_G} w_g = 1$, $w_g \geq 0$),
 and
 ${{\mathcal{N}}}( \Vec{x} | \Vec{\mu}, \Mat{\Sigma})$ is a $D$-dimensional Gaussian density function with mean $\Vec{\mu}$ and covariance matrix $\Mat{\Sigma}$:
 
-\vspace{-3ex}
 \begin{equation}
   {{\mathcal{N}}}( \Vec{x} | \Vec{\mu}, \Mat{\Sigma} )  = 
   \frac{1}{ (2\pi)^{\frac{D}{2}} | \Mat{\Sigma}|^{\frac{1}{2}} }
@@ -192,7 +184,6 @@ ${{\mathcal{N}}}( \Vec{x} | \Vec{\mu}, \Mat{\Sigma})$ is a $D$-dimensional Gauss
   \label{eqn:gaussian}
 \end{equation}%
 
-\vspace{-2ex}
 where $|\Mat{\Sigma}|$ and $\Mat{\Sigma}^{-1}$ denote the determinant and inverse of $\Mat{\Sigma}$, respectively,
 while $\Vec{x}^\top$ denotes the transpose of $\Vec{x}$.
 The full parameter set can be compactly stated as {\small $\lambda = \{ w_g, \Vec{\mu}_g, \Mat{\Sigma}_g \}_{g=1}^{N_G}$},
@@ -241,7 +232,7 @@ by the current iteration to generate a new set of parameters~($\lambda^{\textrm{
 such that $p(X|\lambda^{\textrm{new}}) \geq p(X|\lambda^{\textrm{old}})$.
 
 In a direct implementation of the EM algorithm specific to GMMs,
-the estimated versions of the parameters ($\widehat{w}_g$, $\widehat{\Vec{\mu}}_g$, $\widehat{\Mat{\Sigma}}_g$)
+the estimated versions of the parameters \mbox{($\widehat{w}_g$, $\widehat{\Vec{\mu}}_g$, $\widehat{\Mat{\Sigma}}_g$)}
 within one iteration are calculated as follows:
 %
 \begin{eqnarray}
@@ -471,7 +462,7 @@ as part of recent releases of the open source Armadillo C++ linear algebra libra
 The library is available under the permissive Apache~2.0 license~\cite{Laurent_2008},
 and can be obtained from
 %{\texttt{http://arma.sourceforge.net}}.
-\href{http://arma.sourceforge.net}{http://arma.sourceforge.net}.
+\href{http://arma.sourceforge.net}{\tt http://arma.sourceforge.net}.
 To considerably reduce execution time,
 the implementation contains multi-threaded versions of the EM and {\it k}-means training algorithms
 (as overviewed in Sections~\ref{sec:param_em} and~\ref{sec:param_km}).
@@ -504,7 +495,7 @@ which in turn suggests that full covariance GMMs can be approximated using diago
 The implementation is provided as two user-friendly classes within the {\it arma} namespace:
 {\it\bfseries gmm\_diag} and {\it\bfseries fgmm\_diag}.
 The~former uses double precision floating point values, while the latter uses single precision floating point values.
-For an instance of the double precision {\it gmm\_diag} class named as~{\bf M},
+For an instance of the double precision {\it gmm\_diag} class named as~{\tt\bfseries M},
 its member functions and variables are listed below.
 The interface allows the user full control over the parameters for GMM fitting,
 as well as easy and flexible access to the trained model.
@@ -527,148 +518,144 @@ The word ``heft'' is explicitly used in the classes as a shorter version of ``we
 \itemsep 1ex
 
 \item
-{\bf M.log\_p(V)}\\
-return a scalar (double precision floating point value) representing the log-likelihood of column vector {\bf V}
+{\tt\bfseries M.log\_p(V)}\\
+return a scalar (double precision floating point value) representing the log-likelihood of column vector {\tt\bfseries V}
 
 \item
-{\bf M.log\_p(V, g)}\\
-return a scalar (double precision floating point value) representing the log-likelihood of column vector {\bf V},
-according to Gaussian with index~{\bf g} (specified as an unsigned integer of type {\it uword})
+{\tt\bfseries M.log\_p(V, g)}\\
+return a scalar (double precision floating point value) representing the log-likelihood of column vector {\tt\bfseries V},
+according to Gaussian with index~{\tt\bfseries g} (specified as an unsigned integer of type {\it uword})
 
 \item
-{\bf M.log\_p(X)}\\
-return a row vector (of type {\it rowvec}) containing log-likelihoods of each column vector in matrix {\bf X}
+{\tt\bfseries M.log\_p(X)}\\
+return a row vector (of type {\it rowvec}) containing log-likelihoods of each column vector in matrix {\tt\bfseries X}
 
 
 \item
-{\bf M.log\_p(X, g)}\\
-return a row vector (of type {\it rowvec}) containing log-likelihoods of each column vector in matrix {\bf X},
-according to Gaussian with index {\bf g}  (specified as an unsigned integer of type {\it uword})
+{\tt\bfseries M.log\_p(X, g)}\\
+return a row vector (of type {\it rowvec}) containing log-likelihoods of each column vector in matrix {\tt\bfseries X},
+according to Gaussian with index {\tt\bfseries g}  (specified as an unsigned integer of type {\it uword})
 
 \item
-{\bf M.sum\_log\_p(X)}\\
-return a scalar (double precision floating point value) representing the sum of log-likelihoods of all column vectors in matrix {\bf X}
+{\tt\bfseries M.sum\_log\_p(X)}\\
+return a scalar (double precision floating point value) representing the sum of log-likelihoods of all column vectors in matrix {\tt\bfseries X}
 
 \item
-{\bf M.sum\_log\_p(X, g)}\\
-return a scalar (double precision floating point value) representing the sum of log-likelihoods of all column vectors in matrix {\bf X},
-according to Gaussian with index~{\bf g}  (specified as an unsigned integer of type {\it uword})
+{\tt\bfseries M.sum\_log\_p(X, g)}\\
+return a scalar (double precision floating point value) representing the sum of log-likelihoods of all column vectors in matrix {\tt\bfseries X},
+according to Gaussian with index~{\tt\bfseries g}  (specified as an unsigned integer of type {\it uword})
 
 \item
-{\bf M.avg\_log\_p(X)}\\
-return a scalar (double precision floating point value) representing the average log-likelihood of all column vectors in matrix {\bf X}
+{\tt\bfseries M.avg\_log\_p(X)}\\
+return a scalar (double precision floating point value) representing the average log-likelihood of all column vectors in matrix {\tt\bfseries X}
 
 \item
-{\bf M.avg\_log\_p(X, g)}\\
-return a scalar (double precision floating point value) representing the average log-likelihood of all column vectors in matrix {\bf X},
-according to Gaussian with index~{\bf g}  (specified as an unsigned integer of type {\it uword})
+{\tt\bfseries M.avg\_log\_p(X, g)}\\
+return a scalar (double precision floating point value) representing the average log-likelihood of all column vectors in matrix {\tt\bfseries X},
+according to Gaussian with index~{\tt\bfseries g}  (specified as an unsigned integer of type {\it uword})
 
 \item
-{\bf M.assign(V, dist\_mode)}\\
+{\tt\bfseries M.assign(V, dist\_mode)}\\
 return an unsigned integer (of type {\it uword}) representing the index of the
-closest mean (or Gaussian) to vector {\bf V}; the parameter {\bf dist\_mode} is one
+closest mean (or Gaussian) to vector {\tt\bfseries V}; the parameter {\tt\bfseries dist\_mode} is one
 of:
-\begin{small}
-\begin{enumerate}[{\bf {~eucl\_dist}}]
-\item
-Euclidean distance (takes only means into account)
-\end{enumerate}
 
-\begin{enumerate}[{\bf {prob\_dist}}]
-\item
-probabilistic ``distance'', defined as the inverse likelihood (takes into account means, covariances and hefts)
-\end{enumerate}
+\begin{small}
+\begin{tabular}{rl}
+{\tt\bfseries eucl\_dist} & Euclidean distance (takes only means into account) \\
+{\tt\bfseries prob\_dist} & probabilistic ``distance'', defined as the inverse likelihood (takes into account means, covariances, hefts) \\
+\end{tabular}
 \end{small}
 
 % \begin{tabular}{ll}
-% {\bf eucl\_dist} & Euclidean distance (takes only means \\
+% {\tt\bfseries eucl\_dist} & Euclidean distance (takes only means \\
 %                  & into account) \\
-% {\bf prob\_dist} & probabilistic ``distance'', defined as the \\
+% {\tt\bfseries prob\_dist} & probabilistic ``distance'', defined as the \\
 %                  & inverse likelihood (takes into account \\
 %                  & means, covariances and hefts) \\
 % \end{tabular}
 
 \item
-{\bf M.assign(X, dist\_mode)}\\
-return a row vector of unsigned integers (of type {\it urowvec}) containing the indices of the closest means (or Gaussians) to each column vector in matrix {\bf X};
-parameter {\bf dist\_mode} is {\bf eucl\_dist} or {\bf prob\_dist}, as per the {\bf .assign()} function above
+{\tt\bfseries M.assign(X, dist\_mode)}\\
+return a row vector of unsigned integers (of type {\it urowvec}) containing the indices of the closest means (or Gaussians) to each column vector in matrix {\tt\bfseries X};
+parameter {\tt\bfseries dist\_mode} is {\tt\bfseries eucl\_dist} or {\tt\bfseries prob\_dist}, as per the {\tt\bfseries .assign()} function above
 
 \item
-{\bf M.raw\_hist(X, dist\_mode)}\\
+{\tt\bfseries M.raw\_hist(X, dist\_mode)}\\
 return a row vector of unsigned integers (of type {\it urowvec}) representing the raw histogram of counts;
 each entry is the number of counts corresponding to a Gaussian;
-each count is the number times the corresponding Gaussian was the closest to each column vector in matrix {\bf X};
-parameter {\bf dist\_mode} is {\bf eucl\_dist} or {\bf prob\_dist}, as per the {\bf .assign()} function above
+each count is the number times the corresponding Gaussian was the closest to each column vector in matrix {\tt\bfseries X};
+parameter {\tt\bfseries dist\_mode} is {\tt\bfseries eucl\_dist} or {\tt\bfseries prob\_dist}, as per the {\tt\bfseries .assign()} function above
 
 \item
-{\bf M.norm\_hist(X, dist\_mode)}\\
-similar to the {\bf .raw\_hist()} function above; return a row vector (of type {\it rowvec}) containing normalised counts; the vector sums to one;
-parameter {\bf dist\_mode} is either {\bf eucl\_dist} or {\bf prob\_dist}, as per the {\bf .assign()} function above
+{\tt\bfseries M.norm\_hist(X, dist\_mode)}\\
+similar to the {\tt\bfseries .raw\_hist()} function above; return a row vector (of type {\it rowvec}) containing normalised counts; the vector sums to one;
+parameter {\tt\bfseries dist\_mode} is either {\tt\bfseries eucl\_dist} or {\tt\bfseries prob\_dist}, as per the {\tt\bfseries .assign()} function above
 
 \item
-{\bf M.generate()}\\
+{\tt\bfseries M.generate()}\\
 return a column vector (of type {\it vec}) representing a random sample generated according to the model's parameters
 
 \item
-{\bf M.generate(N)}\\
-return a matrix (of type {\it mat}) containing {\bf N} column vectors, with each vector representing a random sample generated according to the model's parameters
+{\tt\bfseries M.generate(N)}\\
+return a matrix (of type {\it mat}) containing {\tt\bfseries N} column vectors, with each vector representing a random sample generated according to the model's parameters
 
 \item
-{\bf M.n\_gaus()}\\
+{\tt\bfseries M.n\_gaus()}\\
 return an unsigned integer (of type {\it uword}) containing the number of means/Gaussians in the model
 
 \item
-{\bf M.n\_dims()}\\
+{\tt\bfseries M.n\_dims()}\\
 return an unsigned integer (of type {\it uword}) containing the dimensionality of the means/Gaussians in the model
 
 \item
-{\bf M.reset(n\_dims, n\_gaus)}\\
-set the model to have dimensionality {\bf n\_dims}, with {\bf n\_gaus} number of Gaussians, specified as unsigned integers of type {\it uword};
+{\tt\bfseries M.reset(n\_dims, n\_gaus)}\\
+set the model to have dimensionality {\tt\bfseries n\_dims}, with {\tt\bfseries n\_gaus} number of Gaussians, specified as unsigned integers of type {\it uword};
 all the means are set to zero, all diagonal covariances are set to one, and all the hefts (weights) are set to be uniform
 
 \item
-{\bf M.save(filename)}\\
+{\tt\bfseries M.save(filename)}\\
 save the model to a file and return a {\it bool} indicating either success ({\it true}) or failure ({\it false})
 
 \item
-{\bf M.load(filename)}\\
+{\tt\bfseries M.load(filename)}\\
 load the model from a file and return a {\it bool} indicating either success ({\it true}) or failure ({\it false})
 
 \item
-{\bf M.means}\\
+{\tt\bfseries M.means}\\
 read-only matrix (of type {\it mat}) containing the means (centroids), stored as column vectors
 
 \item
-{\bf M.dcovs}\\
+{\tt\bfseries M.dcovs}\\
 read-only matrix (of type {\it mat}) containing the diagonal covariances, with the set of diagonal covariances for each Gaussian stored as a column vector
 
 \item
-{\bf M.hefts}\\
+{\tt\bfseries M.hefts}\\
 read-only row vector (of type {\it rowvec}) containing the hefts (weights)
 
 \item
-{\bf M.set\_means(X)}\\
-set the means (centroids) to be as specified in matrix {\bf X} (of type {\it mat}), with each mean (centroid) stored as a column vector;
+{\tt\bfseries M.set\_means(X)}\\
+set the means (centroids) to be as specified in matrix {\tt\bfseries X} (of type {\it mat}), with each mean (centroid) stored as a column vector;
 the number of means and their dimensionality must match the existing model
 
 \item
-{\bf M.set\_dcovs(X)}\\
-set the diagonal covariances to be as specified in matrix~{\bf X} (of type {\it mat}), with the set of diagonal covariances for each Gaussian stored as a column vector;
+{\tt\bfseries M.set\_dcovs(X)}\\
+set the diagonal covariances to be as specified in matrix~{\tt\bfseries X} (of type {\it mat}), with the set of diagonal covariances for each Gaussian stored as a column vector;
 the number of diagonal covariance vectors and their dimensionality must match the existing model
 
 \item
-{\bf M.set\_hefts(V)}\\
-set the hefts (weights) of the model to be as specified in row vector {\bf V} (of type {\it rowvec});
+{\tt\bfseries M.set\_hefts(V)}\\
+set the hefts (weights) of the model to be as specified in row vector {\tt\bfseries V} (of type {\it rowvec});
 the number of hefts must match the existing model
 
 \item
-{\bf M.set\_params(means, dcovs, hefts)}\\
-set all the parameters at the same time, using matrices denoted as {\bf means} and {\bf dcovs} as well as the row vector denoted as {\bf hefts};
-the layout of the matrices and vectors is as per the {\bf .set\_means()}, {\bf .set\_dcovs()} and {\bf .set\_hefts()} functions above;
+{\tt\bfseries M.set\_params(means, dcovs, hefts)}\\
+set all the parameters at the same time, using matrices denoted as {\tt\bfseries means} and {\tt\bfseries dcovs} as well as the row vector denoted as {\tt\bfseries hefts};
+the layout of the matrices and vectors is as per the {\tt\bfseries .set\_means()}, {\tt\bfseries .set\_dcovs()} and {\tt\bfseries .set\_hefts()} functions above;
 the number of Gaussians and dimensionality can be different from the existing model
 
 \item
-{\bf M.learn(data, n\_gaus, dist\_mode, seed\_mode, km\_iter, em\_iter, var\_floor, print\_mode)}\\
+{\tt\bfseries M.learn(data, n\_gaus, dist\_mode, seed\_mode, km\_iter, em\_iter, var\_floor, print\_mode)}\\
 learn the model parameters via the {\it k}-means and/or EM algorithms,
 and return a boolean value, with {\it true} indicating success, and {\it false} indicating failure;
 the parameters have the following meanings:
@@ -677,30 +664,29 @@ the parameters have the following meanings:
 \begin{enumerate}[{-}]
 \itemsep 0.5ex
 \item
-{\bf data}\\
+{\tt\bfseries data}\\
 matrix (of type {\it mat}) containing training samples; each sample is stored as a column vector
 
 \item
-{\bf n\_gaus}\\
-set the number of Gaussians to {\bf n\_gaus};
-to help convergence, it is recommended that the given {\bf data} matrix (above)
+{\tt\bfseries n\_gaus}\\
+set the number of Gaussians to {\tt\bfseries n\_gaus};
+to help convergence, it is recommended that the given {\tt\bfseries data} matrix (above)
 contains at least 10 samples for each Gaussian
 
 \item
-{\bf dist\_mode}\\
+{\tt\bfseries dist\_mode}\\
 specifies the distance used during the seeding of initial means and \mbox{{\it k}-means} clustering:
-\begin{small}
-\begin{enumerate}[{\bf eucl\_dist}]
-\item Euclidean distance
-\end{enumerate}
 
-\begin{enumerate}[{\bf ~{maha\_dist}}]
-\item Mahalanobis distance, which uses a global diagonal covariance matrix estimated from the given training samples
-\end{enumerate}
+\begin{small}
+\begin{tabular}{rl}
+{\tt\bfseries eucl\_dist} & Euclidean distance\\
+{\tt\bfseries maha\_dist} & Mahalanobis distance, which uses a global diagonal covariance matrix\\
+                          & estimated from the given training samples \\
+\end{tabular}
 \end{small}
 
 % \begin{tabular}{ll}
-% {\bf eucl\_dist} & Euclidean distance\\
+% {\tt\bfseries eucl\_dist} & Euclidean distance\\
 % {\bf maha\_dist} & Mahalanobis distance, which uses a \\
 %                  & global diagonal covariance matrix \\
 %                  & estimated from the given training \\
@@ -708,7 +694,7 @@ specifies the distance used during the seeding of initial means and \mbox{{\it k
 % \end{tabular}
 
 \item
-{\bf seed\_mode}\\
+{\tt\bfseries seed\_mode}\\
 specifies how the initial means are seeded prior to running \mbox{{\it k}-means} and/or EM algorithms:
 
 % \begin{small}
@@ -731,33 +717,33 @@ specifies how the initial means are seeded prior to running \mbox{{\it k}-means}
 
 \vspace*{0.5em}
 \begin{tabular}{rl}
-{\bf keep\_existing} & keep the existing model (do not modify the means, covariances and hefts) \\
-{\bf static\_subset} & a subset of the training samples (repeatable) \\
-{\bf random\_subset} & a subset of the training samples (random) \\
-{\bf static\_spread} & a maximally spread subset of training samples (repeatable) \\
-{\bf random\_spread} & a maximally spread subset of training samples (random start) \\
+{\tt\bfseries keep\_existing} & keep the existing model (do not modify the means, covariances and hefts) \\
+{\tt\bfseries static\_subset} & a subset of the training samples (repeatable) \\
+{\tt\bfseries random\_subset} & a subset of the training samples (random) \\
+{\tt\bfseries static\_spread} & a maximally spread subset of training samples (repeatable) \\
+{\tt\bfseries random\_spread} & a maximally spread subset of training samples (random start) \\
 \end{tabular}
 \vspace*{0.5em}
 
-Note that seeding the initial means with {\bf static\_spread} and {\bf random\_spread}
-can be more time consuming than with {\bf static\_subset} and {\bf random\_subset};
+Note that seeding the initial means with {\tt\bfseries static\_spread} and {\tt\bfseries random\_spread}
+can be more time consuming than with {\tt\bfseries static\_subset} and {\tt\bfseries random\_subset};
 these seed modes are inspired by the so-called {\it k-means++} approach~\cite{Arthur_2007}, with the aim to improve clustering quality.
 \vspace{1ex}
 
 \item
-{\bf km\_iter}\\
+{\tt\bfseries km\_iter}\\
 the maximum number of iterations of the {\it k}-means algorithm; this is data dependent, but typically 10 iterations are sufficient
 
 \item
-{\bf em\_iter}\\
+{\tt\bfseries em\_iter}\\
 the maximum number of iterations of the EM algorithm; this is data dependent, but typically 5 to 10 iterations are sufficient
 
 \item
-{\bf var\_floor}\\
+{\tt\bfseries var\_floor}\\
 the variance floor (smallest allowed value) for the diagonal covariances; setting this to a small non-zero value can help with convergence and/or better quality parameter estimates
 
 \item
-{\bf print\_mode}\\
+{\tt\bfseries print\_mode}\\
 boolean value (either {\it true} or {\it false}) which enables/disables the printing of progress during the {\it k}-means and EM algorithms 
 
 \end{enumerate}
@@ -773,7 +759,7 @@ boolean value (either {\it true} or {\it false}) which enables/disables the prin
 \hrule
 \vspace{1ex}
 \centering
-\begin{adjustbox}{minipage=\columnwidth,scale={1}{1.1}}
+\begin{adjustbox}{minipage=\columnwidth,scale={1.2}{1.2}}
 %\begin{adjustbox}{minipage=\columnwidth,scale={1}{1.2}}
 %% possible mono-space fonts: BeraMono, DejaVu Sans Mono, KP Monospaced, LuxiMono, Inconsolata
 %\begin{Verbatim}
@@ -805,12 +791,12 @@ int main()
     if(i < N)  { data.col(i) = mean2 + randn<vec>(d); ++i; }
     }
   
+  
   // model the data as a diagonal GMM with 2 Gaussians
   
   gmm_diag model;
   
-  bool status = model.learn(data, 2, maha_dist, random_subset,
-                            10, 5, 1e-10, true);
+  bool status = model.learn(data, 2, maha_dist, random_subset, 10, 5, 1e-10, true);
   
   if(status == false)  { cout << "learning failed" << endl; }
   
@@ -977,6 +963,7 @@ and included in recent releases of the cross-platform Armadillo C++ linear algeb
 The library is provided under the permissive Apache~2.0 license, allowing unencumbered use in commercial products.
 
 
+~
 
 \appendix
 \section*{Appendix A: Abridged Derivation of the EM Algorithm for Gaussian Mixture Models}
@@ -1164,7 +1151,7 @@ To find the expression which maximises $\Vec{\mu}_m$, we need to take the deriva
 \begin{eqnarray}
 	\frac{\partial Q_2}{\partial \Vec{\mu}_m} & = & 0   \\
  0 & = & \frac{\partial}{\partial \Vec{\mu}_m} \left\{ \sum\nolimits_{m=1}^{M} \sum\nolimits_{i=1}^{N} \left[
-					- \frac{1}{2} \log(|\Sigma_m|) - \frac{1}{2} (\Vec{x}_i - \Vec{\mu}_m)^T \Mat{\Sigma}_m^{-1} (\Vec{x}_i - \Vec{\mu}_m)
+					- \frac{1}{2} \log(|\Mat{\Sigma}_m|) - \frac{1}{2} (\Vec{x}_i - \Vec{\mu}_m)^T \Mat{\Sigma}_m^{-1} (\Vec{x}_i - \Vec{\mu}_m)
 					\right] p(m|\Vec{x}_i, \Theta^{[k]}) \right\} ~~~ ~~~ ~~~  \label{eqn:q2_mu_partone}
 \end{eqnarray}%
 

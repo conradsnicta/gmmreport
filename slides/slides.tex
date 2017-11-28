@@ -1,0 +1,473 @@
+%\documentclass{beamer}
+\documentclass[usenames,dvipsnames]{beamer}
+\setbeamertemplate{navigation symbols}{}  % remove navigation symbols
+
+%\usepackage{beamerthemesplit}
+
+%\usetheme{default}
+\usetheme{Pittsburgh}
+
+%\usecolortheme{beaver}
+\usecolortheme{spruce}
+
+% color theme: beaver = red
+% color theme: spruce = green
+% 
+% Theme: Frankfurt 
+% Theme: Malmoe
+% Theme: Rochester
+% 
+% Theme: Szeged, Color Theme: beaver
+
+\setbeamersize{text margin left=0ex, text margin right=0ex}
+
+
+\usepackage{color}
+%\usepackage[usenames,dvipsnames]{color}  % see http://en.wikibooks.org/wiki/LaTeX/Colors
+\usepackage[latin1]{inputenc}
+\usepackage{enumerate}
+
+\usepackage{graphicx}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{url}
+\usepackage{mathtools}
+\usepackage{xspace}
+\usepackage{multirow}
+\usepackage{booktabs}
+\usepackage{algorithmic}
+\usepackage{algorithm}
+\usepackage{xfrac}
+\usepackage{fancyvrb}
+\usepackage{adjustbox}
+
+\usepackage[british]{babel}
+\usepackage[none]{hyphenat}
+\sloppy
+
+\usepackage{palatino}     % changes the default sans serif font
+\usepackage{inconsolata}  % changes the default typewriter font
+
+% disable ligatures such as "fi" being joined into one symbol
+\usepackage{microtype}
+\DisableLigatures[f]{encoding = *, family = * }
+
+\def\_{{\tt\char95}}
+
+\graphicspath{{./}{./figures/}}
+
+\DeclareMathOperator*{\argmin}{argmin}
+
+\def\Vec#1{{\boldsymbol{#1}}}
+\def\Mat#1{{\boldsymbol{#1}}}
+\def\TODO#1{{\color{red}{\bf [TODO:} {\it{#1}}{\bf ]}}}
+\def\NOTE#1{{\bf [NOTE:} {\it\color{blue}{#1}}{\bf ]}.}
+\def\CHK#1{{\bf [CHECK:} {\it\color{red} {#1}}{\bf ]}.}
+\def\eg{eg.\xspace}
+\def\ie{ie.\xspace}
+\def\etal{et~al.\xspace}
+
+\renewcommand{\baselinestretch}{1.2}\small\normalsize
+
+
+% \title{A Tiny Example}
+% \author{Andrew Mertz and William Slough}
+% \date{June 15, 2005}
+\begin{document}
+
+
+\begin{frame}
+% \frametitle{~}
+\textcolor{ForestGreen}{\hrule}
+\textcolor{ForestGreen}{\hrule}
+\textcolor{ForestGreen}{\hrule}
+\centerline{~}
+\centerline{\Large\bf An Open Source C++ Implementation of}
+\centerline{\Large\bf Multi-Threaded Gaussian~Mixture~Models}
+\centerline{\Large\bf k-Means and Expectation Maximisation}
+\vspace{-1ex}
+\textcolor{ForestGreen}{\hrule}
+\textcolor{ForestGreen}{\hrule}
+\textcolor{ForestGreen}{\hrule}
+\centerline{~}
+\centerline{~}
+\centerline{\large Conrad Sanderson ~and~ Ryan Curtin}
+\centerline{~}
+
+\begin{center}
+\begin{minipage}{1\textwidth}
+\centering
+
+\begin{minipage}{0.24\textwidth}
+% centering deliberately omitted for this cell
+\centering
+\includegraphics[height=1.25cm]{data61_logo_scaled_crop.png}
+\end{minipage}
+\begin{minipage}{0.35\textwidth}
+\centering
+\includegraphics[height=1.10cm]{UQ_logo.pdf}
+\end{minipage}
+\begin{minipage}{0.17\textwidth}
+\centering
+\includegraphics[height=1.25cm]{symantec_logo.pdf}
+\end{minipage}
+\begin{minipage}{0.17\textwidth}
+\centering
+\includegraphics[height=1.25cm]{arroyo_logo.png}
+\end{minipage}
+
+\end{minipage}
+\end{center}
+
+\centerline{~}
+
+
+\begin{center}
+\begin{minipage}{0.5\textwidth}
+{\large\textcolor{red}{\small\texttt{Conrad~-~\href{http://conradsanderson.id.au}{http://conradsanderson.id.au}}}}\\
+{\large\textcolor{red}{\small\texttt{Ryan~~~-~\href{http://ratml.org}{http://ratml.org}}}}
+\end{minipage}
+\end{center}
+
+\end{frame}
+
+%\footnotesize
+%\fontsize{8}{9}\selectfont
+
+\makeatletter
+\renewcommand\normalsize{\@setfontsize\normalsize{8.5pt}{9.5pt}}
+\normalsize  
+\makeatother
+
+\makeatletter
+\renewcommand\small{\@setfontsize\normalsize{8.5pt}{9.5pt}}
+\normalsize  
+\makeatother
+
+
+\begin{frame}
+\frametitle{Background}
+
+\begin{enumerate}[{~~$\boldsymbol{\bullet}$}]
+
+\item {\bf Gaussian Mixture Models (GMMs)} are used for approximating arbitrary distributions
+
+\item {\bf Many use cases}
+
+\begin{enumerate}[{$\boldsymbol{\rightarrow}$}]
+\renewcommand{\itemsep}{0.9ex}
+\item signal processing, computer vision, machine learning, finance, even deep learning!
+\vspace{0.5ex}
+\end{enumerate}
+
+\item Many publically accessible implementations are available, {\bf but have problems:}
+
+\begin{enumerate}[{$\boldsymbol{\rightarrow}$}]
+\renewcommand{\itemsep}{0.9ex}
+\item 
+{\bf restrictive license}\\
+eg.~can't use in commercial products
+
+\item
+{\bf serial execution}\\
+doesn't take advantage of multi-core systems
+
+\item
+{\bf naive implementation} of training algorithms\\
+numerically unstable
+
+\item
+{\bf poor interface} for use of models and modifying model parameters
+
+\item
+implemented in {\bf outdated} and {\bf error-prone} languages\\
+eg.~C\\
+fast to execute, good for embedding, but absolutely horrible for development
+
+\item
+implemented in {\bf non-embeddable} languages\\
+eg.~Python, Matlab, ...\\
+good for prototyping, bad for embedding into products or larger software
+
+\end{enumerate}
+
+\end{enumerate}
+\end{frame}
+
+%
+%
+%
+
+\begin{frame}
+\frametitle{Overview}
+
+\begin{enumerate}[{~~$\boldsymbol{\bullet}$}]
+
+\item We provide an open source implementation which avoids the problems
+
+\begin{enumerate}[{$\boldsymbol{\rightarrow}$}]
+\renewcommand{\itemsep}{1ex}
+\item 
+{\bf permissive open source license}\\
+- Apache 2.0\\
+- commercial software and products DO NOT need to release source code\\
+- better than BSD license: provides explicit patent grants
+
+\item
+{\bf multi-core execution}\\
+- the more cores, the faster it runs\\
+- internally uses a MapReduce-like approach
+
+\item
+training algorithms use elaborate methods to {\bf promote numerical stability}
+
+\item
+{\bf flexible interface} to trained models
+
+\item
+implemented as an {\bf encapsulated object} in {\bf modern C++}\\
+- provides abstractions to make software development easier
+
+\item
+can be easily {\bf embedded} into products or larger software\\
+
+\item
+{\bf battle tested}\\
+successfully used in many projects
+
+\end{enumerate}
+
+\end{enumerate}
+\end{frame}
+
+%
+%
+%
+
+\begin{frame}
+\frametitle{Single-Threaded EM Training}
+
+\begin{enumerate}[{~~$\boldsymbol{\bullet}$}]
+\renewcommand{\itemsep}{1ex}
+
+\item Each GMM is parameterised with $\lambda = \{ w_g, \Vec{\mu}_g, \Mat{\Sigma}_g \}_{g=1}^{N_G}$
+
+\item Given $X=\{\Vec{x}_i\}_{i=1}^{N_V}$, use Expectation-Maximisation (EM) algorithm to find $\lambda$
+
+\item EM iterates such that $p(X|\lambda^{\textrm{new}}) \geq p(X|\lambda^{\textrm{old}})$
+
+\item One iteration of EM, {\bf single threaded}:
+
+\begin{minipage}{1\textwidth}
+
+\begin{minipage}{0.45\textwidth}
+\centering
+%
+\begin{eqnarray*}
+  l_{g,i}                  & = & \frac{w_g ~ {{\mathcal{N}}}( \Vec{x}_i | \Vec{\mu}_g, \Mat{\Sigma}_g )}{\sum\nolimits_{k=1}^{N_G} w_k ~ {{\mathcal{N}}}( \Vec{x}_i | \Vec{\mu}_k, \Mat{\Sigma}_k )} \\
+  L_g                      & = & \sum\nolimits_{i=1}^{N_V} l_{g,i} \\
+  \widehat{w}_g            & = & \frac{L_g}{N_V} \\
+  \widehat{\Vec{\mu}}_g    & = & \frac{1}{L_g} \sum\nolimits_{i=1}^{N_V} \Vec{x}_i ~ l_{g,i}  \label{eqn:em_mean}  \\
+  \widehat{\Mat{\Sigma}}_g & = & \frac{1}{L_g} \sum\nolimits_{i=1}^{N_V} (\Vec{x}_i - \widehat{\Vec{\mu}}_g)(\Vec{x}_i - \widehat{\Vec{\mu}}_g)^\top l_{g,i}
+%                          & = &  \frac{1}{L_g} \left[ \sum\nolimits_{i=1}^{N_V} \Vec{x}_i \Vec{x}_i^\top l_{g,i} \right] - \widehat{\Vec{\mu}}_g \widehat{\Vec{\mu}}_g^\top
+\end{eqnarray*}
+\end{minipage}
+~
+\begin{minipage}{0.45\textwidth}
+\begin{tiny}%
+\begin{equation*}
+  {{\mathcal{N}}}( \Vec{x} | \Vec{\mu}, \Mat{\Sigma} )  = 
+  \frac{1}{ (2\pi)^{\frac{D}{2}} | \Mat{\Sigma}|^{\frac{1}{2}} }
+  \exp \left[ -\frac{1}{2} (\Vec{x}-\Vec{\mu})^\top \Mat{\Sigma}^{-1} (\Vec{x}-\Vec{\mu}) \right]
+\end{equation*}%
+\end{tiny}%
+the $\exp(\cdot)$ function is time consuming !\\
+%- calculated independently for each $\Vec{x}_i$\\
+~\\
+~\\
+~\\
+~\\
+weighted version of the sample mean\\
+~\\
+weighted version of the sample covariance\\
+~\\
+\end{minipage}
+
+\end{minipage}
+
+
+
+% \begin{enumerate}[{$\boldsymbol{\rightarrow}$}]
+% \renewcommand{\itemsep}{1ex}
+% \item 
+% \end{enumerate}
+
+\end{enumerate}
+\end{frame}
+
+%
+%
+%
+
+\begin{frame}
+\frametitle{Multi-Threaded EM Training}
+
+\begin{enumerate}[{~~$\boldsymbol{\bullet}$}]
+
+\item Adapt {\bf MapReduce} framework
+
+\begin{enumerate}[{$\boldsymbol{\rightarrow}$}]
+\renewcommand{\itemsep}{1ex}
+\item split data into chunks and farm it out to separate workers for processing (mapping)
+\item collect partial results and combine (reduce) to produce the final result
+\end{enumerate}
+\vspace{1ex}
+
+\item
+Rewrite $\widehat{\Mat{\Sigma}}_g$ to allow splitting:
+{$\widehat{\Mat{\Sigma}}_g = \frac{1}{L_g} \left[ \sum\nolimits_{i=1}^{N_V} \Vec{x}_i \Vec{x}_i^\top l_{g,i} \right] - \widehat{\Vec{\mu}}_g \widehat{\Vec{\mu}}_g^\top$}
+\vspace{1ex}
+
+\item {\bf Partial} results for thread $t$:
+%
+\vspace{-2ex}
+\begin{footnotesize}%
+\begin{eqnarray*}
+  \widetilde{L}_g^{[t]}            & = & \sum\nolimits_{j = i^{[t]}_{\textrm{start}}}^{i^{[t]}_{\textrm{end}}} l_{g,j}                             \\
+  \widetilde{\Vec{\mu}}_g^{[t]}    & = & \sum\nolimits_{j = i^{[t]}_{\textrm{start}}}^{i^{[t]}_{\textrm{end}}} l_{g,j} ~ \Vec{x}_j                 \\
+  \widetilde{\Mat{\Sigma}}_g^{[t]} & = & \sum\nolimits_{j = i^{[t]}_{\textrm{start}}}^{i^{[t]}_{\textrm{end}}} l_{g,j} ~ \Vec{x}_j \Vec{x}_j^\top
+\end{eqnarray*}%
+\end{footnotesize}
+
+\item {\bf Combine} partial results:
+%
+\begin{footnotesize}%
+\vspace{-2ex}
+\begin{eqnarray*}
+  L_g                      & = & \sum\nolimits_{t=1}^{N_T} \widetilde{L}_g^{[t]} \\
+  \widehat{\Vec{\mu}}_g    & = & \frac{1}{L_g} \sum\nolimits_{t=1}^{N_T} \widetilde{\Vec{\mu}}_g^{[t]} \\
+  \widehat{\Mat{\Sigma}}_g & = & \frac{1}{L_g} \sum\nolimits_{t=1}^{N_T} \widetilde{\Mat{\Sigma}}_g^{[t]} - \widehat{\Vec{\mu}}_g \widehat{\Vec{\mu}}_g^\top
+\end{eqnarray*}%
+\end{footnotesize}
+
+
+
+\end{enumerate}
+\end{frame}
+
+%
+%
+%
+
+\begin{frame}
+\frametitle{Improving Numerical Stability}
+
+\begin{enumerate}[{~~$\boldsymbol{\bullet}$}]
+
+\item Floating point representations have necessarily {\bf limited precision}
+
+\end{enumerate}
+
+\begin{minipage}{1\textwidth}
+\begin{minipage}{0.5\textwidth}
+\begin{enumerate}[{~~$\boldsymbol{\bullet}$}]
+\item Direct calculation of ${{\mathcal{N}}}( \Vec{x} | \Vec{\mu}, \Mat{\Sigma} )$ and $p(\Vec{x} | \lambda)$\\
+will quickly lead to {\bf numerical underflows} or~{\bf overflows}
+\end{enumerate}
+\end{minipage}
+\vline~
+\begin{minipage}{0.45\textwidth}
+~\\
+\begin{tiny}
+${{\mathcal{N}}}( \Vec{x} | \Vec{\mu}, \Mat{\Sigma} ) = \frac{1}{ (2\pi)^{\frac{D}{2}} | \Mat{\Sigma}|^{\frac{1}{2}} } \exp \left[ -\frac{1}{2} (\Vec{x}-\Vec{\mu})^\top \Mat{\Sigma}^{-1} (\Vec{x}-\Vec{\mu}) \right]$\\
+\end{tiny}
+~\\
+$p(\Vec{x} | \lambda) = \sum\nolimits_{g=1}^{N_G} w_g ~ {{\mathcal{N}}}( \Vec{x} | \Vec{\mu}_g, \Mat{\Sigma}_g )$\\
+\end{minipage}
+
+\end{minipage}
+
+\begin{enumerate}[{~~$\boldsymbol{\bullet}$}]
+
+\item Use logarithm version of ${{\mathcal{N}}}( \Vec{x} | \Vec{\mu}, \Mat{\Sigma} )$:
+%
+\begin{equation*}
+  \log {{\mathcal{N}}}( \Vec{x} | \Vec{\mu}, \Mat{\Sigma} )
+  = -\left\{\frac{D}{2} \log \left( 2\pi \right) + \frac{1}{2} ~ \log ( |\Mat{\Sigma}| ) \right\}
+    -\frac{1}{2} (\Vec{x}-\Vec{\mu})^\top \Mat{\Sigma}^{-1} (\Vec{x}-\Vec{\mu})
+\end{equation*}
+
+\item
+This leads to the corresponding logarithm version of $p(\Vec{x} | \lambda)$:
+%
+\begin{equation*}
+\log \sum\nolimits_{g=1}^{N_G} w_g ~ {{\mathcal{N}}}( \Vec{x} ~|~ \Vec{\mu}_g, \Mat{\Sigma}_g )
+=
+\log \sum\nolimits_{g=1}^{N_G} \exp\left[ \log \left\{ w_g {{\mathcal{N}}}( \Vec{x} ~|~ \Vec{\mu}_g, \Mat{\Sigma}_g ) \right\} \right]
+\end{equation*}
+
+\item
+RHS can be expressed as a repeated addition in the form of:
+\begin{equation*}
+\log\left( \exp\left[\log(a)\right] + \exp\left[\log(b)\right] \right)
+\end{equation*}
+
+which in turn can be rewritten in the form of:
+\begin{equation*}
+\log(a) + \log\left( 1 + \underbrace{\exp\left[ \log(b) - \log(a) \right]} \right)
+\end{equation*}
+
+\item
+The exponential will always produce values $\leq 1$\\
+if we ensure that {$\log(a) \geq \log(b)$} by swapping $\log(a)$ and $\log(b)$ when required
+
+% \begin{enumerate}[{$\boldsymbol{\rightarrow}$}]
+% \renewcommand{\itemsep}{1ex}
+% \item split data into chunks and farm it out to separate workers for processing (mapping)
+% \item collect partial results and combine (reduce) to produce the final result
+% \end{enumerate}
+% \vspace{1ex}
+
+
+
+\end{enumerate}
+\end{frame}
+
+
+
+
+
+
+
+
+\begin{frame}
+\frametitle{New slide}
+Contents
+\end{frame}
+
+
+
+
+
+% \begin{frame}
+% \frametitle{Two-column slide}
+%  
+% \begin{columns}
+%  
+% \column{0.5\textwidth}
+% This is a text in first column.
+% $$E=mc^2$$
+% \begin{itemize}
+% \item First item
+% \item Second item
+% \end{itemize}
+%  
+% \column{0.5\textwidth}
+% This text will be in the second column
+% and on a second tought this is a nice looking
+% layout in some cases.
+% \end{columns}
+% \end{frame}
+
+
+\end{document}

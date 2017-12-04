@@ -525,7 +525,7 @@ large range in one dimension can skew parameter estimates: {\bf bad starting poi
 
 \item
 {\bf Replace} with squared Mahalanobis distance:
-
+%
 \begin{equation*}
 \operatorname{dist}(\Vec{a}, \Vec{b}) = (\Vec{a} - \Vec{b})^\top \Mat{\Sigma}^{-1}_{\mathrm{global}} (\Vec{a} - \Vec{b})
 \end{equation*}
@@ -546,15 +546,249 @@ to maintain efficiency, $\Mat{\Sigma}_{\mathrm{global}}$ is typically diagonal
 \end{enumerate}
 \end{frame}
 
+%
+%
+%
+
+%
+%
+%
+
+\begin{frame}
+\frametitle{Implementation in C++}
+
+\begin{enumerate}[{~~$\boldsymbol{\bullet}$}]
+
+\item
+Implemented as {\bf two separate} C++ classes:
 
 
+\begin{enumerate}[{$\boldsymbol{\rightarrow}$}]
+\renewcommand{\itemsep}{0.9ex}
+
+\item
+\texttt{\bf gmm\_diag} - for diagonal covariance matrices
+
+\item
+\texttt{\bf gmm\_full~~} - for full covariance matrices
+
+\end{enumerate}
+
+\item gmm\_diag is typically {\bf much faster} than gmm\_full, but has {\bf lower modelling capacity}
+\vspace{1ex}
+
+\item Both {\bf double-precision} and {\bf single-precision} variants are available
+\vspace{1ex}
+
+\item Multi-threading implemented with the aid of {\bf OpenMP} pragma directives
+\vspace{1ex}
+
+\item 
+Functions for:
+%
+\begin{enumerate}[{$\boldsymbol{\rightarrow}$}]
+\scriptsize
+%\renewcommand{\itemsep}{0.9ex}
+\item parameter training
+\item parameter modification
+\item likelihood evaluation
+\item vector~quantisation
+\item histogram generation
+\item data synthesis
+\item saving/loading models as files
+\end{enumerate}
+\vspace{1ex}
 
 
+\item Included as part of the {\bf Armadillo C++ Linear Algebra Library}
 
+\begin{enumerate}[{$\boldsymbol{\rightarrow}$}]
+\renewcommand{\itemsep}{0.9ex}
+
+\item
+{\bf download} from: \textcolor{red}{\href{http://arma.sourceforge.net}{\tt\textbf{http://arma.sourceforge.net}}}
+
+\item documentation is online
+\end{enumerate}
+
+
+\end{enumerate}
+\end{frame}
+
+%
+%
+%
+
+\begin{frame}[fragile=singleslide]
+\frametitle{Example Code 1}
+
+\begin{minipage}{1.00\textwidth}
+\begin{minipage}{0.05\textwidth}
+~
+\end{minipage}
+\begin{minipage}{0.90\textwidth}
+\begin{Verbatim}[fontsize=\tiny]
+#include <armadillo>
+
+using namespace arma;
+
+int main()
+  {
+  // create synthetic data containing 2 clusters, each with a Gaussian distribution
+  
+  uword d = 5;       // dimensionality
+  uword N = 10000;   // number of samples (vectors)
+  
+  mat data(d, N, fill::zeros);
+  
+  vec mean1 = linspace<vec>(1,d,d);
+  vec mean2 = mean1 + 2;
+  
+  uword i = 0;
+  
+  while(i < N)
+    {
+    if(i < N)  { data.col(i) = mean1 + randn<vec>(d); ++i; }
+    if(i < N)  { data.col(i) = mean1 + randn<vec>(d); ++i; }
+    if(i < N)  { data.col(i) = mean2 + randn<vec>(d); ++i; }
+    }
+\end{Verbatim}
+\end{minipage}
+\end{minipage}
+\end{frame}
+
+%
+%
+%
+
+\begin{frame}[fragile=singleslide]
+\frametitle{Example Code 2}
+
+\begin{minipage}{1.00\textwidth}
+\begin{minipage}{0.05\textwidth}
+~
+\end{minipage}
+\begin{minipage}{0.90\textwidth}
+\begin{Verbatim}[fontsize=\tiny]
+  // model the data as a diagonal GMM with 2 Gaussians
+  
+  gmm_diag model;
+  
+  bool status = model.learn(data, 2, maha_dist, random_subset, 10, 5, 1e-10, true);
+  
+  if(status == false)  { cout << "learning failed" << endl; }
+  
+  model.means.print("means:");
+  
+  double overall_likelihood = model.avg_log_p(data);
+  
+  double  scalar_likelihood = model.log_p( data.col(0)    );
+  rowvec     set_likelihood = model.log_p( data.cols(0,9) );
+  
+  uword   gaus_id  = model.assign( data.col(0),    eucl_dist );
+  urowvec gaus_ids = model.assign( data.cols(0,9), prob_dist );
+  
+  urowvec histogram1 = model.raw_hist (data, prob_dist);
+   rowvec histogram2 = model.norm_hist(data, eucl_dist);
+  
+  model.save("my_model.gmm");  // save to file
+  
+  mat modified_dcovs = 2 * model.dcovs;
+  
+  model.set_dcovs(modified_dcovs);
+  
+  return 0;
+  }
+\end{Verbatim}
+\end{minipage}
+\end{minipage}
+\end{frame}
+
+%
+%
+%
+
+\begin{frame}
+\frametitle{Speedup from Multi-Threading}
+
+
+\begin{enumerate}[{~~$\boldsymbol{\bullet}$}]
+
+\item
+Synthetic dataset comprising 1,000,000 samples with 100 dimensions  (about 762~Mb)
+
+\item 10 iterations of {\it k}-means and 10 iterations of EM
+
+\item 16 core machine
+
+\item Training time reduced from 272 seconds to 27 seconds
+
+\end{enumerate}
+
+% \caption
+%   {
+%   Execution characteristics for training a 100 component GMM
+%   to model a synthetic dataset comprising 1,000,000 samples with 100 dimensions,
+%   using 10 iterations of the {\it k}-means algorithm and 10 iterations of the EM algorithm:
+%   {\bf (a)}~total~time~taken depending on the number of threads;
+%   {\bf (b)}~corresponding speedup factor compared to using one thread (blue line), and idealised linear speedup under the assumption of no overheads and no memory access contention (red dotted line).
+%   The modelling was done on a machine with dual Intel Xeon E5-2620-v4 CPUs, providing 16 independent processing cores running at 2.1~GHz.
+%   Compilation was done with the GCC 5.4 C++ compiler with the following configuration options: \texttt{-O3 -march=native -fopenmp}.
+%   }
+
+
+\centering
+\begin{minipage}{\textwidth}
+  \centering
+  \begin{minipage}{0.45\textwidth}
+    \centering
+    \includegraphics[width=1.1\textwidth]{plot1.pdf}
+  \end{minipage}%
+  \begin{minipage}{0.45\textwidth}
+    \centering
+    \includegraphics[width=1.1\textwidth]{plot2.pdf}
+  \end{minipage}
+\end{minipage}
+
+\begin{enumerate}[{~~$\boldsymbol{\bullet}$}]
+
+\item Overall speedup is below the idealised linear speedup, due to:
+
+
+\begin{enumerate}[{$\boldsymbol{\rightarrow}$}]
+\scriptsize
+%\renewcommand{\itemsep}{0.9ex}
+\item reduction operations (serial execution)
+\item memory access contention
+\item OpenMP overheads
+\end{enumerate}
+
+\end{enumerate}
+
+
+\end{frame}
+
+%
+%
+%
 
 \begin{frame}
 \frametitle{New slide}
-Contents
+
+\begin{enumerate}[{~~$\boldsymbol{\bullet}$}]
+
+\item
+...
+
+\begin{enumerate}[{$\boldsymbol{\rightarrow}$}]
+\renewcommand{\itemsep}{0.9ex}
+
+\item
+...
+\end{enumerate}
+
+
+\end{enumerate}
 \end{frame}
 
 

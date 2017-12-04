@@ -146,11 +146,37 @@
 
 
 \begin{frame}
-\frametitle{Background}
+\frametitle{Background 1}
 
 \begin{enumerate}[{~~$\boldsymbol{\bullet}$}]
 
 \item {\bf Gaussian Mixture Models (GMMs)} are used for approximating arbitrary distributions
+\vspace{1ex}
+
+\item Distribution of samples (vectors) is modelled as:
+
+\begin{equation*}
+  p(\Vec{x} | \lambda) = \sum\nolimits_{g=1}^{N_G} w_g ~ {{\mathcal{N}}}( \Vec{x} | \Vec{\mu}_g, \Mat{\Sigma}_g )
+\end{equation*}%
+%
+where:
+
+\begin{enumerate}[{$\boldsymbol{\rightarrow}$}]
+\renewcommand{\itemsep}{0.9ex}
+
+\item $\Vec{x}$ is a $D$-dimensional vector
+\item  $w_g$ is the weight for component $g$, with constraints $\sum\nolimits_{g=1}^{N_G} w_g = 1$, $w_g \geq 0$
+
+\item \scalebox{0.93}{${{\mathcal{N}}}( \Vec{x} | \Vec{\mu}, \Mat{\Sigma})$ is a $D$-dimensional Gaussian density function with mean $\Vec{\mu}$ and covariance matrix $\Mat{\Sigma}$:}
+
+\begin{equation*}
+  {{\mathcal{N}}}( \Vec{x} | \Vec{\mu}, \Mat{\Sigma} )  = 
+  \frac{1}{ (2\pi)^{\frac{D}{2}} | \Mat{\Sigma}|^{\frac{1}{2}} }
+  \exp \left[ -\frac{1}{2} (\Vec{x}-\Vec{\mu})^\top \Mat{\Sigma}^{-1} (\Vec{x}-\Vec{\mu}) \right]
+  \label{eqn:gaussian}
+\end{equation*}%
+
+\end{enumerate}
 
 \item {\bf Many use cases}
 
@@ -159,6 +185,18 @@
 \item signal processing, computer vision, machine learning, finance, even deep learning!
 \vspace{0.5ex}
 \end{enumerate}
+
+\end{enumerate}
+\end{frame}
+
+%
+%
+%
+
+\begin{frame}
+\frametitle{Background 2}
+
+\begin{enumerate}[{~~$\boldsymbol{\bullet}$}]
 
 \item Many publically accessible implementations are available, {\bf but have problems:}
 
@@ -281,9 +319,9 @@ successfully used in many projects
   \exp \left[ -\frac{1}{2} (\Vec{x}-\Vec{\mu})^\top \Mat{\Sigma}^{-1} (\Vec{x}-\Vec{\mu}) \right]
 \end{equation*}%
 \end{tiny}%
-the $\exp(\cdot)$ function is time consuming !\\
+the $\exp(\cdot)$ function is time consuming\\
+for large $D$, matrix multiplications are time consuming
 %- calculated independently for each $\Vec{x}_i$\\
-~\\
 ~\\
 ~\\
 ~\\
@@ -389,7 +427,7 @@ $p(\Vec{x} | \lambda) = \sum\nolimits_{g=1}^{N_G} w_g ~ {{\mathcal{N}}}( \Vec{x}
 
 \begin{enumerate}[{~~$\boldsymbol{\bullet}$}]
 
-\item Use logarithm version of ${{\mathcal{N}}}( \Vec{x} | \Vec{\mu}, \Mat{\Sigma} )$:
+\item Use {\bf logarithm} version of ${{\mathcal{N}}}( \Vec{x} | \Vec{\mu}, \Mat{\Sigma} )$:
 %
 \begin{equation*}
   \log {{\mathcal{N}}}( \Vec{x} | \Vec{\mu}, \Mat{\Sigma} )
@@ -407,12 +445,12 @@ This leads to the corresponding logarithm version of $p(\Vec{x} | \lambda)$:
 \end{equation*}
 
 \item
-RHS can be expressed as a repeated addition in the form of:
+RHS can be expressed as a {\bf repeated addition} in the form of:
 \begin{equation*}
 \log\left( \exp\left[\log(a)\right] + \exp\left[\log(b)\right] \right)
 \end{equation*}
 
-which in turn can be rewritten in the form of:
+which can be rewritten in the form of:
 \begin{equation*}
 \log(a) + \log\left( 1 + \underbrace{\exp\left[ \log(b) - \log(a) \right]} \right)
 \end{equation*}
@@ -421,18 +459,92 @@ which in turn can be rewritten in the form of:
 The exponential will always produce values $\leq 1$\\
 if we ensure that {$\log(a) \geq \log(b)$} by swapping $\log(a)$ and $\log(b)$ when required
 
-% \begin{enumerate}[{$\boldsymbol{\rightarrow}$}]
-% \renewcommand{\itemsep}{1ex}
-% \item split data into chunks and farm it out to separate workers for processing (mapping)
-% \item collect partial results and combine (reduce) to produce the final result
-% \end{enumerate}
-% \vspace{1ex}
+\end{enumerate}
+\end{frame}
+
+%
+%
+%
+
+\begin{frame}
+\frametitle{Improving Initial k-Means Estimate}
+
+\begin{enumerate}[{~~$\boldsymbol{\bullet}$}]
+
+\item
+To speed up training, {\bf starting point} for EM is typically provided by \textbf{\textit{k}-means}
+\vspace{0.5ex}
+
+\item
+{\it k}-means is essentially a {\bf simplified version} of the EM algorithm for GMMs
+\vspace{0.5ex}
+
+\item
+Assignment of each sample to a cluster: {\bf soft assignment} vs {\bf hard assignment}
+\vspace{0.5ex}
+
+\item
+Estimation of model parameters is the same, except $l_{g,i}$ is redefined~as:%
+
+\vspace{-1.5ex}
+\begin{minipage}{1\textwidth}
+\begin{minipage}{0.5\textwidth}
+\begin{equation*}
+  l_{g,i} = \left\{
+  \begin{array}{ll}
+  1, & \mbox{if} ~ g = \argmin\limits_{k=1, \cdots, N_G} \operatorname{dist}(\Vec{\mu}_k, \Vec{x}_i) \\
+  0, & \mbox{otherwise}
+  \end{array}
+  \right.
+\end{equation*}%
+\end{minipage}
+\begin{minipage}{0.5\textwidth}
+{$\operatorname{dist}(\Vec{a}, \Vec{b})$} is a distance metric
+\end{minipage}
+\end{minipage}
+\vspace{0.5ex}
+
+
+\item 
+{\bf Multi-threading} is accomplished in the same manner as for full EM
+\vspace{0.5ex}
+
+\item
+{\bf Problem:}
+\begin{enumerate}[{$\boldsymbol{\rightarrow}$}]
+\renewcommand{\itemsep}{0.9ex}
+
+\item
+typical and naive choice:  $\operatorname{dist}(\Vec{a}, \Vec{b}) = \| \Vec{a} - \Vec{b} \|^{2}_{2}$
+
+\item
+large range in one dimension can skew parameter estimates: {\bf bad starting point!}
+
+\end{enumerate}
+\vspace{0.5ex}
+
+\item
+{\bf Replace} with squared Mahalanobis distance:
+
+\begin{equation*}
+\operatorname{dist}(\Vec{a}, \Vec{b}) = (\Vec{a} - \Vec{b})^\top \Mat{\Sigma}^{-1}_{\mathrm{global}} (\Vec{a} - \Vec{b})
+\end{equation*}
+
+\begin{enumerate}[{$\boldsymbol{\rightarrow}$}]
+\renewcommand{\itemsep}{0.9ex}
+
+\item
+$\Mat{\Sigma}_{\mathrm{global}}$ = global covariance matrix, estimated from all available training data
+
+\item
+to maintain efficiency, $\Mat{\Sigma}_{\mathrm{global}}$ is typically diagonal
+
+\end{enumerate}
 
 
 
 \end{enumerate}
 \end{frame}
-
 
 
 

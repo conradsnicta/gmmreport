@@ -618,7 +618,7 @@ if we ensure that {$\log(a) \geq \log(b)$} by swapping $\log(a)$ and $\log(b)$ w
 %
 
 \begin{frame}
-\frametitle{Implementation in C++}
+\frametitle{Implementation in C++ 1}
 
 \begin{enumerate}[{~~$\boldsymbol{\bullet}$}]
 
@@ -664,16 +664,56 @@ Functions for:
 \vspace{1ex}
 
 
+\end{enumerate}
+\end{frame}
+
+%
+%
+%
+
+\begin{frame}
+\frametitle{Implementation in C++ 2}
+
+\begin{enumerate}[{~~$\boldsymbol{\bullet}$}]
+
 \item Included as part of the {\bf Armadillo C++ Linear Algebra Library}
 
 \begin{enumerate}[{$\boldsymbol{\rightarrow}$}]
 \renewcommand{\itemsep}{0.9ex}
 
 \item
-{\bf download} from: \textcolor{red}{\href{http://arma.sourceforge.net}{\tt\textbf{http://arma.sourceforge.net}}}
+open source under the Apache 2.0 license
 
-\item documentation is online
+\item {\bf download} source code: \textcolor{red}{\href{http://arma.sourceforge.net}{\tt\textbf{http://arma.sourceforge.net}}}
+
+\item online {\bf documentation:} ~\textcolor{red}{\href{http://arma.sourceforge.net/docs.html\#gmm_diag}{\tt\textbf{http://arma.sourceforge.net/docs.html\#gmm\_diag}}}
 \end{enumerate}
+\vspace{1ex}
+
+
+\item Given an instance of {\bf gmm\_diag} named as {\bf M}:
+
+
+\begin{enumerate}[{$\boldsymbol{\rightarrow}$}]
+\renewcommand{\itemsep}{0.9ex}
+\scriptsize
+
+\item
+{\bf M.learn}(data, n\_gaus, dist\_mode, seed\_mode, km\_iter, em\_iter, var\_floor, print\_mode)
+
+\item
+{\bf M.log\_p(V)} - return a scalar representing log-likelihood of vector {\bf V}
+
+\item
+{\bf M.log\_p(V, g)} - return a scalar representing log-likelihood of vector {\bf V} according to Gaussian {\bf g}
+
+\item
+{\bf M.log\_p(X)} - return a row vector containing log-likelihoods of each column vector in matrix {\bf X}
+
+\item ...
+
+\end{enumerate}
+
 
 
 \end{enumerate}

@@ -90,6 +90,7 @@
 \textcolor{ForestGreen}{\hrule}
 \textcolor{ForestGreen}{\hrule}
 \centerline{~}
+\centerline{\textcolor{red}{\bf [DRAFT - VERSION 2017-12-05-a]}}
 \centerline{~}
 \centerline{\large Conrad Sanderson ~and~ Ryan Curtin}
 \centerline{~}
@@ -305,8 +306,8 @@ successfully used in many projects
   l_{g,i}                  & = & \frac{w_g ~ {{\mathcal{N}}}( \Vec{x}_i | \Vec{\mu}_g, \Mat{\Sigma}_g )}{\sum\nolimits_{k=1}^{N_G} w_k ~ {{\mathcal{N}}}( \Vec{x}_i | \Vec{\mu}_k, \Mat{\Sigma}_k )} \\
   L_g                      & = & \sum\nolimits_{i=1}^{N_V} l_{g,i} \\
   \widehat{w}_g            & = & \frac{L_g}{N_V} \\
-  \widehat{\Vec{\mu}}_g    & = & \frac{1}{L_g} \sum\nolimits_{i=1}^{N_V} \Vec{x}_i ~ l_{g,i}  \label{eqn:em_mean}  \\
-  \widehat{\Mat{\Sigma}}_g & = & \frac{1}{L_g} \sum\nolimits_{i=1}^{N_V} (\Vec{x}_i - \widehat{\Vec{\mu}}_g)(\Vec{x}_i - \widehat{\Vec{\mu}}_g)^\top l_{g,i}
+  \widehat{\Vec{\mu}}_g    & = & \frac{1}{L_g} \sum\nolimits_{i=1}^{N_V} l_{g,i} ~ \Vec{x}_i \\
+  \widehat{\Mat{\Sigma}}_g & = & \frac{1}{L_g} \sum\nolimits_{i=1}^{N_V} l_{g,i} ~ (\Vec{x}_i - \widehat{\Vec{\mu}}_g)(\Vec{x}_i - \widehat{\Vec{\mu}}_g)^\top 
 %                          & = &  \frac{1}{L_g} \left[ \sum\nolimits_{i=1}^{N_V} \Vec{x}_i \Vec{x}_i^\top l_{g,i} \right] - \widehat{\Vec{\mu}}_g \widehat{\Vec{\mu}}_g^\top
 \end{eqnarray*}
 \end{minipage}
@@ -320,7 +321,7 @@ successfully used in many projects
 \end{equation*}%
 \end{tiny}%
 the $\exp(\cdot)$ function is time consuming\\
-for large $D$, matrix multiplications are time consuming
+\scalebox{0.875}{for large $D$, matrix multiplications are time consuming}
 %- calculated independently for each $\Vec{x}_i$\\
 ~\\
 ~\\
@@ -363,7 +364,7 @@ weighted version of the sample covariance\\
 
 \item
 Rewrite $\widehat{\Mat{\Sigma}}_g$ to allow splitting:
-{$\widehat{\Mat{\Sigma}}_g = \frac{1}{L_g} \left[ \sum\nolimits_{i=1}^{N_V} \Vec{x}_i \Vec{x}_i^\top l_{g,i} \right] - \widehat{\Vec{\mu}}_g \widehat{\Vec{\mu}}_g^\top$}
+{$\widehat{\Mat{\Sigma}}_g = \frac{1}{L_g} \left[ \sum\nolimits_{i=1}^{N_V} l_{g,i} ~ \Vec{x}_i^{~} \Vec{x}_i^\top  \right] - \widehat{\Vec{\mu}}_g^{~} \widehat{\Vec{\mu}}_g^\top$}
 \vspace{1ex}
 
 \item {\bf Partial} results for thread $t$:
@@ -373,7 +374,7 @@ Rewrite $\widehat{\Mat{\Sigma}}_g$ to allow splitting:
 \begin{eqnarray*}
   \widetilde{L}_g^{[t]}            & = & \sum\nolimits_{j = i^{[t]}_{\textrm{start}}}^{i^{[t]}_{\textrm{end}}} l_{g,j}                             \\
   \widetilde{\Vec{\mu}}_g^{[t]}    & = & \sum\nolimits_{j = i^{[t]}_{\textrm{start}}}^{i^{[t]}_{\textrm{end}}} l_{g,j} ~ \Vec{x}_j                 \\
-  \widetilde{\Mat{\Sigma}}_g^{[t]} & = & \sum\nolimits_{j = i^{[t]}_{\textrm{start}}}^{i^{[t]}_{\textrm{end}}} l_{g,j} ~ \Vec{x}_j \Vec{x}_j^\top
+  \widetilde{\Mat{\Sigma}}_g^{[t]} & = & \sum\nolimits_{j = i^{[t]}_{\textrm{start}}}^{i^{[t]}_{\textrm{end}}} l_{g,j} ~ \Vec{x}_j^{~} \Vec{x}_j^\top
 \end{eqnarray*}%
 \end{footnotesize}
 
@@ -384,9 +385,92 @@ Rewrite $\widehat{\Mat{\Sigma}}_g$ to allow splitting:
 \begin{eqnarray*}
   L_g                      & = & \sum\nolimits_{t=1}^{N_T} \widetilde{L}_g^{[t]} \\
   \widehat{\Vec{\mu}}_g    & = & \frac{1}{L_g} \sum\nolimits_{t=1}^{N_T} \widetilde{\Vec{\mu}}_g^{[t]} \\
-  \widehat{\Mat{\Sigma}}_g & = & \frac{1}{L_g} \sum\nolimits_{t=1}^{N_T} \widetilde{\Mat{\Sigma}}_g^{[t]} - \widehat{\Vec{\mu}}_g \widehat{\Vec{\mu}}_g^\top
+  \widehat{\Mat{\Sigma}}_g & = & \frac{1}{L_g} \sum\nolimits_{t=1}^{N_T} \widetilde{\Mat{\Sigma}}_g^{[t]} - \widehat{\Vec{\mu}}_g^{~} \widehat{\Vec{\mu}}_g^\top
 \end{eqnarray*}%
 \end{footnotesize}
+
+
+
+\end{enumerate}
+\end{frame}
+%
+%
+%
+
+\begin{frame}
+\frametitle{Improving Initial k-Means Estimate}
+
+\begin{enumerate}[{~~$\boldsymbol{\bullet}$}]
+
+\item
+To speed up training, {\bf starting point} for EM is typically provided by \textbf{\textit{k}-means}
+\vspace{0.5ex}
+
+\item
+{\it k}-means is essentially a {\bf simplified version} of the EM algorithm for GMMs
+\vspace{0.5ex}
+
+\item
+Assignment of each sample to a cluster: {\bf soft assignment} vs {\bf hard assignment}
+\vspace{0.5ex}
+
+\item
+Estimation of model parameters is the same, except $l_{g,i}$ is redefined~as:%
+
+\vspace{-1.5ex}
+\begin{minipage}{1\textwidth}
+\begin{minipage}{0.5\textwidth}
+\begin{equation*}
+  l_{g,i} = \left\{
+  \begin{array}{ll}
+  1, & \mbox{if} ~ g = \argmin\limits_{k=1, \cdots, N_G} \operatorname{dist}(\Vec{\mu}_k, \Vec{x}_i) \\
+  0, & \mbox{otherwise}
+  \end{array}
+  \right.
+\end{equation*}%
+\end{minipage}
+\begin{minipage}{0.5\textwidth}
+{$\operatorname{dist}(\Vec{a}, \Vec{b})$} is a distance metric
+\end{minipage}
+\end{minipage}
+\vspace{0.5ex}
+
+
+\item 
+{\bf Multi-threading} is accomplished in the same manner as for full EM
+\vspace{0.5ex}
+
+\item
+{\bf Problem:}
+\begin{enumerate}[{$\boldsymbol{\rightarrow}$}]
+\renewcommand{\itemsep}{0.9ex}
+
+\item
+typical and naive choice:  $\operatorname{dist}(\Vec{a}, \Vec{b}) = \| \Vec{a} - \Vec{b} \|^{2}_{2}$   ~~~ (squared Euclidean distance)
+
+\item
+large range in one dimension can skew parameter estimates: {\bf bad starting point!}
+
+\end{enumerate}
+\vspace{0.5ex}
+
+\item
+{\bf Replace} with squared Mahalanobis distance:
+%
+\begin{equation*}
+\operatorname{dist}(\Vec{a}, \Vec{b}) = (\Vec{a} - \Vec{b})^\top \Mat{\Sigma}^{-1}_{\mathrm{global}} (\Vec{a} - \Vec{b})
+\end{equation*}
+
+\begin{enumerate}[{$\boldsymbol{\rightarrow}$}]
+\renewcommand{\itemsep}{0.9ex}
+
+\item
+$\Mat{\Sigma}_{\mathrm{global}}$ = global covariance matrix, estimated from all available training data
+
+\item
+to maintain efficiency, $\Mat{\Sigma}_{\mathrm{global}}$ is typically diagonal
+
+\end{enumerate}
 
 
 
@@ -402,7 +486,7 @@ Rewrite $\widehat{\Mat{\Sigma}}_g$ to allow splitting:
 
 \begin{enumerate}[{~~$\boldsymbol{\bullet}$}]
 
-\item Floating point representations have necessarily {\bf limited precision}
+\item {\bf Problem:} floating point representations have necessarily {\bf limited precision}
 
 \end{enumerate}
 
@@ -471,99 +555,63 @@ if we ensure that {$\log(a) \geq \log(b)$} by swapping $\log(a)$ and $\log(b)$ w
 
 \begin{enumerate}[{~~$\boldsymbol{\bullet}$}]
 
-\item TODO
+\item {\bf Problem:} degenerate or ill-conditioned covariance matrices $\Mat{\Sigma}_g$
+
+\begin{enumerate}[{$\boldsymbol{\rightarrow}$}]
+\renewcommand{\itemsep}{1ex}
+\item due to: too many samples which are essentially the same
+\item due to: not enough samples with $l_{g,i} > 0$ ~~~ (too many Gaussians specified in GMM?)
+\end{enumerate}
+\vspace{1ex}
+
+
+\item Results in: {\bf unstable inverse} of $\Mat{\Sigma}_g$
+
+\begin{enumerate}[{$\boldsymbol{\rightarrow}$}]
+\renewcommand{\itemsep}{1ex}
+\item calculated log-likelihood unreliable or non-finite
+\end{enumerate}
+\vspace{1ex}
+
+
+\item Straightforward but effective approach: place {\bf artificial floor} on diagonal entries of $\Mat{\Sigma}_g$
+
+\begin{enumerate}[{$\boldsymbol{\rightarrow}$}]
+\renewcommand{\itemsep}{1ex}
+\item optimum value of the floor is data dependent
+\item small positive constant is typically sufficient to promote numerical stability
+\end{enumerate}
 
 
 \end{enumerate}
 \end{frame}
-
 %
 %
 %
 
 \begin{frame}
-\frametitle{Improving Initial k-Means Estimate}
+\frametitle{Improving Numerical Stability 3}
 
 \begin{enumerate}[{~~$\boldsymbol{\bullet}$}]
 
-\item
-To speed up training, {\bf starting point} for EM is typically provided by \textbf{\textit{k}-means}
-\vspace{0.5ex}
+\item {\bf Problem:} in some situations we still can't find $|\Mat{\Sigma}_g|$ and $\Mat{\Sigma}_g^{-1}$
+\vspace{1ex}
 
-\item
-{\it k}-means is essentially a {\bf simplified version} of the EM algorithm for GMMs
-\vspace{0.5ex}
+\item If this happens, typically only a {\bf small subset} of the Gaussians is ``damaged''
+\vspace{1ex}
 
-\item
-Assignment of each sample to a cluster: {\bf soft assignment} vs {\bf hard assignment}
-\vspace{0.5ex}
-
-\item
-Estimation of model parameters is the same, except $l_{g,i}$ is redefined~as:%
-
-\vspace{-1.5ex}
-\begin{minipage}{1\textwidth}
-\begin{minipage}{0.5\textwidth}
-\begin{equation*}
-  l_{g,i} = \left\{
-  \begin{array}{ll}
-  1, & \mbox{if} ~ g = \argmin\limits_{k=1, \cdots, N_G} \operatorname{dist}(\Vec{\mu}_k, \Vec{x}_i) \\
-  0, & \mbox{otherwise}
-  \end{array}
-  \right.
-\end{equation*}%
-\end{minipage}
-\begin{minipage}{0.5\textwidth}
-{$\operatorname{dist}(\Vec{a}, \Vec{b})$} is a distance metric
-\end{minipage}
-\end{minipage}
-\vspace{0.5ex}
-
-
-\item 
-{\bf Multi-threading} is accomplished in the same manner as for full EM
-\vspace{0.5ex}
-
-\item
-{\bf Problem:}
-\begin{enumerate}[{$\boldsymbol{\rightarrow}$}]
-\renewcommand{\itemsep}{0.9ex}
-
-\item
-typical and naive choice:  $\operatorname{dist}(\Vec{a}, \Vec{b}) = \| \Vec{a} - \Vec{b} \|^{2}_{2}$
-
-\item
-large range in one dimension can skew parameter estimates: {\bf bad starting point!}
-
-\end{enumerate}
-\vspace{0.5ex}
-
-\item
-{\bf Replace} with squared Mahalanobis distance:
-%
-\begin{equation*}
-\operatorname{dist}(\Vec{a}, \Vec{b}) = (\Vec{a} - \Vec{b})^\top \Mat{\Sigma}^{-1}_{\mathrm{global}} (\Vec{a} - \Vec{b})
-\end{equation*}
+\item Effective approach: {\bf refuse to update} the problematic Gaussians during an EM iteration
 
 \begin{enumerate}[{$\boldsymbol{\rightarrow}$}]
-\renewcommand{\itemsep}{0.9ex}
-
-\item
-$\Mat{\Sigma}_{\mathrm{global}}$ = global covariance matrix, estimated from all available training data
-
-\item
-to maintain efficiency, $\Mat{\Sigma}_{\mathrm{global}}$ is typically diagonal
-
+\renewcommand{\itemsep}{1ex}
+\item {\bf retain} the parameters ($\Mat{\mu}_g$, $\Mat{\Sigma}_g$, $w_g$) for the Gaussians from the {\bf previous iteration}
+\item normalise all weights to ensure they sum to 1
 \end{enumerate}
-
+\vspace{1ex}
 
 
 \end{enumerate}
 \end{frame}
-
-%
-%
-%
 
 %
 %
@@ -582,12 +630,13 @@ Implemented as {\bf two separate} C++ classes:
 \renewcommand{\itemsep}{0.9ex}
 
 \item
-\texttt{\bf gmm\_diag} - for diagonal covariance matrices
+\texttt{\bf gmm\_diag} - specialised for diagonal covariance matrices
 
 \item
-\texttt{\bf gmm\_full~~} - for full covariance matrices
+\texttt{\bf gmm\_full~~} - specialised for full covariance matrices
 
 \end{enumerate}
+\vspace{1ex}
 
 \item gmm\_diag is typically {\bf much faster} than gmm\_full, but has {\bf lower modelling capacity}
 \vspace{1ex}
@@ -609,7 +658,7 @@ Functions for:
 \item likelihood evaluation
 \item vector~quantisation
 \item histogram generation
-\item data synthesis
+\item random data synthesis
 \item saving/loading models as files
 \end{enumerate}
 \vspace{1ex}
@@ -732,11 +781,13 @@ int main()
 \item
 Synthetic dataset comprising 1,000,000 samples with 100 dimensions  (about 762~Mb)
 
+\item Model as a diagonal GMM with 100 Gaussians
+
 \item 10 iterations of {\it k}-means and 10 iterations of EM
 
 \item 16 core machine
 
-\item Training time reduced from 272 seconds to 27 seconds
+\item Training time {\bf reduced} from 272 seconds to 27 seconds: {\bf order of magnitude}
 
 \end{enumerate}
 
@@ -755,11 +806,11 @@ Synthetic dataset comprising 1,000,000 samples with 100 dimensions  (about 762~M
 \centering
 \begin{minipage}{\textwidth}
   \centering
-  \begin{minipage}{0.45\textwidth}
+  \begin{minipage}{0.40\textwidth}
     \centering
     \includegraphics[width=1.1\textwidth]{plot1.pdf}
   \end{minipage}%
-  \begin{minipage}{0.45\textwidth}
+  \begin{minipage}{0.40\textwidth}
     \centering
     \includegraphics[width=1.1\textwidth]{plot2.pdf}
   \end{minipage}
@@ -788,47 +839,46 @@ Synthetic dataset comprising 1,000,000 samples with 100 dimensions  (about 762~M
 %
 
 \begin{frame}
-\frametitle{New slide}
+\frametitle{End}
 
 \begin{enumerate}[{~~$\boldsymbol{\bullet}$}]
 
 \item
-...
+{\bf Questions?}
+\vspace{1ex}
 
-\begin{enumerate}[{$\boldsymbol{\rightarrow}$}]
-\renewcommand{\itemsep}{0.9ex}
+\item Download source code: \textcolor{red}{\href{http://arma.sourceforge.net}{\tt\textbf{http://arma.sourceforge.net}}}
+\vspace{1ex}
 
-\item
-...
-\end{enumerate}
-
+\item Online documentation: ~\textcolor{red}{\href{http://arma.sourceforge.net/docs.html\#gmm_diag}{\tt\textbf{http://arma.sourceforge.net/docs.html\#gmm\_diag}}}
+\vspace{1ex}
 
 \end{enumerate}
 \end{frame}
 
-
-
-
+%
+%
+%
 
 % \begin{frame}
-% \frametitle{Two-column slide}
-%  
-% \begin{columns}
-%  
-% \column{0.5\textwidth}
-% This is a text in first column.
-% $$E=mc^2$$
-% \begin{itemize}
-% \item First item
-% \item Second item
-% \end{itemize}
-%  
-% \column{0.5\textwidth}
-% This text will be in the second column
-% and on a second tought this is a nice looking
-% layout in some cases.
-% \end{columns}
+% \frametitle{New slide}
+% 
+% \begin{enumerate}[{~~$\boldsymbol{\bullet}$}]
+% 
+% \item
+% ...
+% 
+% \begin{enumerate}[{$\boldsymbol{\rightarrow}$}]
+% \renewcommand{\itemsep}{0.9ex}
+% 
+% \item
+% ...
+% \end{enumerate}
+% 
+% 
+% \end{enumerate}
 % \end{frame}
+
 
 
 \end{document}

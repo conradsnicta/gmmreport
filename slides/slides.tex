@@ -90,7 +90,7 @@
 \textcolor{ForestGreen}{\hrule}
 \textcolor{ForestGreen}{\hrule}
 \centerline{~}
-\centerline{\textcolor{red}{\bf [DRAFT - VERSION 2017-12-05-a]}}
+\centerline{\textcolor{red}{\bf [DRAFT - VERSION 2017-12-06-b]}}
 \centerline{~}
 \centerline{\large Conrad Sanderson ~and~ Ryan Curtin}
 \centerline{~}
@@ -147,7 +147,7 @@
 
 
 \begin{frame}
-\frametitle{Background 1}
+\frametitle{Background / 1}
 
 \begin{enumerate}[{~~$\boldsymbol{\bullet}$}]
 
@@ -166,6 +166,7 @@ where:
 \renewcommand{\itemsep}{0.9ex}
 
 \item $\Vec{x}$ is a $D$-dimensional vector
+\item $\lambda = \{ w_g, \Vec{\mu}_g, \Mat{\Sigma}_g \}_{g=1}^{N_G}$ is the parameter set
 \item  $w_g$ is the weight for component $g$, with constraints $\sum\nolimits_{g=1}^{N_G} w_g = 1$, $w_g \geq 0$
 
 \item \scalebox{0.93}{${{\mathcal{N}}}( \Vec{x} | \Vec{\mu}, \Mat{\Sigma})$ is a $D$-dimensional Gaussian density function with mean $\Vec{\mu}$ and covariance matrix $\Mat{\Sigma}$:}
@@ -195,7 +196,7 @@ where:
 %
 
 \begin{frame}
-\frametitle{Background 2}
+\frametitle{Background / 2}
 
 \begin{enumerate}[{~~$\boldsymbol{\bullet}$}]
 
@@ -249,7 +250,7 @@ good for prototyping, bad for embedding into products or larger software
 \item 
 {\bf permissive open source license}\\
 - Apache 2.0\\
-- commercial software and products DO NOT need to release source code\\
+- commercial software and products DO NOT need to release their source code\\
 - better than BSD license: provides explicit patent grants
 
 \item
@@ -264,8 +265,8 @@ training algorithms use elaborate methods to {\bf promote numerical stability}
 {\bf flexible interface} to trained models
 
 \item
-implemented as an {\bf encapsulated object} in {\bf modern C++}\\
-- provides abstractions to make software development easier
+implemented as {\bf encapsulated classes} in {\bf modern C++}\\
+- provides nice abstractions to make software development easier
 
 \item
 can be easily {\bf embedded} into products or larger software\\
@@ -291,7 +292,7 @@ successfully used in many projects
 
 \item Each GMM is parameterised with $\lambda = \{ w_g, \Vec{\mu}_g, \Mat{\Sigma}_g \}_{g=1}^{N_G}$
 
-\item Given $X=\{\Vec{x}_i\}_{i=1}^{N_V}$, use Expectation-Maximisation (EM) algorithm to find $\lambda$
+\item Given training data $X=\{\Vec{x}_i\}_{i=1}^{N_V}$, use Expectation-Maximisation (EM) algorithm to find $\lambda$
 
 \item EM iterates such that $p(X|\lambda^{\textrm{new}}) \geq p(X|\lambda^{\textrm{old}})$
 
@@ -357,7 +358,7 @@ weighted version of the sample covariance\\
 
 \begin{enumerate}[{$\boldsymbol{\rightarrow}$}]
 \renewcommand{\itemsep}{1ex}
-\item split data into chunks and farm it out to separate workers for processing (mapping)
+\item split data into chunks and farm it out to separate threads for processing (mapping)
 \item collect partial results and combine (reduce) to produce the final result
 \end{enumerate}
 \vspace{1ex}
@@ -377,6 +378,9 @@ Rewrite $\widehat{\Mat{\Sigma}}_g$ to allow splitting:
   \widetilde{\Mat{\Sigma}}_g^{[t]} & = & \sum\nolimits_{j = i^{[t]}_{\textrm{start}}}^{i^{[t]}_{\textrm{end}}} l_{g,j} ~ \Vec{x}_j^{~} \Vec{x}_j^\top
 \end{eqnarray*}%
 \end{footnotesize}
+\vspace{-1ex}
+
+\item Threads are executed in {\bf parallel}
 
 \item {\bf Combine} partial results:
 %
@@ -437,7 +441,7 @@ Estimation of model parameters is the same, except $l_{g,i}$ is redefined~as:%
 
 
 \item 
-{\bf Multi-threading} is accomplished in the same manner as for full EM
+{\bf Multi-threading} is accomplished in the same manner as for normal EM
 \vspace{0.5ex}
 
 \item
@@ -482,7 +486,7 @@ to maintain efficiency, $\Mat{\Sigma}_{\mathrm{global}}$ is typically diagonal
 %
 
 \begin{frame}
-\frametitle{Improving Numerical Stability 1}
+\frametitle{Improving Numerical Stability / 1}
 
 \begin{enumerate}[{~~$\boldsymbol{\bullet}$}]
 
@@ -523,6 +527,8 @@ $p(\Vec{x} | \lambda) = \sum\nolimits_{g=1}^{N_G} w_g ~ {{\mathcal{N}}}( \Vec{x}
 This leads to the corresponding logarithm version of $p(\Vec{x} | \lambda)$:
 %
 \begin{equation*}
+\log p(\Vec{x} | \lambda)
+= 
 \log \sum\nolimits_{g=1}^{N_G} w_g ~ {{\mathcal{N}}}( \Vec{x} ~|~ \Vec{\mu}_g, \Mat{\Sigma}_g )
 =
 \log \sum\nolimits_{g=1}^{N_G} \exp\left[ \log \left\{ w_g {{\mathcal{N}}}( \Vec{x} ~|~ \Vec{\mu}_g, \Mat{\Sigma}_g ) \right\} \right]
@@ -551,7 +557,7 @@ if we ensure that {$\log(a) \geq \log(b)$} by swapping $\log(a)$ and $\log(b)$ w
 %
 
 \begin{frame}
-\frametitle{Improving Numerical Stability 2}
+\frametitle{Improving Numerical Stability / 2}
 
 \begin{enumerate}[{~~$\boldsymbol{\bullet}$}]
 
@@ -569,7 +575,7 @@ if we ensure that {$\log(a) \geq \log(b)$} by swapping $\log(a)$ and $\log(b)$ w
 
 \begin{enumerate}[{$\boldsymbol{\rightarrow}$}]
 \renewcommand{\itemsep}{1ex}
-\item calculated log-likelihood unreliable or non-finite
+\item leads to: calculated log-likelihood is unreliable or non-finite
 \end{enumerate}
 \vspace{1ex}
 
@@ -579,7 +585,7 @@ if we ensure that {$\log(a) \geq \log(b)$} by swapping $\log(a)$ and $\log(b)$ w
 \begin{enumerate}[{$\boldsymbol{\rightarrow}$}]
 \renewcommand{\itemsep}{1ex}
 \item optimum value of the floor is data dependent
-\item small positive constant is typically sufficient to promote numerical stability
+\item {\bf small positive constant} is typically sufficient to promote numerical stability
 \end{enumerate}
 
 
@@ -590,7 +596,7 @@ if we ensure that {$\log(a) \geq \log(b)$} by swapping $\log(a)$ and $\log(b)$ w
 %
 
 \begin{frame}
-\frametitle{Improving Numerical Stability 3}
+\frametitle{Improving Numerical Stability / 3}
 
 \begin{enumerate}[{~~$\boldsymbol{\bullet}$}]
 
@@ -605,7 +611,8 @@ if we ensure that {$\log(a) \geq \log(b)$} by swapping $\log(a)$ and $\log(b)$ w
 \begin{enumerate}[{$\boldsymbol{\rightarrow}$}]
 \renewcommand{\itemsep}{1ex}
 \item {\bf retain} the parameters ($\Mat{\mu}_g$, $\Mat{\Sigma}_g$, $w_g$) for the Gaussians from the {\bf previous iteration}
-\item normalise all weights to ensure they sum to 1
+\item {\bf update} remaining Gaussians as usual
+\item {\bf normalise} all weights to ensure they sum to 1
 \end{enumerate}
 \vspace{1ex}
 
@@ -618,7 +625,7 @@ if we ensure that {$\log(a) \geq \log(b)$} by swapping $\log(a)$ and $\log(b)$ w
 %
 
 \begin{frame}
-\frametitle{Implementation in C++ 1}
+\frametitle{Implementation in C++ / 1}
 
 \begin{enumerate}[{~~$\boldsymbol{\bullet}$}]
 
@@ -647,6 +654,9 @@ Implemented as {\bf two separate} C++ classes:
 \item Multi-threading implemented with the aid of {\bf OpenMP} pragma directives
 \vspace{1ex}
 
+\item {\bf Validated} against previous publically accessible implementations of GMMs
+\vspace{1ex}
+
 \item 
 Functions for:
 %
@@ -672,7 +682,7 @@ Functions for:
 %
 
 \begin{frame}
-\frametitle{Implementation in C++ 2}
+\frametitle{Implementation in C++ / 2}
 
 \begin{enumerate}[{~~$\boldsymbol{\bullet}$}]
 
@@ -680,6 +690,11 @@ Functions for:
 
 \begin{enumerate}[{$\boldsymbol{\rightarrow}$}]
 \renewcommand{\itemsep}{0.9ex}
+
+\item Matlab-like syntax
+
+\item
+cross-platform
 
 \item
 open source under the Apache 2.0 license
@@ -702,13 +717,22 @@ open source under the Apache 2.0 license
 {\bf M.learn}(data, n\_gaus, dist\_mode, seed\_mode, km\_iter, em\_iter, var\_floor, print\_mode)
 
 \item
-{\bf M.log\_p(V)} - return a scalar representing log-likelihood of vector {\bf V}
+{\bf M.log\_p(}V{\bf)} - return a scalar representing log-likelihood of vector {\bf V}
 
 \item
-{\bf M.log\_p(V, g)} - return a scalar representing log-likelihood of vector {\bf V} according to Gaussian {\bf g}
+{\bf M.log\_p(}V{\bf,} g{\bf)} - return a scalar representing log-likelihood of vector {\bf V} according to Gaussian {\bf g}
 
 \item
-{\bf M.log\_p(X)} - return a row vector containing log-likelihoods of each column vector in matrix {\bf X}
+{\bf M.log\_p(}X{\bf)} - return a row vector containing log-likelihoods of each column vector in matrix {\bf X}
+
+\item
+{\bf M.assign(}X{\bf,} dist\_mode{\bf)} - return a row vector with the indices of the closest means (ie.~VQ)
+
+\item
+{\bf M.generate(}N{\bf)} - return N random samples (vectors) generated according to model parameters
+
+\item
+{\bf M.save(}filename{\bf)} - save the model to a file
 
 \item ...
 
@@ -724,7 +748,7 @@ open source under the Apache 2.0 license
 %
 
 \begin{frame}[fragile=singleslide]
-\frametitle{Example Code 1}
+\frametitle{Example Code / 1}
 
 \begin{minipage}{1.00\textwidth}
 \begin{minipage}{0.05\textwidth}
@@ -766,7 +790,7 @@ int main()
 %
 
 \begin{frame}[fragile=singleslide]
-\frametitle{Example Code 2}
+\frametitle{Example Code / 2}
 
 \begin{minipage}{1.00\textwidth}
 \begin{minipage}{0.05\textwidth}
@@ -820,12 +844,16 @@ int main()
 
 \item
 Synthetic dataset comprising 1,000,000 samples with 100 dimensions  (about 762~Mb)
+\vspace{0.5ex}
 
 \item Model as a diagonal GMM with 100 Gaussians
+\vspace{0.5ex}
 
 \item 10 iterations of {\it k}-means and 10 iterations of EM
+\vspace{0.5ex}
 
 \item 16 core machine
+\vspace{0.5ex}
 
 \item Training time {\bf reduced} from 272 seconds to 27 seconds: {\bf order of magnitude}
 
@@ -846,12 +874,16 @@ Synthetic dataset comprising 1,000,000 samples with 100 dimensions  (about 762~M
 \centering
 \begin{minipage}{\textwidth}
   \centering
-  \begin{minipage}{0.40\textwidth}
+  \begin{minipage}{0.38\textwidth}
     \centering
+    {\tiny\bf\textcolor{blue}{time}}\\
+    \vspace{-1ex}
     \includegraphics[width=1.1\textwidth]{plot1.pdf}
   \end{minipage}%
-  \begin{minipage}{0.40\textwidth}
+  \begin{minipage}{0.38\textwidth}
     \centering
+    {\tiny\bf\textcolor{blue}{speedup}}\\
+    \vspace{-1ex}
     \includegraphics[width=1.1\textwidth]{plot2.pdf}
   \end{minipage}
 \end{minipage}
@@ -891,6 +923,9 @@ Synthetic dataset comprising 1,000,000 samples with 100 dimensions  (about 762~M
 \vspace{1ex}
 
 \item Online documentation: ~\textcolor{red}{\href{http://arma.sourceforge.net/docs.html\#gmm_diag}{\tt\textbf{http://arma.sourceforge.net/docs.html\#gmm\_diag}}}
+\vspace{1ex}
+
+\item Google keywords: Armadillo C++ library
 \vspace{1ex}
 
 \end{enumerate}

@@ -352,46 +352,57 @@ weighted version of the sample covariance\\
 \begin{frame}
 \frametitle{Multi-Threaded EM Training}
 
+\vspace{-1ex}
 \begin{enumerate}[{~~$\boldsymbol{\bullet}$}]
 
 \item Adapt {\bf MapReduce} framework
 
 \begin{enumerate}[{$\boldsymbol{\rightarrow}$}]
-\renewcommand{\itemsep}{1ex}
-\item split data into chunks and farm it out to separate threads for processing (mapping)
-\item collect partial results and combine (reduce) to produce the final result
+\renewcommand{\itemsep}{0.5ex}
+\item {\bf map:~~~~~} split data into {\bf chunks} and farm it out to {\bf separate threads} for processing
+\item {\bf reduce:} collect partial results and {\bf combine} to produce the final result
 \end{enumerate}
-\vspace{1ex}
+\vspace{0.5ex}
 
 \item
-Rewrite $\widehat{\Mat{\Sigma}}_g$ to allow splitting:
-{$\widehat{\Mat{\Sigma}}_g = \frac{1}{L_g} \left[ \sum\nolimits_{i=1}^{N_V} l_{g,i} ~ \Vec{x}_i^{~} \Vec{x}_i^\top  \right] - \widehat{\Vec{\mu}}_g^{~} \widehat{\Vec{\mu}}_g^\top$}
-\vspace{1ex}
+Rewrite $\widehat{\Mat{\Sigma}}_g$ to allow partial processing:
+%{$\widehat{\Mat{\Sigma}}_g = \frac{1}{L_g} \left[ \sum\nolimits_{i=1}^{N_V} l_{g,i} ~ \Vec{x}_i^{~} \Vec{x}_i^\top  \right] - \widehat{\Vec{\mu}}_g^{~} \widehat{\Vec{\mu}}_g^\top$}
+%\vspace{1ex}
+%\vspace{-1.5ex}
+\begin{scriptsize}%
+\begin{equation*}
+\widehat{\Mat{\Sigma}}_g
+~=~ \left\{ \frac{1}{L_g} \sum\nolimits_{i=1}^{N_V} l_{g,i} ~ (\Vec{x}_i - \widehat{\Vec{\mu}}_g)(\Vec{x}_i - \widehat{\Vec{\mu}}_g)^\top \right\}
+~=~ \left\{ \frac{1}{L_g} \left[ \sum\nolimits_{i=1}^{N_V} l_{g,i} ~ \Vec{x}_i^{~} \Vec{x}_i^\top  \right] - \widehat{\Vec{\mu}}_g^{~} \widehat{\Vec{\mu}}_g^\top \right\}
+\end{equation*}%
+\end{scriptsize}
+\vspace{-1ex}
 
 \item {\bf Partial} results for thread $t$:
 %
-\vspace{-2ex}
-\begin{footnotesize}%
+\vspace{-3.5ex}
+\begin{scriptsize}%
 \begin{eqnarray*}
   \widetilde{L}_g^{[t]}            & = & \sum\nolimits_{j = i^{[t]}_{\textrm{start}}}^{i^{[t]}_{\textrm{end}}} l_{g,j}                             \\
   \widetilde{\Vec{\mu}}_g^{[t]}    & = & \sum\nolimits_{j = i^{[t]}_{\textrm{start}}}^{i^{[t]}_{\textrm{end}}} l_{g,j} ~ \Vec{x}_j                 \\
   \widetilde{\Mat{\Sigma}}_g^{[t]} & = & \sum\nolimits_{j = i^{[t]}_{\textrm{start}}}^{i^{[t]}_{\textrm{end}}} l_{g,j} ~ \Vec{x}_j^{~} \Vec{x}_j^\top
 \end{eqnarray*}%
-\end{footnotesize}
-\vspace{-1ex}
+\end{scriptsize}
+\vspace{-2ex}
 
 \item Threads are executed in {\bf parallel}
+\vspace{1ex}
 
 \item {\bf Combine} partial results:
 %
-\begin{footnotesize}%
-\vspace{-2ex}
+\begin{scriptsize}%
+\vspace{-3.5ex}
 \begin{eqnarray*}
   L_g                      & = & \sum\nolimits_{t=1}^{N_T} \widetilde{L}_g^{[t]} \\
   \widehat{\Vec{\mu}}_g    & = & \frac{1}{L_g} \sum\nolimits_{t=1}^{N_T} \widetilde{\Vec{\mu}}_g^{[t]} \\
   \widehat{\Mat{\Sigma}}_g & = & \frac{1}{L_g} \sum\nolimits_{t=1}^{N_T} \widetilde{\Mat{\Sigma}}_g^{[t]} - \widehat{\Vec{\mu}}_g^{~} \widehat{\Vec{\mu}}_g^\top
 \end{eqnarray*}%
-\end{footnotesize}
+\end{scriptsize}
 
 
 
